@@ -3,6 +3,17 @@ h1 {
 }
 
 body {
-  text-align: center;
   margin: auto;
+  max-width: 600px;
+}
+
+.gallery-container {
+  display: flex;
+}
+
+.gallery-app {
+  border: solid blueviolet 1px;
+  margin-right: 20px;
+  padding: 20px;
+  width: 100px;
 }

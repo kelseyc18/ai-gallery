@@ -1,22 +1,29 @@
 import React, { Component } from 'react';
 import './app.css';
-import ReactImage from './react.png';
 
 export default class App extends Component {
-  state = { username: null };
+  state = { username: null, apps: [] };
 
   componentDidMount() {
     fetch('/api/getUsername')
       .then(res => res.json())
       .then(user => this.setState({ username: user.username }));
+    fetch('/api/getApps')
+      .then(res => res.json())
+      .then(res => this.setState({ apps: res.apps }));
   }
 
   render() {
-    const { username } = this.state;
+    const { username, apps } = this.state;
     return (
       <div>
-        {username ? <h1>{`Hello ${username}`}</h1> : <h1>Loading.. please wait!</h1>}
-        <img src={ReactImage} alt="react" />
+        <h1>MIT App Inventor Gallery</h1>
+        {username ? <h2>{`Hello ${username}`}</h2> : <h2>Loading.. please wait!</h2>}
+        <div className="gallery-container">
+          {apps.map(name => (
+            <div className="gallery-app">{name}</div>
+          ))}
+        </div>
       </div>
     );
   }
