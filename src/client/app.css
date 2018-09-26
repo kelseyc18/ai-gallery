@@ -1,19 +1,83 @@
+html,
+html * {
+  font-family: "Roboto", sans-serif;
+}
+
 h1 {
-  color: green;
+  color: #58585a;
 }
 
 body {
+  background-color: #eeeeee;
+  border-top: solid #a5cf47 20px;
+  margin: 0;
+}
+
+a:hover,
+a:visited,
+a:link,
+a:active {
+  text-decoration: none;
+}
+
+p {
+  margin: 0;
+}
+
+.header-container {
+  background-color: white;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  padding-top: 20px;
+  padding-bottom: 20px;
   margin: auto;
-  max-width: 600px;
+  max-width: 1000px;
+}
+
+.header-title {
+  margin-left: 20px;
 }
 
 .gallery-container {
   display: flex;
+  flex-wrap: wrap;
+  margin: auto;
+  margin-top: 30px;
+  max-width: 1000px;
 }
 
 .gallery-app {
-  border: solid blueviolet 1px;
+  border: solid #dddddd 1px;
+  border-radius: 10px;
+  background-color: white;
   margin-right: 20px;
+  margin-bottom: 20px;
   padding: 20px;
-  width: 100px;
+  width: 160px;
+}
+
+.app-image {
+  margin: auto;
+  width: 100%;
+}
+
+.app-description-container {
+  margin-top: 10px;
+}
+
+.app-title {
+  font-weight: 800;
+  font-size: 1.1em;
+  color: #128ba8;
+}
+
+.app-title:hover {
+  color: #105fa8;
+}
+
+.app-author {
+  color: #58585a;
 }
