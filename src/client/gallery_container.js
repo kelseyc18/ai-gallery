@@ -3,20 +3,20 @@ import GalleryApp from './gallery_app';
 import './app.css';
 
 export default class GalleryContainer extends Component {
-  state = { apps: [] };
+  state = { projects: [] };
 
   componentDidMount() {
-    fetch('/api/getApps')
+    fetch('/api/projects')
       .then(res => res.json())
-      .then(res => this.setState({ apps: res.apps }));
+      .then(res => this.setState({ projects: res.projects }));
   }
 
   render() {
-    const { apps } = this.state;
+    const { projects } = this.state;
     return (
       <div className="gallery-container">
-        {apps.map(app => (
-          <GalleryApp app={app} key={app.projectId} />
+        {projects.map(project => (
+          <GalleryApp project={project} key={project.projectId} />
         ))}
       </div>
     );

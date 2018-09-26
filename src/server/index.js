@@ -1,5 +1,4 @@
 const express = require('express');
-const os = require('os');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const multer = require('multer');
@@ -31,13 +30,20 @@ app.use((req, _, next) => {
   next();
 });
 
-app.get('/api/getUsername', (req, res) => res.send({ username: os.userInfo().username }));
-app.get('/api/getApps', (req, res) => {
-  GalleryApp.find().exec((err, apps) => {
-    res.send({ apps });
+// PROJECT ROUTES
+app.get('/api/projects', (req, res) => {
+  GalleryApp.find().exec((err, projects) => {
+    res.send({ projects });
   });
 });
-app.post('/api/addApp', upload.single('aia'), (req, res) => {
+app.get('/api/project/:id', (req, res) => {
+  GalleryApp.findOne({ projectId: req.params.id }).exec((err, project) => {
+    console.log(project);
+    if (err) return res.send(err);
+    return res.send({ project });
+  });
+});
+app.post('/api/project/create', upload.single('aia'), (req, res) => {
   const {
     title, authorId, projectId, appInventorInstance
   } = req.body;
@@ -49,9 +55,8 @@ app.post('/api/addApp', upload.single('aia'), (req, res) => {
     appInventorInstance,
     aiaPath: req.file.path
   });
-  console.log(galleryApp);
   galleryApp.save((err, newApp) => {
-    if (err) return console.log(err);
+    if (err) return res.send(err);
     return res.send(newApp);
   });
 });

@@ -9,7 +9,6 @@ h1 {
 
 body {
   background-color: #eeeeee;
-  border-top: solid #a5cf47 20px;
   margin: 0;
 }
 
@@ -25,28 +24,40 @@ p {
 }
 
 .header-container {
+  border-top: solid #a5cf47 20px;
   background-color: white;
+  position: fixed;
+  top: 0;
+  width: 100%;
 }
 
 .header {
   display: flex;
   align-items: center;
-  padding-top: 20px;
-  padding-bottom: 20px;
+  padding: 20px;
   margin: auto;
   max-width: 1000px;
+  max-height: 20px;
 }
 
 .header-title {
   margin-left: 20px;
+  font-size: 24px;
+}
+
+.logo {
+  height: 48px;
+  width: auto;
 }
 
 .gallery-container {
   display: flex;
   flex-wrap: wrap;
   margin: auto;
-  margin-top: 30px;
+  margin-top: 100px;
   max-width: 1000px;
+  padding-left: 20px;
+  padding-right: 20px;
 }
 
 .gallery-app {
@@ -55,7 +66,7 @@ p {
   background-color: white;
   margin-right: 20px;
   margin-bottom: 20px;
-  padding: 20px;
+  padding: 10px;
   width: 160px;
 }
 
@@ -65,12 +76,12 @@ p {
 }
 
 .app-description-container {
-  margin-top: 10px;
+  margin-top: 2px;
 }
 
 .app-title {
   font-weight: 800;
-  font-size: 1.1em;
+  font-size: 16px;
   color: #128ba8;
 }
 
