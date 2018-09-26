@@ -19,13 +19,13 @@ export default class ProjectDetail extends Component {
 
     return project ? (
       <div className="gallery-container">
-        <div className="gallery-app">
+        <div className="gallery-app-detail">
           <Link to={`/project/${project.projectId}`}>
             <img className="app-image" src={puppyImage} alt="project" />
           </Link>
-          <div className="app-description-container">
+          <div className="app-detail-description-container">
             <Link to={`/project/${project.projectId}`}>
-              <p className="app-title">{project.title}</p>
+              <p className="app-detail-title">{project.title}</p>
             </Link>
             <a href="http://appinventor.mit.edu/">
               <p className="app-author">{project.authorId}</p>

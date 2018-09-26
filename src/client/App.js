@@ -20,8 +20,10 @@ export default function App() {
         </div>
       </div>
 
-      <Route exact path="/" component={GalleryContainer} />
-      <Route path="/project/:projectId" component={ProjectDetail} />
+      <div className="content-container">
+        <Route exact path="/" component={GalleryContainer} />
+        <Route path="/project/:projectId" component={ProjectDetail} />
+      </div>
     </div>
   );
 }

@@ -50,6 +50,10 @@ p {
   width: auto;
 }
 
+.content-container {
+  margin: auto;
+}
+
 .gallery-container {
   display: flex;
   flex-wrap: wrap;
@@ -70,13 +74,35 @@ p {
   width: 160px;
 }
 
+.gallery-app-detail {
+  border: solid #dddddd 1px;
+  border-radius: 10px;
+  background-color: white;
+  display: flex;
+  margin: auto;
+  margin-bottom: 20px;
+  padding: 10px;
+  width: 800px;
+}
+
 .app-image {
   margin: auto;
   width: 100%;
+  max-width: 160px;
 }
 
 .app-description-container {
   margin-top: 2px;
+}
+
+.app-detail-description-container {
+  margin-left: 10px;
+}
+
+.app-detail-title {
+  font-weight: 800;
+  font-size: 20px;
+  color: #128ba8;
 }
 
 .app-title {
