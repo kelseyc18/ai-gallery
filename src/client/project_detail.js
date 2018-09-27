@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
+import { StyleSheet, css } from 'aphrodite';
 
 import puppyImage from './puppy.png';
 import './app.css';
@@ -18,23 +19,57 @@ export default class ProjectDetail extends Component {
     const { project } = this.state;
 
     return project ? (
-      <div className="gallery-container">
-        <div className="gallery-app-detail">
-          <Link to={`/project/${project.projectId}`}>
-            <img className="app-image" src={puppyImage} alt="project" />
+      <div className={css(styles.galleryAppDetail)}>
+        <Link to={`/project/${project._id}`}>
+          <img className={css(styles.appImage)} src={puppyImage} alt="project" />
+        </Link>
+        <div className={css(styles.descriptionContainer)}>
+          <Link to={`/project/${project._id}`}>
+            <p className={css(styles.appTitle)}>{project.title}</p>
           </Link>
-          <div className="app-detail-description-container">
-            <Link to={`/project/${project.projectId}`}>
-              <p className="app-detail-title">{project.title}</p>
-            </Link>
-            <a href="http://appinventor.mit.edu/">
-              <p className="app-author">{project.authorId}</p>
-            </a>
-          </div>
+          <a href="http://appinventor.mit.edu/">
+            <p className={css(styles.appAuthor)}>{project.authorId}</p>
+          </a>
         </div>
       </div>
     ) : (
-      <div className="gallery-container">That project does not exist.</div>
+      <div>That project does not exist.</div>
     );
   }
 }
+
+const styles = StyleSheet.create({
+  galleryAppDetail: {
+    border: 'solid #dddddd 1px',
+    borderRadius: 10,
+    backgroundColor: 'white',
+    display: 'flex',
+    margin: 'auto',
+    marginBottom: 20,
+    padding: 10,
+    width: 800
+  },
+
+  appImage: {
+    margin: 'auto',
+    width: '100%',
+    maxWidth: 160
+  },
+
+  descriptionContainer: {
+    marginLeft: 10
+  },
+
+  appTitle: {
+    fontWeight: 800,
+    fontSize: 20,
+    color: '#128ba8',
+    ':hover': {
+      color: '#105fa8'
+    }
+  },
+
+  appAuthor: {
+    color: '#58585a'
+  }
+});

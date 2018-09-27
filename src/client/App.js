@@ -1,5 +1,6 @@
 import React from 'react';
-import { Route, Link } from 'react-router-dom';
+import { Route, Link, Redirect } from 'react-router-dom';
+import { StyleSheet, css } from 'aphrodite';
 
 import GalleryContainer from './gallery_container';
 import ProjectDetail from './project_detail';
@@ -9,21 +10,67 @@ import logo from './logo.png';
 export default function App() {
   return (
     <div>
-      <div className="header-container">
-        <div className="header">
+      <div className={css(styles.headerContainer)}>
+        <div className={css(styles.header)}>
           <Link to="/">
-            <img className="logo" src={logo} alt="logo" />
+            <img className={css(styles.logo)} src={logo} alt="logo" />
           </Link>
           <Link to="/">
-            <h1 className="header-title">Project Gallery</h1>
+            <h1 className={css(styles.headerTitle)}>Project Gallery</h1>
           </Link>
         </div>
       </div>
 
-      <div className="content-container">
-        <Route exact path="/" component={GalleryContainer} />
-        <Route path="/project/:projectId" component={ProjectDetail} />
+      <div className={css(styles.contentContainer)}>
+        <div className={css(styles.galleryContainer)}>
+          <Route exact path="/" component={GalleryContainer} />
+          <Redirect exact path="/project" to="/" />
+          <Route path="/project/:projectId" component={ProjectDetail} />
+        </div>
       </div>
     </div>
   );
 }
+
+const styles = StyleSheet.create({
+  headerContainer: {
+    borderTop: 'solid #a5cf47 20px',
+    backgroundColor: 'white',
+    position: 'fixed',
+    top: 0,
+    width: '100%'
+  },
+
+  header: {
+    display: 'flex',
+    alignItems: 'center',
+    padding: '20px',
+    margin: 'auto',
+    maxWidth: 1000,
+    maxHeight: 20
+  },
+
+  headerTitle: {
+    marginLeft: 20,
+    fontSize: 24
+  },
+
+  logo: {
+    height: 48,
+    width: 'auto'
+  },
+
+  contentContainer: {
+    margin: 'auto'
+  },
+
+  galleryContainer: {
+    display: 'flex',
+    flexWrap: 'wrap',
+    margin: 'auto',
+    marginTop: 100,
+    maxWidth: 1000,
+    paddingLeft: 20,
+    paddingRight: 20
+  }
+});

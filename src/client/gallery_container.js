@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+
 import GalleryApp from './gallery_app';
 import './app.css';
 
@@ -14,11 +15,11 @@ export default class GalleryContainer extends Component {
   render() {
     const { projects } = this.state;
     return (
-      <div className="gallery-container">
+      <React.Fragment>
         {projects.map(project => (
           <GalleryApp project={project} key={project.projectId} />
         ))}
-      </div>
+      </React.Fragment>
     );
   }
 }

@@ -37,7 +37,7 @@ app.get('/api/projects', (req, res) => {
   });
 });
 app.get('/api/project/:id', (req, res) => {
-  GalleryApp.findOne({ projectId: req.params.id }).exec((err, project) => {
+  GalleryApp.findById(req.params.id).exec((err, project) => {
     if (err) return res.send(err);
     return res.send({ project });
   });

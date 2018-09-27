@@ -15,6 +15,7 @@ const GalleryAppSchema = new mongoose.Schema({
   authorId: String,
   projectId: String,
   rootProjectId: String,
+  parentProjectId: String,
   appInventorInstance: String
 });
 
