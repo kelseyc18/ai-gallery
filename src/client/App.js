@@ -1,5 +1,7 @@
 import React from 'react';
-import { Route, Link, Redirect } from 'react-router-dom';
+import {
+  Route, Link, Switch, Redirect
+} from 'react-router-dom';
 import { StyleSheet, css } from 'aphrodite';
 
 import GalleryContainer from './gallery_container';
@@ -23,9 +25,11 @@ export default function App() {
 
       <div className={css(styles.contentContainer)}>
         <div className={css(styles.galleryContainer)}>
-          <Route exact path="/" component={GalleryContainer} />
-          <Redirect exact path="/project" to="/" />
-          <Route path="/project/:projectId" component={ProjectDetail} />
+          <Switch>
+            <Route exact path="/" component={GalleryContainer} />
+            <Route path="/project/:projectId" component={ProjectDetail} />
+            <Redirect exact path="/project" to="/" />
+          </Switch>
         </div>
       </div>
     </div>
