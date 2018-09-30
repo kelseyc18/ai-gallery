@@ -10,7 +10,7 @@ const app = express();
 const GalleryApp = require('../models/galleryapp');
 
 mongoose.connect(
-  process.env.MONGODB_URI || 'mongodb://hal:abelson1@ds113703.mlab.com:13703/ai-gallery'
+  process.env.MONGODB_URI || 'mongodb://hal:abelson1@ds113703.mlab.com:13703/ai-gallery',
 );
 const db = mongoose.connection;
 
@@ -20,8 +20,8 @@ app.use(express.static('dist'));
 app.use(bodyParser.json());
 app.use(
   bodyParser.urlencoded({
-    encoded: true
-  })
+    encoded: true,
+  }),
 );
 
 // Make db accessible to router
@@ -44,7 +44,7 @@ app.get('/api/project/:id', (req, res) => {
 });
 app.post('/api/project/create', upload.single('aia'), (req, res) => {
   const {
-    title, authorId, projectId, appInventorInstance
+    title, authorId, projectId, appInventorInstance,
   } = req.body;
 
   const galleryApp = new GalleryApp({
@@ -52,7 +52,7 @@ app.post('/api/project/create', upload.single('aia'), (req, res) => {
     authorId,
     projectId,
     appInventorInstance,
-    aiaPath: req.file.path
+    aiaPath: req.file.path,
   });
   galleryApp.save((err, newApp) => {
     if (err) return res.send(err);

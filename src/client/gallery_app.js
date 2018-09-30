@@ -27,7 +27,7 @@ export default function GalleryContainer(props) {
 }
 
 GalleryContainer.propTypes = {
-  project: PropTypes.any.isRequired // eslint-disable-line
+  project: PropTypes.any.isRequired, // eslint-disable-line
 };
 
 const styles = StyleSheet.create({
@@ -38,16 +38,16 @@ const styles = StyleSheet.create({
     marginRight: 20,
     marginBottom: 20,
     padding: 10,
-    width: 160
+    width: 160,
   },
 
   appImage: {
     margin: 'auto',
-    width: '100%'
+    width: '100%',
   },
 
   descriptionContainer: {
-    marginTop: 2
+    marginTop: 2,
   },
 
   appTitle: {
@@ -55,11 +55,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#128ba8',
     ':hover': {
-      color: '#105fa8'
-    }
+      color: '#105fa8',
+    },
   },
 
   appAuthor: {
-    color: '#58585a'
-  }
+    color: '#58585a',
+  },
 });

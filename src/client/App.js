@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  Route, Link, Switch, Redirect
+  Route, Link, Switch, Redirect,
 } from 'react-router-dom';
 import { StyleSheet, css } from 'aphrodite';
 
@@ -24,13 +24,11 @@ export default function App() {
       </div>
 
       <div className={css(styles.contentContainer)}>
-        <div className={css(styles.galleryContainer)}>
-          <Switch>
-            <Route exact path="/" component={GalleryContainer} />
-            <Route path="/project/:projectId" component={ProjectDetail} />
-            <Redirect exact path="/project" to="/" />
-          </Switch>
-        </div>
+        <Switch>
+          <Route exact path="/" component={GalleryContainer} />
+          <Route path="/project/:projectId" component={ProjectDetail} />
+          <Redirect exact path="/project" to="/" />
+        </Switch>
       </div>
     </div>
   );
@@ -42,7 +40,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     position: 'fixed',
     top: 0,
-    width: '100%'
+    width: '100%',
   },
 
   header: {
@@ -51,30 +49,20 @@ const styles = StyleSheet.create({
     padding: '20px',
     margin: 'auto',
     maxWidth: 1000,
-    maxHeight: 20
+    maxHeight: 20,
   },
 
   headerTitle: {
     marginLeft: 20,
-    fontSize: 24
+    fontSize: 24,
   },
 
   logo: {
     height: 48,
-    width: 'auto'
+    width: 'auto',
   },
 
   contentContainer: {
-    margin: 'auto'
-  },
-
-  galleryContainer: {
-    display: 'flex',
-    flexWrap: 'wrap',
     margin: 'auto',
-    marginTop: 100,
-    maxWidth: 1000,
-    paddingLeft: 20,
-    paddingRight: 20
-  }
+  },
 });

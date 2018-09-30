@@ -1,25 +1,64 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import { StyleSheet, css } from 'aphrodite';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import { getProjects } from './redux/actions';
 
 import GalleryApp from './gallery_app';
 import './app.css';
 
-export default class GalleryContainer extends Component {
-  state = { projects: [] };
-
+class GalleryContainer extends Component {
   componentDidMount() {
-    fetch('/api/projects')
-      .then(res => res.json())
-      .then(res => this.setState({ projects: res.projects }));
+    this.props.getProjects(); // eslint-disable-line
   }
 
   render() {
-    const { projects } = this.state;
+    const { projects } = this.props;
+
     return (
-      <React.Fragment>
+      <div className={css(styles.galleryContainer)}>
         {projects.map(project => (
-          <GalleryApp project={project} key={project.projectId} />
+          <GalleryApp project={project} key={project._id} />
         ))}
-      </React.Fragment>
+      </div>
     );
   }
 }
+
+GalleryContainer.propTypes = {
+  projects: PropTypes.arrayOf(
+    PropTypes.shape({
+      _id: PropTypes.string.isRequired,
+    }),
+  ).isRequired,
+  getProjects: PropTypes.func.isRequired,
+};
+
+const styles = StyleSheet.create({
+  galleryContainer: {
+    display: 'flex',
+    flexWrap: 'wrap',
+    margin: 'auto',
+    marginTop: 100,
+    maxWidth: 1000,
+    paddingLeft: 20,
+    paddingRight: 20,
+  },
+});
+
+const mapStateToProps = state => ({
+  projects: state.projects,
+});
+
+const mapDispatchToProps = dispatch => bindActionCreators(
+  {
+    getProjects,
+  },
+  dispatch,
+);
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(GalleryContainer);
