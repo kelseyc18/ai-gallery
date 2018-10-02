@@ -54,9 +54,26 @@ app.post('/api/project/create', upload.single('aia'), (req, res) => {
     appInventorInstance,
     aiaPath: req.file.path,
   });
-  galleryApp.save((err, newApp) => {
+  galleryApp.save((err, project) => res.send({ err, project }));
+});
+app.post('/api/project/edit', (req, res) => {
+  const {
+    title, id, description, tutorialUrl, credits,
+  } = req.body;
+
+  GalleryApp.findByIdAndUpdate(
+    id,
+    {
+      title,
+      description,
+      tutorialUrl,
+      credits,
+      lastModifiedDate: Date.now(),
+    },
+    { new: true },
+  ).exec((err, project) => {
     if (err) return res.send(err);
-    return res.send(newApp);
+    return res.json({ project });
   });
 });
 app.listen(8080, () => console.log('Listening on port 8080!'));

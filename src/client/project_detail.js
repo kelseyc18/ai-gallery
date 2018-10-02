@@ -9,45 +9,108 @@ import Icon from './icon';
 import ICONS from './icon_constants';
 import puppyImage from './puppy.png';
 import './app.css';
-import { getProjectById, editProject, cancelEditProject } from './redux/actions';
+import {
+  getProjectById,
+  editProject,
+  cancelEditProject,
+  updateProjectDetails,
+} from './redux/actions';
 
 class ProjectDetail extends Component {
+  state = {
+    title: undefined,
+    tutorialUrl: undefined,
+    description: undefined,
+    credits: undefined,
+  };
+
   componentDidMount() {
     const projectId = this.props.match.params.projectId; // eslint-disable-line
     this.props.getProjectById(projectId); // eslint-disable-line
   }
 
+  static getDerivedStateFromProps(props, state) {
+    if (
+      state.title === undefined
+      && state.tutorialUrl === undefined
+      && state.description === undefined
+      && state.credits === undefined
+      && props.project
+    ) {
+      return {
+        title: props.project.title,
+        tutorialUrl: props.project.tutorialUrl,
+        description: props.project.description,
+        credits: props.project.credits,
+      };
+    }
+    return null;
+  }
+
+  handleTitleChange = (event) => {
+    this.setState({ title: event.target.value });
+  };
+
+  handleTutorialChange = (event) => {
+    this.setState({ tutorialUrl: event.target.value });
+  };
+
+  handleDescriptionChange = (event) => {
+    this.setState({ description: event.target.value });
+  };
+
+  handleCreditsChange = (event) => {
+    this.setState({ credits: event.target.value });
+  };
+
   renderRightContainer = () => {
     const {
-      project, editProject, cancelEditProject, inEditMode,
+      project,
+      editProject,
+      cancelEditProject,
+      inEditMode,
+      updateProjectDetails,
     } = this.props;
+    const { title, description, tutorialUrl, credits } = this.state;
 
-    return inEditMode ? (
-      <div className={css(styles.rightContainer)}>
-        <Link to={`/project/${project._id}`}>
-          <img className={css(styles.appImage)} src={puppyImage} alt="project" />
-        </Link>
-        <button type="button" className={css(styles.projectDetailButton)} onClick={() => {}}>
-          Save
-        </button>
-        <button
-          type="button"
-          className={css(styles.projectDetailButton, styles.cancelButton)}
-          onClick={() => cancelEditProject()}
-        >
-          Cancel
-        </button>
-        <div className={css(styles.iconsContainer)}>
-          <div className={css(styles.iconContainer)}>
-            <span>{project.numDownloads}</span>
-            <Icon icon={ICONS.DOWNLOAD} color="#58585a" />
-          </div>
-          <div className={css(styles.iconContainer)}>
-            <span>{project.numFavorites}</span>
-            <Icon icon={ICONS.FAVORITE} color="#58585a" />
-          </div>
+    const iconContainer = (
+      <div className={css(styles.iconsContainer)}>
+        <div className={css(styles.iconContainer)}>
+          <span>{project.numDownloads}</span>
+          <Icon icon={ICONS.DOWNLOAD} color="#58585a" />
+        </div>
+        <div className={css(styles.iconContainer)}>
+          <span>{project.numFavorites}</span>
+          <Icon icon={ICONS.FAVORITE} color="#58585a" />
         </div>
       </div>
+    );
+
+    return inEditMode ? (
+      <form>
+        <div className={css(styles.rightContainer)}>
+          <Link to={`/project/${project._id}`}>
+            <img className={css(styles.appImage)} src={puppyImage} alt="project" />
+          </Link>
+          <button
+            type="button"
+            className={css(styles.projectDetailButton)}
+            onClick={() => updateProjectDetails(
+              title, project._id, description, tutorialUrl, credits,
+            )}
+          >
+            Save
+          </button>
+          <button
+            type="button"
+            className={css(styles.projectDetailButton, styles.cancelButton)}
+            onClick={() => cancelEditProject()}
+          >
+            Cancel
+          </button>
+          {iconContainer}
+        </div>
+      </form>
     ) : (
       <div className={css(styles.rightContainer)}>
         <Link to={`/project/${project._id}`}>
@@ -60,22 +123,16 @@ class ProjectDetail extends Component {
         >
           Edit
         </button>
-        <div className={css(styles.iconsContainer)}>
-          <div className={css(styles.iconContainer)}>
-            <span>{project.numDownloads}</span>
-            <Icon icon={ICONS.DOWNLOAD} color="#58585a" />
-          </div>
-          <div className={css(styles.iconContainer)}>
-            <span>{project.numFavorites}</span>
-            <Icon icon={ICONS.FAVORITE} color="#58585a" />
-          </div>
-        </div>
+        {iconContainer}
       </div>
     );
   };
 
   renderDescriptionContainer = () => {
     const { project, inEditMode } = this.props;
+    const {
+      title, tutorialUrl, description, credits,
+    } = this.state;
 
     const datesContainer = (
       <div className={css(styles.datesContainer)}>
@@ -84,29 +141,45 @@ class ProjectDetail extends Component {
       </div>
     );
 
+    const tutorialInputId = 'tutorial-input';
+    const creditsInputId = 'credits-input';
+
     return inEditMode ? (
       <div className={css(styles.descriptionContainer)}>
-        <input className={css(styles.appTitleEdit)} defaultValue={project.title} placeholder="Title" />
-        <a href="http://appinventor.mit.edu/">
-          <p className={css(styles.appAuthor)}>{project.authorId}</p>
-        </a>
-        <textarea
-          className={css(styles.description)}
-          defaultValue={project.description || `${project.title} is the best app in the world!`}
-          placeholder="Description"
+        <input
+          className={css(styles.appTitleEdit)}
+          value={title}
+          onChange={this.handleTitleChange}
+          placeholder="Title"
         />
+        <p className={css(styles.appAuthor)}>{project.authorId}</p>
+        <div className={css(styles.description)}>
+          <p>Description:</p>
+          <textarea
+            value={description}
+            onChange={this.handleDescriptionChange}
+            placeholder="Description"
+          />
+        </div>
         <div className={css(styles.tutorial)}>
-          {project.tutorialUrl ? (
-            <React.Fragment>
-              <span>Tutorial / Video: </span>
-              <input defaultValue={project.tutorialUrl} placeholder="Tutorial / Video URL" />
-            </React.Fragment>
-          ) : (
-            <React.Fragment>
-              <span>Tutorial / Video: </span>
-              <input defaultValue={`http://${project.title}.com`} placeholder="Tutorial / Video URL" />
-            </React.Fragment>
-          )}
+          <label htmlFor={tutorialInputId}>
+            {'Tutorial / Video: '}
+            <input
+              value={tutorialUrl}
+              placeholder="Tutorial / Video URL"
+              onChange={this.handleTutorialChange}
+              id={tutorialInputId}
+            />
+          </label>
+        </div>
+        <div className={css(styles.credits)}>
+          <p>Credits: </p>
+          <textarea
+            value={credits}
+            placeholder="Are you remixing code from other apps? Credit them here."
+            onChange={this.handleCreditsChange}
+            id={creditsInputId}
+          />
         </div>
         {datesContainer}
       </div>
@@ -119,21 +192,17 @@ class ProjectDetail extends Component {
           <p className={css(styles.appAuthor)}>{project.authorId}</p>
         </a>
         <div className={css(styles.description)}>
-          <p>{project.description || `${project.title} is the best app in the world!`}</p>
+          <p>{project.description}</p>
         </div>
         <div className={css(styles.tutorial)}>
-          {project.tutorialUrl ? (
-            <React.Fragment>
-              <span>Tutorial / Video: </span>
+          {!!project.tutorialUrl && (
+            <span>
+              {'Tutorial / Video: '}
               <a href={project.tutorialUrl}>{project.tutorialUrl}</a>
-            </React.Fragment>
-          ) : (
-            <React.Fragment>
-              <span>Tutorial / Video: </span>
-              <a href={`http://${project.title}.com`}>{`http://${project.title}.com`}</a>
-            </React.Fragment>
+            </span>
           )}
         </div>
+        <div className={css(styles.credits)}>{!!credits && `Credits: ${credits}`}</div>
         {datesContainer}
       </div>
     );
@@ -163,11 +232,13 @@ ProjectDetail.propTypes = {
     title: PropTypes.string.isRequired,
     authorId: PropTypes.string.isRequired,
     description: PropTypes.string,
+    tutorialUrl: PropTypes.string,
   }),
   getProjectById: PropTypes.func.isRequired,
   editProject: PropTypes.func.isRequired,
   cancelEditProject: PropTypes.func.isRequired,
   inEditMode: PropTypes.bool.isRequired,
+  updateProjectDetails: PropTypes.func.isRequired,
 };
 
 const styles = StyleSheet.create({
@@ -205,6 +276,12 @@ const styles = StyleSheet.create({
 
   descriptionContainer: {
     marginLeft: 10,
+    width: '100%',
+    maxWidth: 577,
+  },
+
+  credits: {
+    marginBottom: 10,
   },
 
   appTitle: {
@@ -288,6 +365,7 @@ const mapDispatchToProps = dispatch => bindActionCreators(
     getProjectById,
     editProject,
     cancelEditProject,
+    updateProjectDetails,
   },
   dispatch,
 );

@@ -3,6 +3,7 @@ import {
   UPDATE_SELECTED_PROJECT,
   EDIT_PROJECT,
   CANCEL_EDIT_PROJECT,
+  UPDATE_PROJECT_DETAILS,
 } from '../actions';
 
 const initialState = {
@@ -37,6 +38,13 @@ export default function (state = initialState, action) {
         ...state,
         inEditMode: false,
       };
+    case UPDATE_PROJECT_DETAILS: {
+      return {
+        ...state,
+        selectedProject: action.project,
+        inEditMode: false,
+      };
+    }
     default:
       return state;
   }
