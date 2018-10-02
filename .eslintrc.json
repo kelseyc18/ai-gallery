@@ -10,6 +10,7 @@
     "react/jsx-filename-extension": "off",
     "react/require-default-props": "off",
     "no-underscore-dangle": "off",
-    "no-use-before-define": "off"
+    "no-use-before-define": "off",
+    "no-shadow": "off"
   }
 }

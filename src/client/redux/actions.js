@@ -1,6 +1,8 @@
 // Action Types
 export const UPDATE_PROJECTS = 'UPDATE_PROJECTS';
 export const UPDATE_SELECTED_PROJECT = 'UPDATE_SELECTED_PROJECT';
+export const EDIT_PROJECT = 'EDIT_PROJECT';
+export const CANCEL_EDIT_PROJECT = 'CANCEL_EDIT_PROJECT';
 
 // Action Creators
 function fetchProjects() {
@@ -26,6 +28,18 @@ function updateSelectedProjectAction(project) {
   return {
     type: UPDATE_SELECTED_PROJECT,
     project,
+  };
+}
+
+export function editProject() {
+  return {
+    type: EDIT_PROJECT,
+  };
+}
+
+export function cancelEditProject() {
+  return {
+    type: CANCEL_EDIT_PROJECT,
   };
 }
 

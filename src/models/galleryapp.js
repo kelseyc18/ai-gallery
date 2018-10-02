@@ -16,7 +16,7 @@ const GalleryAppSchema = new mongoose.Schema({
   projectId: String,
   rootProjectId: String,
   parentProjectId: String,
-  appInventorInstance: String
+  appInventorInstance: String,
 });
 
 module.exports = mongoose.model('GalleryApp', GalleryAppSchema);
