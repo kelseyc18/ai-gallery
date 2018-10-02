@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const multer = require('multer');
+const async = require('async');
 
 const upload = multer({ dest: 'uploads/' });
 
@@ -67,22 +68,38 @@ app.post('/api/project/create', upload.single('aia'), (req, res) => {
     title, authorId, projectId, appInventorInstance,
   } = req.body;
 
-  User.findOne({ authorId, appInventorInstance }).exec((err, user) => {
-    if (err) return res.send(err);
+  async.waterfall(
+    [
+      (next) => {
+        User.findOne({ authorId, appInventorInstance }, (err, user) => {
+          next(err, user);
+        });
+      },
 
-    const galleryApp = new GalleryApp({
-      title,
-      author: user,
-      projectId,
-      appInventorInstance,
-      aiaPath: req.file.path,
-    });
+      (user, next) => {
+        GalleryApp.create(
+          {
+            title,
+            author: user,
+            projectId,
+            appInventorInstance,
+            aiaPath: req.file.path,
+          },
+          (err, project) => next(err, project, user),
+        );
+      },
 
-    return galleryApp.save((err, project) => {
-      if (err) return res.send(err);
-      return res.send(project);
-    });
-  });
+      (project, user, next) => {
+        User.findByIdAndUpdate(user._id, { $push: { projects: project._id } }, (err) => {
+          next(err, project);
+        });
+      },
+    ],
+    (err, project) => {
+      if (err) res.send(err);
+      else res.send({ project });
+    },
+  );
 });
 app.post('/api/project/edit', (req, res) => {
   const {
