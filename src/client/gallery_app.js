@@ -18,9 +18,9 @@ export default function GalleryContainer(props) {
         <Link to={`/project/${project._id}`}>
           <p className={css(styles.appTitle)}>{project.title}</p>
         </Link>
-        <a href="http://appinventor.mit.edu/">
-          <p className={css(styles.appAuthor)}>{project.authorId}</p>
-        </a>
+        <Link to={`/profile/${project.author.username}`}>
+          <p className={css(styles.appAuthor)}>{project.author.username}</p>
+        </Link>
       </div>
     </div>
   );

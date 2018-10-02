@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
 
-const GalleryAppSchema = new mongoose.Schema({
+const { Schema } = mongoose;
+
+const GalleryAppSchema = new Schema({
   title: String,
   imagePath: String,
   creationDate: { type: Date, default: Date.now },
@@ -12,7 +14,7 @@ const GalleryAppSchema = new mongoose.Schema({
   numDownloads: { type: Number, default: 0 },
   numFavorites: { type: Number, default: 0 },
   aiaPath: String,
-  authorId: String,
+  author: { type: Schema.Types.ObjectId, ref: 'User' },
   projectId: String,
   rootProjectId: String,
   parentProjectId: String,
