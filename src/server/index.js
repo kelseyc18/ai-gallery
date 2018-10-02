@@ -8,6 +8,7 @@ const upload = multer({ dest: 'uploads/' });
 const app = express();
 
 const GalleryApp = require('../models/galleryapp');
+const User = require('../models/user');
 
 mongoose.connect(
   process.env.MONGODB_URI || 'mongodb://hal:abelson1@ds113703.mlab.com:13703/ai-gallery',
@@ -30,31 +31,58 @@ app.use((req, _, next) => {
   next();
 });
 
+// USER ROUTES
+app.post('/api/user/create', (req, res) => {
+  const {
+    authorId, name, username, appInventorInstance,
+  } = req.body;
+
+  const user = new User({
+    authorId,
+    name,
+    username,
+    appInventorInstance,
+  });
+  user.save((err, user) => res.send({ err, user }));
+});
+
 // PROJECT ROUTES
 app.get('/api/projects', (req, res) => {
-  GalleryApp.find().exec((err, projects) => {
-    res.send({ projects });
-  });
+  GalleryApp.find()
+    .populate('author')
+    .exec((err, projects) => {
+      res.send({ projects });
+    });
 });
 app.get('/api/project/:id', (req, res) => {
-  GalleryApp.findById(req.params.id).exec((err, project) => {
-    if (err) return res.send(err);
-    return res.send({ project });
-  });
+  GalleryApp.findById(req.params.id)
+    .populate('author')
+    .exec((err, project) => {
+      if (err) return res.send(err);
+      return res.send({ project });
+    });
 });
 app.post('/api/project/create', upload.single('aia'), (req, res) => {
   const {
     title, authorId, projectId, appInventorInstance,
   } = req.body;
 
-  const galleryApp = new GalleryApp({
-    title,
-    authorId,
-    projectId,
-    appInventorInstance,
-    aiaPath: req.file.path,
+  User.findOne({ authorId, appInventorInstance }).exec((err, user) => {
+    if (err) return res.send(err);
+
+    const galleryApp = new GalleryApp({
+      title,
+      author: user,
+      projectId,
+      appInventorInstance,
+      aiaPath: req.file.path,
+    });
+
+    return galleryApp.save((err, project) => {
+      if (err) return res.send(err);
+      return res.send(project);
+    });
   });
-  galleryApp.save((err, project) => res.send({ err, project }));
 });
 app.post('/api/project/edit', (req, res) => {
   const {

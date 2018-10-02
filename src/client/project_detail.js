@@ -152,7 +152,7 @@ class ProjectDetail extends Component {
           onChange={this.handleTitleChange}
           placeholder="Title"
         />
-        <p className={css(styles.appAuthor)}>{project.authorId}</p>
+        <p className={css(styles.appAuthor)}>{project.author.username}</p>
         <div className={css(styles.description)}>
           <p>Description:</p>
           <textarea
@@ -188,9 +188,9 @@ class ProjectDetail extends Component {
         <Link to={`/project/${project._id}`}>
           <p className={css(styles.appTitle)}>{project.title}</p>
         </Link>
-        <a href="http://appinventor.mit.edu/">
-          <p className={css(styles.appAuthor)}>{project.authorId}</p>
-        </a>
+        <Link to={`/profile/${project.author.username}`}>
+          <p className={css(styles.appAuthor)}>{project.author.username}</p>
+        </Link>
         <div className={css(styles.description)}>
           <p>{project.description}</p>
         </div>
