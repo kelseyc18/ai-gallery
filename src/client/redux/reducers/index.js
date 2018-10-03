@@ -4,12 +4,14 @@ import {
   EDIT_PROJECT,
   CANCEL_EDIT_PROJECT,
   UPDATE_PROJECT_DETAILS,
+  SELECT_PROFILE,
 } from '../actions';
 
 const initialState = {
   projects: [],
   selectedProject: null,
   inEditMode: false,
+  selectedProfile: null,
 };
 
 export default function (state = initialState, action) {
@@ -20,6 +22,7 @@ export default function (state = initialState, action) {
         projects: action.projects,
         selectedProject: null,
         inEditMode: false,
+        selectedProfile: null,
       };
     case UPDATE_SELECTED_PROJECT:
       return {
@@ -27,6 +30,7 @@ export default function (state = initialState, action) {
         projects: [],
         selectedProject: action.project,
         inEditMode: false,
+        selectedProfile: null,
       };
     case EDIT_PROJECT:
       return {
@@ -43,6 +47,12 @@ export default function (state = initialState, action) {
         ...state,
         selectedProject: action.project,
         inEditMode: false,
+      };
+    }
+    case SELECT_PROFILE: {
+      return {
+        ...state,
+        selectedProfile: action.user,
       };
     }
     default:

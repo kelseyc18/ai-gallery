@@ -4,6 +4,7 @@ export const UPDATE_SELECTED_PROJECT = 'UPDATE_SELECTED_PROJECT';
 export const UPDATE_PROJECT_DETAILS = 'UPDATE_PROJECT_DETAILS';
 export const EDIT_PROJECT = 'EDIT_PROJECT';
 export const CANCEL_EDIT_PROJECT = 'CANCEL_EDIT_PROJECT';
+export const SELECT_PROFILE = 'SELECT_PROFILE';
 
 // Action Creators
 function fetchProjects() {
@@ -16,6 +17,12 @@ function fetchProjectById(id) {
   return fetch(`/api/project/${id}`)
     .then(res => res.json())
     .then(res => res.project);
+}
+
+function fetchUserByUsername(username) {
+  return fetch(`/api/user/${username}`)
+    .then(res => res.json())
+    .then(res => res.user);
 }
 
 function postProjectDetails(title, id, description, tutorialUrl, credits) {
@@ -58,6 +65,13 @@ function updateProjectDetailsAction(project) {
   };
 }
 
+function selectProfileAction(user) {
+  return {
+    type: SELECT_PROFILE,
+    user,
+  };
+}
+
 export function editProject() {
   return {
     type: EDIT_PROJECT,
@@ -77,6 +91,12 @@ export function getProjects() {
 export function getProjectById(id) {
   return (dispatch) => {
     fetchProjectById(id).then(project => dispatch(updateSelectedProjectAction(project)));
+  };
+}
+
+export function getUserByUsername(username) {
+  return (dispatch) => {
+    fetchUserByUsername(username).then(user => dispatch(selectProfileAction(user)));
   };
 }
 

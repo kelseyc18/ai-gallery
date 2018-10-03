@@ -71,7 +71,9 @@ class ProjectDetail extends Component {
       inEditMode,
       updateProjectDetails,
     } = this.props;
-    const { title, description, tutorialUrl, credits } = this.state;
+    const {
+      title, description, tutorialUrl, credits,
+    } = this.state;
 
     const iconContainer = (
       <div className={css(styles.iconsContainer)}>
@@ -230,7 +232,9 @@ ProjectDetail.propTypes = {
   project: PropTypes.shape({
     _id: PropTypes.string.isRequired,
     title: PropTypes.string.isRequired,
-    authorId: PropTypes.string.isRequired,
+    author: PropTypes.shape({
+      username: PropTypes.string.isRequired,
+    }).isRequired,
     description: PropTypes.string,
     tutorialUrl: PropTypes.string,
   }),

@@ -46,6 +46,11 @@ app.post('/api/user/create', (req, res) => {
   });
   user.save((err, user) => res.send({ err, user }));
 });
+app.get('/api/user/:username', (req, res) => {
+  User.findOne({ username: req.params.username })
+    .populate({ path: 'projects', populate: { path: 'author' } })
+    .exec((err, user) => res.send({ err, user }));
+});
 
 // PROJECT ROUTES
 app.get('/api/projects', (req, res) => {
@@ -58,10 +63,7 @@ app.get('/api/projects', (req, res) => {
 app.get('/api/project/:id', (req, res) => {
   GalleryApp.findById(req.params.id)
     .populate('author')
-    .exec((err, project) => {
-      if (err) return res.send(err);
-      return res.send({ project });
-    });
+    .exec((err, project) => res.send({ err, project }));
 });
 app.post('/api/project/create', upload.single('aia'), (req, res) => {
   const {
