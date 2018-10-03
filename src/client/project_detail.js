@@ -167,7 +167,7 @@ class ProjectDetail extends Component {
           <label htmlFor={tutorialInputId}>
             {'Tutorial / Video: '}
             <input
-              value={tutorialUrl}
+              value={tutorialUrl || ''}
               placeholder="Tutorial / Video URL"
               onChange={this.handleTutorialChange}
               id={tutorialInputId}
@@ -177,7 +177,7 @@ class ProjectDetail extends Component {
         <div className={css(styles.credits)}>
           <p>Credits: </p>
           <textarea
-            value={credits}
+            value={credits || ''}
             placeholder="Are you remixing code from other apps? Credit them here."
             onChange={this.handleCreditsChange}
             id={creditsInputId}
