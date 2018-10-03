@@ -6,6 +6,7 @@ import { StyleSheet, css } from 'aphrodite';
 
 import GalleryContainer from './gallery_container';
 import ProjectDetail from './project_detail';
+import Profile from './profile';
 import './app.css';
 import logo from './logo.png';
 
@@ -28,6 +29,8 @@ export default function App() {
           <Route exact path="/" component={GalleryContainer} />
           <Route path="/project/:projectId" component={ProjectDetail} />
           <Redirect exact path="/project" to="/" />
+          <Route path="/profile/:username" component={Profile} />
+          <Redirect exact path="/profile" to="/" />
         </Switch>
       </div>
     </div>
