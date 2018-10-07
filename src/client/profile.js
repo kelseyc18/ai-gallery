@@ -8,6 +8,7 @@ import { StyleSheet, css } from 'aphrodite';
 
 import GalleryApp from './gallery_app';
 import { getUserByUsername } from './redux/actions';
+import bobaImage from './boba.png';
 
 class Profile extends Component {
   componentDidMount() {
@@ -22,15 +23,21 @@ class Profile extends Component {
       return <p>That user does not exist.</p>;
     }
 
-    const { username, name, projects } = user;
+    const {
+      username, name, projects, imagePath, bio,
+    } = user;
 
     return (
       <div className={css(styles.galleryContainer)}>
         <div className={css(styles.profileContainer)}>
-          <Link to={`/profile/${username}`}>
-            <p className={css(styles.username)}>{username}</p>
-          </Link>
-          <p>{name}</p>
+          <img className={css(styles.profileImage)} src={imagePath || bobaImage} alt="profile" />
+          <div className={css(styles.profileTextContainer)}>
+            <Link to={`/profile/${username}`}>
+              <p className={css(styles.username)}>{username}</p>
+            </Link>
+            <p>{name}</p>
+            <p className={css(styles.bio)}>{bio || `This is ${name}'s bio!`}</p>
+          </div>
         </div>
         <p className={css(styles.header)}>{`Apps created by ${username}`}</p>
         <div className={css(styles.projectContainer)}>
@@ -52,6 +59,8 @@ Profile.propTypes = {
         title: PropTypes.string.isRequired,
       }),
     ).isRequired,
+    imagePath: PropTypes.string,
+    bio: PropTypes.string,
   }),
 };
 
@@ -60,22 +69,39 @@ const styles = StyleSheet.create({
     display: 'flex',
     margin: 'auto',
     marginTop: 100,
-    maxWidth: 1000,
+    maxWidth: 850,
     paddingLeft: 20,
     flexDirection: 'column',
   },
 
   profileContainer: {
+    display: 'flex',
     background: 'white',
     width: '100%',
     padding: 10,
     borderRadius: 10,
   },
 
+  profileImage: {
+    height: 72,
+    width: 72,
+    borderRadius: 5,
+  },
+
+  profileTextContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    marginLeft: 10,
+  },
+
   username: {
     fontWeight: 'bold',
     fontSize: 24,
     color: '#58585a',
+  },
+
+  bio: {
+    marginTop: 5,
   },
 
   projectContainer: {

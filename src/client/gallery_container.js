@@ -41,9 +41,10 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     margin: 'auto',
     marginTop: 100,
-    maxWidth: 1000,
+    maxWidth: 850,
     paddingLeft: 20,
     paddingRight: 20,
+    justifyContent: 'space-between',
   },
 });
 

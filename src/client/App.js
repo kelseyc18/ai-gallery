@@ -51,7 +51,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: '20px',
     margin: 'auto',
-    maxWidth: 1000,
+    maxWidth: 850,
     maxHeight: 20,
   },
 

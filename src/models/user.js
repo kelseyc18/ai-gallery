@@ -8,6 +8,8 @@ const UserSchema = new Schema({
   authorId: String,
   appInventorInstance: String,
   projects: [{ type: Schema.Types.ObjectId, ref: 'GalleryApp' }],
+  imagePath: String,
+  bio: String,
 });
 
 module.exports = mongoose.model('User', UserSchema);
