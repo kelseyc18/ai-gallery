@@ -25,20 +25,19 @@ function fetchUserByUsername(username) {
     .then(res => res.user);
 }
 
-function postProjectDetails(title, id, description, tutorialUrl, credits) {
+function postProjectDetails(title, id, description, tutorialUrl, credits, newImage) {
+  const formData = new FormData();
+
+  if (title) formData.append('title', title);
+  if (id) formData.append('id', id);
+  if (description) formData.append('description', description);
+  if (tutorialUrl) formData.append('tutorialUrl', tutorialUrl);
+  if (credits) formData.append('credits', credits);
+  if (newImage) formData.append('newImage', newImage);
+
   return fetch('/api/project/edit', {
     method: 'POST',
-    headers: {
-      Accept: 'application/json',
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      title,
-      id,
-      description,
-      tutorialUrl,
-      credits,
-    }),
+    body: formData,
   })
     .then(res => res.json())
     .then(res => res.project);
@@ -100,9 +99,9 @@ export function getUserByUsername(username) {
   };
 }
 
-export function updateProjectDetails(title, id, description, tutorialUrl, credits) {
+export function updateProjectDetails(title, id, description, tutorialUrl, credits, newImage) {
   return (dispatch) => {
-    postProjectDetails(title, id, description, tutorialUrl, credits).then((project) => {
+    postProjectDetails(title, id, description, tutorialUrl, credits, newImage).then((project) => {
       dispatch(updateProjectDetailsAction(project));
     });
   };

@@ -12,7 +12,7 @@ export default function GalleryContainer(props) {
   return (
     <div className={css(styles.galleryApp)}>
       <Link to={`/project/${project._id}`}>
-        <img className={css(styles.appImage)} src={puppyImage} alt="project" />
+        <img className={css(styles.appImage)} src={project.imagePath || puppyImage} alt="project" />
       </Link>
       <div className={css(styles.descriptionContainer)}>
         <Link to={`/project/${project._id}`}>
@@ -43,7 +43,8 @@ const styles = StyleSheet.create({
 
   appImage: {
     margin: 'auto',
-    width: '100%',
+    width: 160,
+    height: 160,
   },
 
   descriptionContainer: {
