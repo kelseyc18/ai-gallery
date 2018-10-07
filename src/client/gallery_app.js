@@ -17,7 +17,9 @@ export default function GalleryContainer(props) {
         <img className={css(styles.appImage)} src={project.imagePath || puppyImage} alt="project" />
       </Link>
       <div className={css(styles.descriptionContainer)}>
-        <img className={css(styles.profileImage)} src={profileImage || bobaImage} alt="profile" />
+        <Link to={`/profile/${project.author.username}`} className={css(styles.profileImage)}>
+          <img className={css(styles.profileImage)} src={profileImage || bobaImage} alt="profile" />
+        </Link>
         <div className={css(styles.textDescription)}>
           <Link to={`/project/${project._id}`}>
             <p className={css(styles.appTitle)}>{project.title}</p>
@@ -61,7 +63,7 @@ const styles = StyleSheet.create({
 
   textDescription: {
     display: 'flex',
-    marginLeft: 10,
+    marginLeft: 8,
     flexDirection: 'column',
   },
 

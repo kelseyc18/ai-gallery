@@ -8,6 +8,7 @@ import { StyleSheet, css } from 'aphrodite';
 import Icon from './icon';
 import ICONS from './icon_constants';
 import puppyImage from './puppy.png';
+import bobaImage from './boba.png';
 import './app.css';
 import {
   getProjectById,
@@ -165,6 +166,7 @@ class ProjectDetail extends Component {
     const {
       title, tutorialUrl, description, credits,
     } = this.state;
+    const profileImage = project.author.imagePath;
 
     const datesContainer = (
       <div className={css(styles.datesContainer)}>
@@ -184,7 +186,10 @@ class ProjectDetail extends Component {
           onChange={this.handleTitleChange}
           placeholder="Title"
         />
-        <p className={css(styles.appAuthor)}>{project.author.username}</p>
+        <div className={css(styles.userInfo)}>
+          <img className={css(styles.profileImage)} src={profileImage || bobaImage} alt="profile" />
+          <p className={css(styles.appAuthor)}>{project.author.username}</p>
+        </div>
         <div className={css(styles.description)}>
           <p>Description:</p>
           <textarea
@@ -220,9 +225,14 @@ class ProjectDetail extends Component {
         <Link to={`/project/${project._id}`}>
           <p className={css(styles.appTitle)}>{project.title}</p>
         </Link>
-        <Link to={`/profile/${project.author.username}`}>
-          <p className={css(styles.appAuthor)}>{project.author.username}</p>
-        </Link>
+        <div className={css(styles.userInfo)}>
+          <Link to={`/profile/${project.author.username}`}>
+            <img className={css(styles.profileImage)} src={profileImage || bobaImage} alt="profile" />
+          </Link>
+          <Link to={`/profile/${project.author.username}`}>
+            <p className={css(styles.appAuthor)}>{project.author.username}</p>
+          </Link>
+        </div>
         <div className={css(styles.description)}>
           <p>{project.description}</p>
         </div>
@@ -354,8 +364,20 @@ const styles = StyleSheet.create({
     color: '#128ba8',
   },
 
+  userInfo: {
+    display: 'flex',
+    marginTop: 5,
+  },
+
+  profileImage: {
+    height: 24,
+    width: 24,
+    borderRadius: 2,
+  },
+
   appAuthor: {
     color: '#58585a',
+    marginLeft: 5,
   },
 
   projectDetailButton: {
