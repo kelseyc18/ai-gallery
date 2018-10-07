@@ -22,7 +22,6 @@ class ProjectDetail extends Component {
     tutorialUrl: undefined,
     description: undefined,
     credits: undefined,
-    imagePath: undefined,
     newImage: undefined,
   };
 
@@ -282,7 +281,7 @@ const styles = StyleSheet.create({
     display: 'flex',
     margin: 'auto',
     marginTop: 100,
-    maxWidth: 1000,
+    maxWidth: 850,
     paddingLeft: 20,
   },
 
