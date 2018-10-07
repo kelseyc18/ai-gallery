@@ -307,6 +307,7 @@ const styles = StyleSheet.create({
     display: 'block',
     width: 160,
     height: 160,
+    borderRadius: 5,
   },
 
   editImageOverlay: {

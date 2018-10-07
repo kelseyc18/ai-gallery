@@ -4,10 +4,12 @@ import { Link } from 'react-router-dom';
 import { StyleSheet, css } from 'aphrodite';
 
 import puppyImage from './puppy.png';
+import bobaImage from './boba.png';
 import './app.css';
 
 export default function GalleryContainer(props) {
   const { project } = props;
+  const profileImage = project.author.imagePath;
 
   return (
     <div className={css(styles.galleryApp)}>
@@ -15,12 +17,15 @@ export default function GalleryContainer(props) {
         <img className={css(styles.appImage)} src={project.imagePath || puppyImage} alt="project" />
       </Link>
       <div className={css(styles.descriptionContainer)}>
-        <Link to={`/project/${project._id}`}>
-          <p className={css(styles.appTitle)}>{project.title}</p>
-        </Link>
-        <Link to={`/profile/${project.author.username}`}>
-          <p className={css(styles.appAuthor)}>{project.author.username}</p>
-        </Link>
+        <img className={css(styles.profileImage)} src={profileImage || bobaImage} alt="profile" />
+        <div className={css(styles.textDescription)}>
+          <Link to={`/project/${project._id}`}>
+            <p className={css(styles.appTitle)}>{project.title}</p>
+          </Link>
+          <Link to={`/profile/${project.author.username}`}>
+            <p className={css(styles.appAuthor)}>{project.author.username}</p>
+          </Link>
+        </div>
       </div>
     </div>
   );
@@ -45,10 +50,19 @@ const styles = StyleSheet.create({
     margin: 'auto',
     width: 160,
     height: 160,
+    borderRadius: 5,
   },
 
   descriptionContainer: {
     marginTop: 2,
+    display: 'flex',
+    alignItems: 'center',
+  },
+
+  textDescription: {
+    display: 'flex',
+    marginLeft: 10,
+    flexDirection: 'column',
   },
 
   appTitle: {
@@ -60,7 +74,14 @@ const styles = StyleSheet.create({
     },
   },
 
+  profileImage: {
+    height: 30,
+    width: 30,
+    borderRadius: 2,
+  },
+
   appAuthor: {
     color: '#58585a',
+    fontSize: 12,
   },
 });
