@@ -22,7 +22,16 @@ class ProjectDetail extends Component {
     tutorialUrl: undefined,
     description: undefined,
     credits: undefined,
+    imagePath: undefined,
+    newImage: undefined,
   };
+
+  constructor(props) {
+    super(props);
+
+    this.inputRef = React.createRef();
+    this.imageRef = React.createRef();
+  }
 
   componentDidMount() {
     const projectId = this.props.match.params.projectId; // eslint-disable-line
@@ -35,6 +44,7 @@ class ProjectDetail extends Component {
       && state.tutorialUrl === undefined
       && state.description === undefined
       && state.credits === undefined
+      && state.imagePath === undefined
       && props.project
     ) {
       return {
@@ -42,6 +52,7 @@ class ProjectDetail extends Component {
         tutorialUrl: props.project.tutorialUrl,
         description: props.project.description,
         credits: props.project.credits,
+        imagePath: props.project.imagePath,
       };
     }
     return null;
@@ -63,6 +74,21 @@ class ProjectDetail extends Component {
     this.setState({ credits: event.target.value });
   };
 
+  handleChangeFile = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      this.setState({
+        newImage: file,
+      });
+      const reader = new FileReader();
+
+      reader.onloadend = () => {
+        this.imageRef.current.src = reader.result;
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   renderRightContainer = () => {
     const {
       project,
@@ -71,8 +97,9 @@ class ProjectDetail extends Component {
       inEditMode,
       updateProjectDetails,
     } = this.props;
+    const { imagePath } = project;
     const {
-      title, description, tutorialUrl, credits,
+      title, description, tutorialUrl, credits, newImage,
     } = this.state;
 
     const iconContainer = (
@@ -91,15 +118,17 @@ class ProjectDetail extends Component {
     return inEditMode ? (
       <form>
         <div className={css(styles.rightContainer)}>
-          <Link to={`/project/${project._id}`}>
-            <img className={css(styles.appImage)} src={puppyImage} alt="project" />
-          </Link>
+          <div className={css(styles.imageContainer)}>
+            <img className={css(styles.appImage)} src={imagePath || puppyImage} alt="project" ref={this.imageRef} />
+            <button className={css(styles.editImageOverlay)} type="button" onClick={() => this.inputRef.current.click()}>Upload New Photo</button>
+            <input id="file-input" type="file" accept="image/*" style={{ display: 'none' }} ref={this.inputRef} onChange={this.handleChangeFile} />
+          </div>
           <button
             type="button"
             className={css(styles.projectDetailButton)}
-            onClick={() => updateProjectDetails(
-              title, project._id, description, tutorialUrl, credits,
-            )}
+            onClick={() => {
+              updateProjectDetails(title, project._id, description, tutorialUrl, credits, newImage);
+            }}
           >
             Save
           </button>
@@ -116,7 +145,9 @@ class ProjectDetail extends Component {
     ) : (
       <div className={css(styles.rightContainer)}>
         <Link to={`/project/${project._id}`}>
-          <img className={css(styles.appImage)} src={puppyImage} alt="project" />
+          <div className={css(styles.imageContainer)}>
+            <img className={css(styles.appImage)} src={imagePath || puppyImage} alt="project" />
+          </div>
         </Link>
         <button
           type="button"
@@ -158,7 +189,7 @@ class ProjectDetail extends Component {
         <div className={css(styles.description)}>
           <p>Description:</p>
           <textarea
-            value={description}
+            value={description || ''}
             onChange={this.handleDescriptionChange}
             placeholder="Description"
           />
@@ -237,6 +268,7 @@ ProjectDetail.propTypes = {
     }).isRequired,
     description: PropTypes.string,
     tutorialUrl: PropTypes.string,
+    imagePath: PropTypes.string,
   }),
   getProjectById: PropTypes.func.isRequired,
   editProject: PropTypes.func.isRequired,
@@ -266,10 +298,29 @@ const styles = StyleSheet.create({
     width: 800,
   },
 
+  imageContainer: {
+    position: 'relative',
+    marginBottom: 10,
+  },
+
   appImage: {
     margin: 'auto',
-    marginBottom: 5,
+    display: 'block',
+    width: 160,
+    height: 160,
+  },
+
+  editImageOverlay: {
+    position: 'absolute',
+    background: 'rgba(0, 0, 0, 0.5)',
+    top: 0,
+    height: '100%',
     width: '100%',
+    color: 'white',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    cursor: 'pointer',
   },
 
   rightContainer: {

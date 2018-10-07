@@ -61,18 +61,42 @@ exports.edit_project = (req, res) => {
     title, id, description, tutorialUrl, credits,
   } = req.body;
 
-  GalleryApp.findByIdAndUpdate(
-    id,
-    {
-      title,
-      description,
-      tutorialUrl,
-      credits,
-      lastModifiedDate: Date.now(),
-    },
-    { new: true },
-  ).exec((err, project) => {
-    if (err) return res.send(err);
-    return res.json({ project });
-  });
+  if (req.file) {
+    const imagePath = req.file.path;
+
+    GalleryApp.findByIdAndUpdate(
+      id,
+      {
+        title,
+        description,
+        tutorialUrl,
+        credits,
+        lastModifiedDate: Date.now(),
+        imagePath,
+      },
+      { new: true },
+    )
+      .populate('author')
+      .exec((err, project) => {
+        if (err) return res.send(err);
+        return res.json({ project });
+      });
+  } else {
+    GalleryApp.findByIdAndUpdate(
+      id,
+      {
+        title,
+        description,
+        tutorialUrl,
+        credits,
+        lastModifiedDate: Date.now(),
+      },
+      { new: true },
+    )
+      .populate('author')
+      .exec((err, project) => {
+        if (err) return res.send(err);
+        return res.json({ project });
+      });
+  }
 };
