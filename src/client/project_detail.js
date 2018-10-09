@@ -102,26 +102,31 @@ class ProjectDetail extends Component {
       title, description, tutorialUrl, credits, newImage,
     } = this.state;
 
-    const iconContainer = (
-      <div className={css(styles.iconsContainer)}>
-        <div className={css(styles.iconContainer)}>
-          <span>{project.numDownloads}</span>
-          <Icon icon={ICONS.DOWNLOAD} color="#58585a" />
-        </div>
-        <div className={css(styles.iconContainer)}>
-          <span>{project.numFavorites}</span>
-          <Icon icon={ICONS.FAVORITE} color="#58585a" />
-        </div>
-      </div>
-    );
-
     return inEditMode ? (
       <form>
         <div className={css(styles.rightContainer)}>
           <div className={css(styles.imageContainer)}>
-            <img className={css(styles.appImage)} src={imagePath || puppyImage} alt="project" ref={this.imageRef} />
-            <button className={css(styles.editImageOverlay)} type="button" onClick={() => this.inputRef.current.click()}>Upload New Photo</button>
-            <input id="file-input" type="file" accept="image/*" style={{ display: 'none' }} ref={this.inputRef} onChange={this.handleChangeFile} />
+            <img
+              className={css(styles.appImage)}
+              src={imagePath || puppyImage}
+              alt="project"
+              ref={this.imageRef}
+            />
+            <button
+              className={css(styles.editImageOverlay)}
+              type="button"
+              onClick={() => this.inputRef.current.click()}
+            >
+              Upload New Photo
+            </button>
+            <input
+              id="file-input"
+              type="file"
+              accept="image/*"
+              style={{ display: 'none' }}
+              ref={this.inputRef}
+              onChange={this.handleChangeFile}
+            />
           </div>
           <button
             type="button"
@@ -139,7 +144,6 @@ class ProjectDetail extends Component {
           >
             Cancel
           </button>
-          {iconContainer}
         </div>
       </form>
     ) : (
@@ -156,7 +160,6 @@ class ProjectDetail extends Component {
         >
           Edit
         </button>
-        {iconContainer}
       </div>
     );
   };
@@ -170,8 +173,21 @@ class ProjectDetail extends Component {
 
     const datesContainer = (
       <div className={css(styles.datesContainer)}>
-        <p>{`Creation Date: ${project.creationDate}`}</p>
-        <p>{`Last Modified Date: ${project.lastModifiedDate}`}</p>
+        <p>{`Created: ${project.creationDate}`}</p>
+        <p>{`Last Modified: ${project.lastModifiedDate}`}</p>
+      </div>
+    );
+
+    const iconContainer = (
+      <div className={css(styles.iconsContainer)}>
+        <div className={css(styles.iconContainer)}>
+          <span>{project.numDownloads}</span>
+          <Icon icon={ICONS.DOWNLOAD} color="#58585a" />
+        </div>
+        <div className={css(styles.iconContainer)}>
+          <span>{project.numFavorites}</span>
+          <Icon icon={ICONS.FAVORITE} color="#58585a" />
+        </div>
       </div>
     );
 
@@ -180,12 +196,15 @@ class ProjectDetail extends Component {
 
     return inEditMode ? (
       <div className={css(styles.descriptionContainer)}>
-        <input
-          className={css(styles.appTitleEdit)}
-          value={title}
-          onChange={this.handleTitleChange}
-          placeholder="Title"
-        />
+        <div className={css(styles.titleContainer)}>
+          <input
+            className={css(styles.appTitleEdit)}
+            value={title}
+            onChange={this.handleTitleChange}
+            placeholder="Title"
+          />
+          {iconContainer}
+        </div>
         <div className={css(styles.userInfo)}>
           <img className={css(styles.profileImage)} src={profileImage || bobaImage} alt="profile" />
           <p className={css(styles.appAuthor)}>{project.author.username}</p>
@@ -222,12 +241,19 @@ class ProjectDetail extends Component {
       </div>
     ) : (
       <div className={css(styles.descriptionContainer)}>
-        <Link to={`/project/${project._id}`}>
-          <p className={css(styles.appTitle)}>{project.title}</p>
-        </Link>
+        <div className={css(styles.titleContainer)}>
+          <Link to={`/project/${project._id}`}>
+            <p className={css(styles.appTitle)}>{project.title}</p>
+          </Link>
+          {iconContainer}
+        </div>
         <div className={css(styles.userInfo)}>
           <Link to={`/profile/${project.author.username}`}>
-            <img className={css(styles.profileImage)} src={profileImage || bobaImage} alt="profile" />
+            <img
+              className={css(styles.profileImage)}
+              src={profileImage || bobaImage}
+              alt="profile"
+            />
           </Link>
           <Link to={`/profile/${project.author.username}`}>
             <p className={css(styles.appAuthor)}>{project.author.username}</p>
@@ -245,6 +271,7 @@ class ProjectDetail extends Component {
           )}
         </div>
         <div className={css(styles.credits)}>{!!credits && `Credits: ${credits}`}</div>
+        <div className={css(styles.filler)} />
         {datesContainer}
       </div>
     );
@@ -337,16 +364,28 @@ const styles = StyleSheet.create({
     display: 'flex',
     flexDirection: 'column',
     width: 160,
+    margin: 10,
   },
 
   descriptionContainer: {
-    marginLeft: 10,
+    display: 'flex',
+    flexDirection: 'column',
+    margin: 10,
     width: '100%',
     maxWidth: 577,
   },
 
   credits: {
-    marginBottom: 10,
+    marginTop: 5,
+    marginBottom: 5,
+  },
+
+  titleContainer: {
+    display: 'flex',
+    justifyContent: 'left',
+    alignItems: 'center',
+    marginBottom: 5,
+    marginTop: 'auto',
   },
 
   appTitle: {
@@ -366,7 +405,10 @@ const styles = StyleSheet.create({
 
   userInfo: {
     display: 'flex',
+    flexDirection: 'row',
     marginTop: 5,
+    marginBottom: 5,
+    alignItems: 'center',
   },
 
   profileImage: {
@@ -381,10 +423,9 @@ const styles = StyleSheet.create({
   },
 
   projectDetailButton: {
-    backgroundColor: '#84ad2d',
+    backgroundColor: '#A5CF47',
     border: 'none',
     color: 'white',
-    marginBottom: 10,
   },
 
   cancelButton: {
@@ -392,13 +433,13 @@ const styles = StyleSheet.create({
   },
 
   description: {
-    marginTop: 10,
-    marginBottom: 10,
+    marginTop: 5,
+    marginBottom: 5,
   },
 
   tutorial: {
-    marginTop: 10,
-    marginBottom: 10,
+    marginTop: 5,
+    marginBottom: 5,
   },
 
   tutorialTitle: {
@@ -417,18 +458,30 @@ const styles = StyleSheet.create({
   },
 
   iconsContainer: {
-    flexDirection: 'column',
-    margin: 'auto',
+    display: 'flex',
+    flexDirection: 'row',
+    marginLeft: 'auto',
+    marginRight: 5,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 
   iconContainer: {
-    alignSelf: 'end',
-    marginTop: 5,
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: 5,
   },
 
   datesContainer: {
     fontSize: 12,
     color: '#58585a',
+    marginBottom: 'auto',
+    marginTop: 5,
+  },
+
+  filler: {
+    flexGrow: 1,
   },
 });
 
