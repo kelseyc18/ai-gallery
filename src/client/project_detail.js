@@ -336,7 +336,6 @@ const styles = StyleSheet.create({
 
   imageContainer: {
     position: 'relative',
-    marginBottom: 10,
   },
 
   appImage: {
@@ -424,8 +423,10 @@ const styles = StyleSheet.create({
 
   projectDetailButton: {
     backgroundColor: '#A5CF47',
+    borderRadius: 2,
     border: 'none',
     color: 'white',
+    marginTop: 10,
   },
 
   cancelButton: {
