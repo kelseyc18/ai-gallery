@@ -25,7 +25,7 @@ function fetchUserByUsername(username) {
     .then(res => res.user);
 }
 
-function postProjectDetails(title, id, description, tutorialUrl, credits, newImage) {
+function postProjectDetails(title, id, description, tutorialUrl, credits, newImage, isDraft) {
   const formData = new FormData();
 
   if (title) formData.append('title', title);
@@ -34,6 +34,7 @@ function postProjectDetails(title, id, description, tutorialUrl, credits, newIma
   if (tutorialUrl) formData.append('tutorialUrl', tutorialUrl);
   if (credits) formData.append('credits', credits);
   if (newImage) formData.append('newImage', newImage);
+  formData.append('isDraft', isDraft);
 
   return fetch('/api/project/edit', {
     method: 'POST',
@@ -99,10 +100,20 @@ export function getUserByUsername(username) {
   };
 }
 
-export function updateProjectDetails(title, id, description, tutorialUrl, credits, newImage) {
+export function updateProjectDetails(
+  title,
+  id,
+  description,
+  tutorialUrl,
+  credits,
+  newImage,
+  isDraft,
+) {
   return (dispatch) => {
-    postProjectDetails(title, id, description, tutorialUrl, credits, newImage).then((project) => {
-      dispatch(updateProjectDetailsAction(project));
-    });
+    postProjectDetails(title, id, description, tutorialUrl, credits, newImage, isDraft).then(
+      (project) => {
+        dispatch(updateProjectDetailsAction(project));
+      },
+    );
   };
 }
