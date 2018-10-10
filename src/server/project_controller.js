@@ -58,7 +58,7 @@ exports.create_project = (req, res) => {
 
 exports.edit_project = (req, res) => {
   const {
-    title, id, description, tutorialUrl, credits,
+    title, id, description, tutorialUrl, credits, isDraft,
   } = req.body;
 
   if (req.file) {
@@ -73,6 +73,7 @@ exports.edit_project = (req, res) => {
         credits,
         lastModifiedDate: Date.now(),
         imagePath,
+        isDraft,
       },
       { new: true },
     )
@@ -90,6 +91,7 @@ exports.edit_project = (req, res) => {
         tutorialUrl,
         credits,
         lastModifiedDate: Date.now(),
+        isDraft,
       },
       { new: true },
     )
