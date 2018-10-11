@@ -10,7 +10,7 @@ const GalleryAppSchema = new Schema({
   tutorialUrl: String,
   credits: String,
   description: String,
-  isDraft: Boolean,
+  isDraft: { type: Boolean, default: false },
   numDownloads: { type: Number, default: 0 },
   numFavorites: { type: Number, default: 0 },
   aiaPath: String,

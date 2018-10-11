@@ -24,6 +24,7 @@ class ProjectDetail extends Component {
     description: undefined,
     credits: undefined,
     newImage: undefined,
+    isDraft: undefined,
   };
 
   constructor(props) {
@@ -45,6 +46,7 @@ class ProjectDetail extends Component {
       && state.description === undefined
       && state.credits === undefined
       && state.imagePath === undefined
+      && state.isDraft === undefined
       && props.project
     ) {
       return {
@@ -53,6 +55,7 @@ class ProjectDetail extends Component {
         description: props.project.description,
         credits: props.project.credits,
         imagePath: props.project.imagePath,
+        isDraft: props.project.isDraft,
       };
     }
     return null;
@@ -89,6 +92,10 @@ class ProjectDetail extends Component {
     }
   };
 
+  handleIsDraftChange = (event) => {
+    this.setState({ isDraft: event.target.checked });
+  };
+
   renderRightContainer = () => {
     const {
       project,
@@ -99,7 +106,7 @@ class ProjectDetail extends Component {
     } = this.props;
     const { imagePath } = project;
     const {
-      title, description, tutorialUrl, credits, newImage,
+      title, description, tutorialUrl, credits, newImage, isDraft,
     } = this.state;
 
     return inEditMode ? (
@@ -132,7 +139,7 @@ class ProjectDetail extends Component {
             type="button"
             className={css(styles.projectDetailButton)}
             onClick={() => {
-              updateProjectDetails(title, project._id, description, tutorialUrl, credits, newImage);
+              updateProjectDetails(title, project._id, description, tutorialUrl, credits, newImage, isDraft);
             }}
           >
             Save
@@ -167,7 +174,7 @@ class ProjectDetail extends Component {
   renderDescriptionContainer = () => {
     const { project, inEditMode } = this.props;
     const {
-      title, tutorialUrl, description, credits,
+      title, tutorialUrl, description, credits, isDraft,
     } = this.state;
     const profileImage = project.author.imagePath;
 
@@ -193,6 +200,7 @@ class ProjectDetail extends Component {
 
     const tutorialInputId = 'tutorial-input';
     const creditsInputId = 'credits-input';
+    const draftCheckboxId = 'draft-checkbox';
 
     return inEditMode ? (
       <div className={css(styles.descriptionContainer)}>
@@ -203,7 +211,15 @@ class ProjectDetail extends Component {
             onChange={this.handleTitleChange}
             placeholder="Title"
           />
-          {iconContainer}
+          <label htmlFor={draftCheckboxId}>
+            <input
+              type="checkbox"
+              onChange={this.handleIsDraftChange}
+              checked={isDraft}
+              id={draftCheckboxId}
+            />
+            Draft
+          </label>
         </div>
         <div className={css(styles.userInfo)}>
           <img className={css(styles.profileImage)} src={profileImage || bobaImage} alt="profile" />
@@ -245,6 +261,7 @@ class ProjectDetail extends Component {
           <Link to={`/project/${project._id}`}>
             <p className={css(styles.appTitle)}>{project.title}</p>
           </Link>
+          {project.isDraft && <div className={css(styles.draft)}>Draft</div>}
           {iconContainer}
         </div>
         <div className={css(styles.userInfo)}>
@@ -305,6 +322,7 @@ ProjectDetail.propTypes = {
     description: PropTypes.string,
     tutorialUrl: PropTypes.string,
     imagePath: PropTypes.string,
+    isDraft: PropTypes.bool.isRequired,
   }),
   getProjectById: PropTypes.func.isRequired,
   editProject: PropTypes.func.isRequired,
@@ -374,6 +392,15 @@ const styles = StyleSheet.create({
     maxWidth: 577,
   },
 
+  draft: {
+    border: '#F88D34 1px solid',
+    color: '#F88D34',
+    textTransform: 'uppercase',
+    marginLeft: 10,
+    paddingLeft: 5,
+    paddingRight: 5,
+  },
+
   credits: {
     marginTop: 5,
     marginBottom: 5,
@@ -394,12 +421,14 @@ const styles = StyleSheet.create({
     ':hover': {
       color: '#105fa8',
     },
+    marginRight: 5,
   },
 
   appTitleEdit: {
     fontWeight: 800,
     fontSize: 20,
     color: '#128ba8',
+    marginRight: 5,
   },
 
   userInfo: {
@@ -422,7 +451,7 @@ const styles = StyleSheet.create({
   },
 
   projectDetailButton: {
-    backgroundColor: '#A5CF47',
+    backgroundColor: '#84ad2d',
     borderRadius: 2,
     border: 'none',
     color: 'white',
