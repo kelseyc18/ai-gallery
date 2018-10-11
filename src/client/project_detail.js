@@ -389,7 +389,7 @@ const styles = StyleSheet.create({
 
   appTitle: {
     fontWeight: 800,
-    fontSize: 20,
+    fontSize: 25,
     color: '#128ba8',
     ':hover': {
       color: '#105fa8',
