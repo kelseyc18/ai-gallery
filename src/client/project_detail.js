@@ -302,16 +302,22 @@ class ProjectDetail extends Component {
           {!!project.description && project.description}
         </div>
         <div className={css(styles.tutorial)}>
-          <p className={css(styles.detailTitle)}>Tutorial / Video:</p>
           {!!project.tutorialUrl && (
-            <span>
-              <a href={project.tutorialUrl}>{project.tutorialUrl}</a>
-            </span>
+            <div>
+              <p className={css(styles.detailTitle)}>Tutorial / Video:</p>
+              <span>
+                <a href={project.tutorialUrl}>{project.tutorialUrl}</a>
+              </span>
+            </div>
           )}
         </div>
         <div className={css(styles.credits)}>
-          <p className={css(styles.detailTitle)}>Credits:</p>
-          {!!credits && credits}
+          {!!credits && (
+            <div>
+              <p className={css(styles.detailTitle)}>Credits:</p>
+              {credits}
+            </div>
+          )}
         </div>
         <div className={css(styles.filler)} />
         {datesContainer}
