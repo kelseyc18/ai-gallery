@@ -20,6 +20,7 @@ import {
 
 class ProjectDetail extends Component {
   state = {
+    id: undefined,
     title: undefined,
     tutorialUrl: undefined,
     description: undefined,
@@ -50,21 +51,9 @@ class ProjectDetail extends Component {
   }
 
   static getDerivedStateFromProps(props, state) {
-    console.log('state');
-    console.log(state);
-    console.log('props');
-    console.log(props.project);
-    if (
-      props.project
-      && (state.title !== props.project.title
-      || state.tutorialUrl !== props.project.tutorialUrl
-      || state.description !== props.project.description
-      || state.credits !== props.project.credits
-      || state.imagePath !== props.project.imagePath
-      || state.isDraft !== props.project.isDraft)
-    ) {
-      console.log('updated');
+    if (props.project && state.id !== props.project._id) {
       return {
+        id: props.project._id,
         title: props.project.title,
         tutorialUrl: props.project.tutorialUrl,
         description: props.project.description,
