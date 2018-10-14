@@ -226,8 +226,9 @@ class ProjectDetail extends Component {
           <p className={css(styles.appAuthor)}>{project.author.username}</p>
         </div>
         <div className={css(styles.description)}>
-          <p>Description:</p>
+          <p className={css(styles.editTitle)}>Description:</p>
           <textarea
+            className={css(styles.edit)}
             value={description || ''}
             onChange={this.handleDescriptionChange}
             placeholder="Description"
@@ -235,8 +236,9 @@ class ProjectDetail extends Component {
         </div>
         <div className={css(styles.tutorial)}>
           <label htmlFor={tutorialInputId}>
-            {'Tutorial / Video: '}
+            <p className={css(styles.editTitle)}>Tutorial / Video:</p>
             <input
+              className={css(styles.edit)}
               value={tutorialUrl || ''}
               placeholder="Tutorial / Video URL"
               onChange={this.handleTutorialChange}
@@ -245,8 +247,9 @@ class ProjectDetail extends Component {
           </label>
         </div>
         <div className={css(styles.credits)}>
-          <p>Credits: </p>
+          <p className={css(styles.editTitle)}>Credits: </p>
           <textarea
+            className={css(styles.edit)}
             value={credits || ''}
             placeholder="Are you remixing code from other apps? Credit them here."
             onChange={this.handleCreditsChange}
@@ -277,17 +280,21 @@ class ProjectDetail extends Component {
           </Link>
         </div>
         <div className={css(styles.description)}>
-          <p>{project.description}</p>
+          <p className={css(styles.detailTitle)}>Description:</p>
+          {!!project.description && project.description}
         </div>
         <div className={css(styles.tutorial)}>
+          <p className={css(styles.detailTitle)}>Tutorial / Video:</p>
           {!!project.tutorialUrl && (
             <span>
-              {'Tutorial / Video: '}
               <a href={project.tutorialUrl}>{project.tutorialUrl}</a>
             </span>
           )}
         </div>
-        <div className={css(styles.credits)}>{!!credits && `Credits: ${credits}`}</div>
+        <div className={css(styles.credits)}>
+          <p className={css(styles.detailTitle)}>Credits:</p>
+          {!!credits && credits}
+        </div>
         <div className={css(styles.filler)} />
         {datesContainer}
       </div>
@@ -403,7 +410,7 @@ const styles = StyleSheet.create({
 
   credits: {
     marginTop: 5,
-    marginBottom: 5,
+    marginBottom: 10,
   },
 
   titleContainer: {
@@ -426,9 +433,14 @@ const styles = StyleSheet.create({
 
   appTitleEdit: {
     fontWeight: 800,
-    fontSize: 20,
+    fontSize: '25px !important',
     color: '#128ba8',
-    marginRight: 5,
+    marginRight: 10,
+    flexGrow: 1,
+    border: 0,
+    background: '#eeeeee',
+    borderRadius: 2,
+    padding: 5,
   },
 
   userInfo: {
@@ -464,12 +476,12 @@ const styles = StyleSheet.create({
 
   description: {
     marginTop: 5,
-    marginBottom: 5,
+    marginBottom: 10,
   },
 
   tutorial: {
     marginTop: 5,
-    marginBottom: 5,
+    marginBottom: 10,
   },
 
   tutorialTitle: {
@@ -512,6 +524,24 @@ const styles = StyleSheet.create({
 
   filler: {
     flexGrow: 1,
+  },
+
+  edit: {
+    border: 0,
+    background: '#eeeeee',
+    borderRadius: 2,
+    padding: 5,
+    fontSize: 15,
+  },
+
+  editTitle: {
+    fontSize: 18,
+    fontWeight: 600,
+  },
+
+  detailTitle: {
+    fontWeight: 600,
+    fontSize: 18,
   },
 });
 
