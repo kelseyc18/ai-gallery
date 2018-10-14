@@ -371,7 +371,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     backgroundColor: 'white',
     display: 'flex',
-    margin: 'auto',
     marginBottom: 20,
     marginRight: 20,
     padding: 10,
@@ -421,6 +420,7 @@ const styles = StyleSheet.create({
     display: 'flex',
     flexDirection: 'column',
     margin: 10,
+    flexGrow: 1,
   },
 
   draft: {
