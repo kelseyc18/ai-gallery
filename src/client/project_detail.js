@@ -96,7 +96,7 @@ class ProjectDetail extends Component {
     this.setState({ isDraft: event.target.checked });
   };
 
-  renderRightContainer = () => {
+  renderLeftContainer = () => {
     const {
       project,
       editProject,
@@ -111,7 +111,7 @@ class ProjectDetail extends Component {
 
     return inEditMode ? (
       <form>
-        <div className={css(styles.rightContainer)}>
+        <div className={css(styles.leftContainer)}>
           <div className={css(styles.imageContainer)}>
             <img
               className={css(styles.appImage)}
@@ -154,7 +154,7 @@ class ProjectDetail extends Component {
         </div>
       </form>
     ) : (
-      <div className={css(styles.rightContainer)}>
+      <div className={css(styles.leftContainer)}>
         <Link to={`/project/${project._id}`}>
           <div className={css(styles.imageContainer)}>
             <img className={css(styles.appImage)} src={imagePath || puppyImage} alt="project" />
@@ -203,14 +203,54 @@ class ProjectDetail extends Component {
     const draftCheckboxId = 'draft-checkbox';
 
     return inEditMode ? (
-      <div className={css(styles.descriptionContainer)}>
-        <div className={css(styles.titleContainer)}>
-          <input
-            className={css(styles.appTitleEdit)}
-            value={title}
-            onChange={this.handleTitleChange}
-            placeholder="Title"
-          />
+      <div className={css(styles.rightContainer)}>
+        <div className={css(styles.descriptionContainer)}>
+          <div className={css(styles.titleContainer)}>
+            <input
+              className={css(styles.appTitleEdit)}
+              value={title}
+              onChange={this.handleTitleChange}
+              placeholder="Title"
+            />
+          </div>
+          <div className={css(styles.userInfo)}>
+            <img className={css(styles.profileImage)} src={profileImage || bobaImage} alt="profile" />
+            <p className={css(styles.appAuthor)}>{project.author.username}</p>
+          </div>
+          <div className={css(styles.description)}>
+            <p className={css(styles.editTitle)}>Description:</p>
+            <textarea
+              className={css(styles.edit)}
+              value={description || ''}
+              onChange={this.handleDescriptionChange}
+              placeholder="Description"
+            />
+          </div>
+          <div className={css(styles.tutorial)}>
+            <label htmlFor={tutorialInputId}>
+              <p className={css(styles.editTitle)}>Tutorial / Video:</p>
+              <input
+                className={css(styles.edit)}
+                value={tutorialUrl || ''}
+                placeholder="Tutorial / Video URL"
+                onChange={this.handleTutorialChange}
+                id={tutorialInputId}
+              />
+            </label>
+          </div>
+          <div className={css(styles.credits)}>
+            <p className={css(styles.editTitle)}>Credits: </p>
+            <textarea
+              className={css(styles.edit)}
+              value={credits || ''}
+              placeholder="Are you remixing code from other apps? Credit them here."
+              onChange={this.handleCreditsChange}
+              id={creditsInputId}
+            />
+          </div>
+          {datesContainer}
+        </div>
+        <div className={css(styles.draftCheckbox)}>
           <label htmlFor={draftCheckboxId}>
             <input
               type="checkbox"
@@ -221,42 +261,6 @@ class ProjectDetail extends Component {
             Draft
           </label>
         </div>
-        <div className={css(styles.userInfo)}>
-          <img className={css(styles.profileImage)} src={profileImage || bobaImage} alt="profile" />
-          <p className={css(styles.appAuthor)}>{project.author.username}</p>
-        </div>
-        <div className={css(styles.description)}>
-          <p className={css(styles.editTitle)}>Description:</p>
-          <textarea
-            className={css(styles.edit)}
-            value={description || ''}
-            onChange={this.handleDescriptionChange}
-            placeholder="Description"
-          />
-        </div>
-        <div className={css(styles.tutorial)}>
-          <label htmlFor={tutorialInputId}>
-            <p className={css(styles.editTitle)}>Tutorial / Video:</p>
-            <input
-              className={css(styles.edit)}
-              value={tutorialUrl || ''}
-              placeholder="Tutorial / Video URL"
-              onChange={this.handleTutorialChange}
-              id={tutorialInputId}
-            />
-          </label>
-        </div>
-        <div className={css(styles.credits)}>
-          <p className={css(styles.editTitle)}>Credits: </p>
-          <textarea
-            className={css(styles.edit)}
-            value={credits || ''}
-            placeholder="Are you remixing code from other apps? Credit them here."
-            onChange={this.handleCreditsChange}
-            id={creditsInputId}
-          />
-        </div>
-        {datesContainer}
       </div>
     ) : (
       <div className={css(styles.descriptionContainer)}>
@@ -280,7 +284,6 @@ class ProjectDetail extends Component {
           </Link>
         </div>
         <div className={css(styles.description)}>
-          <p className={css(styles.detailTitle)}>Description:</p>
           {!!project.description && project.description}
         </div>
         <div className={css(styles.tutorial)}>
@@ -307,7 +310,7 @@ class ProjectDetail extends Component {
     return project ? (
       <div className={css(styles.galleryContainer)}>
         <div className={css(styles.galleryAppDetail)}>
-          {this.renderRightContainer()}
+          {this.renderLeftContainer()}
           {this.renderDescriptionContainer()}
         </div>
 
@@ -385,6 +388,13 @@ const styles = StyleSheet.create({
   },
 
   rightContainer: {
+    display: 'grid',
+    gridTemplateColumns: '80% 20%',
+    width: 'max-content',
+    flexGrow: 1,
+  },
+
+  leftContainer: {
     display: 'flex',
     flexDirection: 'column',
     width: 160,
@@ -395,8 +405,6 @@ const styles = StyleSheet.create({
     display: 'flex',
     flexDirection: 'column',
     margin: 10,
-    width: '100%',
-    maxWidth: 577,
   },
 
   draft: {
@@ -408,9 +416,14 @@ const styles = StyleSheet.create({
     paddingRight: 5,
   },
 
+  draftCheckbox: {
+    margin: 10,
+  },
+
   credits: {
     marginTop: 5,
     marginBottom: 10,
+    fontSize: 12,
   },
 
   titleContainer: {
@@ -435,8 +448,7 @@ const styles = StyleSheet.create({
     fontWeight: 800,
     fontSize: '25px !important',
     color: '#128ba8',
-    marginRight: 10,
-    flexGrow: 1,
+    width: '100%',
     border: 0,
     background: '#eeeeee',
     borderRadius: 2,
@@ -449,6 +461,7 @@ const styles = StyleSheet.create({
     marginTop: 5,
     marginBottom: 5,
     alignItems: 'center',
+    fontWeight: 800,
   },
 
   profileImage: {
@@ -476,12 +489,14 @@ const styles = StyleSheet.create({
 
   description: {
     marginTop: 5,
-    marginBottom: 10,
+    marginBottom: 20,
+    fontSize: 12,
   },
 
   tutorial: {
     marginTop: 5,
     marginBottom: 10,
+    fontSize: 12,
   },
 
   tutorialTitle: {
@@ -530,18 +545,19 @@ const styles = StyleSheet.create({
     border: 0,
     background: '#eeeeee',
     borderRadius: 2,
-    padding: 5,
-    fontSize: 15,
+    fontSize: 12,
+    width: '100%',
+    boxSizing: 'border-box',
   },
 
   editTitle: {
-    fontSize: 18,
-    fontWeight: 600,
+    fontSize: 15,
+    marginBottom: 5,
   },
 
   detailTitle: {
-    fontWeight: 600,
-    fontSize: 18,
+    fontSize: 15,
+    marginBottom: 5,
   },
 });
 
