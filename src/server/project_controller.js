@@ -13,12 +13,7 @@ exports.all_projects = (req, res) => {
 
 exports.project_by_id = (req, res) => {
   GalleryApp.findById(req.params.id)
-    .populate({
-      path: 'author',
-      populate: {
-        path: 'projects',
-      },
-    })
+    .populate('author')
     .exec((err, project) => res.send({ err, project }));
 };
 
@@ -49,14 +44,9 @@ exports.create_project = (req, res) => {
       },
 
       (project, user, next) => {
-        User.findByIdAndUpdate(user._id, { $push: { projects: project._id } })
-          .populate({
-            path: 'author',
-            populate: {
-              path: 'projects',
-            },
-          })
-          .exec((err, project) => next(err, project));
+        User.findByIdAndUpdate(user._id, { $push: { projects: project._id } }, (err) => {
+          next(err, project);
+        });
       },
     ],
     (err, project) => {
@@ -87,12 +77,7 @@ exports.edit_project = (req, res) => {
       },
       { new: true },
     )
-      .populate({
-        path: 'author',
-        populate: {
-          path: 'projects',
-        },
-      })
+      .populate('author')
       .exec((err, project) => {
         if (err) return res.send(err);
         return res.json({ project });
@@ -110,12 +95,7 @@ exports.edit_project = (req, res) => {
       },
       { new: true },
     )
-      .populate({
-        path: 'author',
-        populate: {
-          path: 'projects',
-        },
-      })
+      .populate('author')
       .exec((err, project) => {
         if (err) return res.send(err);
         return res.json({ project });

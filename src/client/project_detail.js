@@ -5,7 +5,6 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { StyleSheet, css } from 'aphrodite';
 
-import ProjectDetailSidebar from './project_detail_sidebar';
 import Icon from './icon';
 import ICONS from './icon_constants';
 import puppyImage from './puppy.png';
@@ -40,30 +39,16 @@ class ProjectDetail extends Component {
     this.props.getProjectById(projectId); // eslint-disable-line
   }
 
-  componentDidUpdate(prevProps) {
-    const { match } = this.props;
-
-    if (prevProps.project && match.params.projectId !== prevProps.project._id) {
-      const projectId = match.params.projectId; // eslint-disable-line
-      this.props.getProjectById(projectId); // eslint-disable-line
-    }
-  }
-
   static getDerivedStateFromProps(props, state) {
-    console.log('state');
-    console.log(state);
-    console.log('props');
-    console.log(props.project);
     if (
-      props.project
-      && (state.title !== props.project.title
-      || state.tutorialUrl !== props.project.tutorialUrl
-      || state.description !== props.project.description
-      || state.credits !== props.project.credits
-      || state.imagePath !== props.project.imagePath
-      || state.isDraft !== props.project.isDraft)
+      state.title === undefined
+      && state.tutorialUrl === undefined
+      && state.description === undefined
+      && state.credits === undefined
+      && state.imagePath === undefined
+      && state.isDraft === undefined
+      && props.project
     ) {
-      console.log('updated');
       return {
         title: props.project.title,
         tutorialUrl: props.project.tutorialUrl,
@@ -311,7 +296,6 @@ class ProjectDetail extends Component {
 
   render() {
     const { project } = this.props;
-    console.log(this.state);
 
     return project ? (
       <div className={css(styles.galleryContainer)}>
@@ -320,9 +304,7 @@ class ProjectDetail extends Component {
           {this.renderDescriptionContainer()}
         </div>
 
-        <div className={css(styles.sideBar)}>
-          <ProjectDetailSidebar author={project.author} projects={project.author.projects} />
-        </div>
+        <div className={css(styles.sideBar)}>Remixes</div>
       </div>
     ) : (
       <div>That project does not exist.</div>
@@ -336,9 +318,6 @@ ProjectDetail.propTypes = {
     title: PropTypes.string.isRequired,
     author: PropTypes.shape({
       username: PropTypes.string.isRequired,
-      projects: PropTypes.arrayOf(PropTypes.shape({
-        title: PropTypes.string.isRequired,
-      })),
     }).isRequired,
     description: PropTypes.string,
     tutorialUrl: PropTypes.string,
