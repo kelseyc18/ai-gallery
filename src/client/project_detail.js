@@ -100,7 +100,7 @@ class ProjectDetail extends Component {
     this.setState({ isDraft: event.target.checked });
   };
 
-  renderRightContainer = () => {
+  renderLeftContainer = () => {
     const {
       project,
       editProject,
@@ -113,22 +113,9 @@ class ProjectDetail extends Component {
       title, description, tutorialUrl, credits, newImage, isDraft,
     } = this.state;
 
-    const iconContainer = (
-      <div className={css(styles.iconsContainer)}>
-        <div className={css(styles.iconContainer)}>
-          <span>{project.numDownloads}</span>
-          <Icon icon={ICONS.DOWNLOAD} color="#58585a" />
-        </div>
-        <div className={css(styles.iconContainer)}>
-          <span>{project.numFavorites}</span>
-          <Icon icon={ICONS.FAVORITE} color="#58585a" />
-        </div>
-      </div>
-    );
-
     return inEditMode ? (
       <form>
-        <div className={css(styles.rightContainer)}>
+        <div className={css(styles.leftContainer)}>
           <div className={css(styles.imageContainer)}>
             <img
               className={css(styles.appImage)}
@@ -168,11 +155,10 @@ class ProjectDetail extends Component {
           >
             Cancel
           </button>
-          {iconContainer}
         </div>
       </form>
     ) : (
-      <div className={css(styles.rightContainer)}>
+      <div className={css(styles.leftContainer)}>
         <Link to={`/project/${project._id}`}>
           <div className={css(styles.imageContainer)}>
             <img className={css(styles.appImage)} src={imagePath || puppyImage} alt="project" />
@@ -185,7 +171,6 @@ class ProjectDetail extends Component {
         >
           Edit
         </button>
-        {iconContainer}
       </div>
     );
   };
@@ -199,8 +184,21 @@ class ProjectDetail extends Component {
 
     const datesContainer = (
       <div className={css(styles.datesContainer)}>
-        <p>{`Creation Date: ${project.creationDate}`}</p>
-        <p>{`Last Modified Date: ${project.lastModifiedDate}`}</p>
+        <p>{`Created: ${project.creationDate}`}</p>
+        <p>{`Last Modified: ${project.lastModifiedDate}`}</p>
+      </div>
+    );
+
+    const iconContainer = (
+      <div className={css(styles.iconsContainer)}>
+        <div className={css(styles.iconContainer)}>
+          <span>{project.numDownloads}</span>
+          <Icon icon={ICONS.DOWNLOAD} color="#58585a" />
+        </div>
+        <div className={css(styles.iconContainer)}>
+          <span>{project.numFavorites}</span>
+          <Icon icon={ICONS.FAVORITE} color="#58585a" />
+        </div>
       </div>
     );
 
@@ -209,14 +207,54 @@ class ProjectDetail extends Component {
     const draftCheckboxId = 'draft-checkbox';
 
     return inEditMode ? (
-      <div className={css(styles.descriptionContainer)}>
-        <div className={css(styles.titleContainer)}>
-          <input
-            className={css(styles.appTitleEdit)}
-            value={title}
-            onChange={this.handleTitleChange}
-            placeholder="Title"
-          />
+      <div className={css(styles.rightContainer)}>
+        <div className={css(styles.descriptionContainer)}>
+          <div className={css(styles.titleContainer)}>
+            <input
+              className={css(styles.appTitleEdit)}
+              value={title}
+              onChange={this.handleTitleChange}
+              placeholder="Title"
+            />
+          </div>
+          <div className={css(styles.userInfo)}>
+            <img className={css(styles.profileImage)} src={profileImage || bobaImage} alt="profile" />
+            <p className={css(styles.appAuthor)}>{project.author.username}</p>
+          </div>
+          <div className={css(styles.description)}>
+            <p className={css(styles.editTitle)}>Description:</p>
+            <textarea
+              className={css(styles.edit)}
+              value={description || ''}
+              onChange={this.handleDescriptionChange}
+              placeholder="Description"
+            />
+          </div>
+          <div className={css(styles.tutorial)}>
+            <label htmlFor={tutorialInputId}>
+              <p className={css(styles.editTitle)}>Tutorial / Video:</p>
+              <input
+                className={css(styles.edit)}
+                value={tutorialUrl || ''}
+                placeholder="Tutorial / Video URL"
+                onChange={this.handleTutorialChange}
+                id={tutorialInputId}
+              />
+            </label>
+          </div>
+          <div className={css(styles.credits)}>
+            <p className={css(styles.editTitle)}>Credits: </p>
+            <textarea
+              className={css(styles.edit)}
+              value={credits || ''}
+              placeholder="Are you remixing code from other apps? Credit them here."
+              onChange={this.handleCreditsChange}
+              id={creditsInputId}
+            />
+          </div>
+          {datesContainer}
+        </div>
+        <div className={css(styles.draftCheckbox)}>
           <label htmlFor={draftCheckboxId}>
             <input
               type="checkbox"
@@ -227,39 +265,6 @@ class ProjectDetail extends Component {
             Draft
           </label>
         </div>
-        <div className={css(styles.userInfo)}>
-          <img className={css(styles.profileImage)} src={profileImage || bobaImage} alt="profile" />
-          <p className={css(styles.appAuthor)}>{project.author.username}</p>
-        </div>
-        <div className={css(styles.description)}>
-          <p>Description:</p>
-          <textarea
-            value={description || ''}
-            onChange={this.handleDescriptionChange}
-            placeholder="Description"
-          />
-        </div>
-        <div className={css(styles.tutorial)}>
-          <label htmlFor={tutorialInputId}>
-            {'Tutorial / Video: '}
-            <input
-              value={tutorialUrl || ''}
-              placeholder="Tutorial / Video URL"
-              onChange={this.handleTutorialChange}
-              id={tutorialInputId}
-            />
-          </label>
-        </div>
-        <div className={css(styles.credits)}>
-          <p>Credits: </p>
-          <textarea
-            value={credits || ''}
-            placeholder="Are you remixing code from other apps? Credit them here."
-            onChange={this.handleCreditsChange}
-            id={creditsInputId}
-          />
-        </div>
-        {datesContainer}
       </div>
     ) : (
       <div className={css(styles.descriptionContainer)}>
@@ -268,6 +273,7 @@ class ProjectDetail extends Component {
             <p className={css(styles.appTitle)}>{project.title}</p>
           </Link>
           {project.isDraft && <div className={css(styles.draft)}>Draft</div>}
+          {iconContainer}
         </div>
         <div className={css(styles.userInfo)}>
           <Link to={`/profile/${project.author.username}`}>
@@ -282,17 +288,27 @@ class ProjectDetail extends Component {
           </Link>
         </div>
         <div className={css(styles.description)}>
-          <p>{project.description}</p>
+          {!!project.description && project.description}
         </div>
         <div className={css(styles.tutorial)}>
           {!!project.tutorialUrl && (
-            <span>
-              {'Tutorial / Video: '}
-              <a href={project.tutorialUrl}>{project.tutorialUrl}</a>
-            </span>
+            <div>
+              <p className={css(styles.detailTitle)}>Tutorial / Video:</p>
+              <span>
+                <a href={project.tutorialUrl}>{project.tutorialUrl}</a>
+              </span>
+            </div>
           )}
         </div>
-        <div className={css(styles.credits)}>{!!credits && `Credits: ${credits}`}</div>
+        <div className={css(styles.credits)}>
+          {!!credits && (
+            <div>
+              <p className={css(styles.detailTitle)}>Credits:</p>
+              {credits}
+            </div>
+          )}
+        </div>
+        <div className={css(styles.filler)} />
         {datesContainer}
       </div>
     );
@@ -305,7 +321,7 @@ class ProjectDetail extends Component {
     return project ? (
       <div className={css(styles.galleryContainer)}>
         <div className={css(styles.galleryAppDetail)}>
-          {this.renderRightContainer()}
+          {this.renderLeftContainer()}
           {this.renderDescriptionContainer()}
         </div>
 
@@ -355,7 +371,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     backgroundColor: 'white',
     display: 'flex',
-    margin: 'auto',
     marginBottom: 20,
     marginRight: 20,
     padding: 10,
@@ -364,7 +379,6 @@ const styles = StyleSheet.create({
 
   imageContainer: {
     position: 'relative',
-    marginBottom: 10,
   },
 
   appImage: {
@@ -389,21 +403,24 @@ const styles = StyleSheet.create({
   },
 
   rightContainer: {
+    display: 'grid',
+    gridTemplateColumns: '80% 20%',
+    width: 'max-content',
+    flexGrow: 1,
+  },
+
+  leftContainer: {
     display: 'flex',
     flexDirection: 'column',
     width: 160,
+    margin: 10,
   },
 
   descriptionContainer: {
-    marginLeft: 10,
-    width: '100%',
-    maxWidth: 577,
-  },
-
-  titleContainer: {
     display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'flex-end',
+    flexDirection: 'column',
+    margin: 10,
+    flexGrow: 1,
   },
 
   draft: {
@@ -415,28 +432,52 @@ const styles = StyleSheet.create({
     paddingRight: 5,
   },
 
+  draftCheckbox: {
+    margin: 10,
+  },
+
   credits: {
+    marginTop: 5,
     marginBottom: 10,
+    fontSize: 12,
+  },
+
+  titleContainer: {
+    display: 'flex',
+    justifyContent: 'left',
+    alignItems: 'center',
+    marginBottom: 5,
+    marginTop: 'auto',
   },
 
   appTitle: {
     fontWeight: 800,
-    fontSize: 20,
+    fontSize: 25,
     color: '#128ba8',
     ':hover': {
       color: '#105fa8',
     },
+    marginRight: 5,
   },
 
   appTitleEdit: {
     fontWeight: 800,
-    fontSize: 20,
+    fontSize: '25px !important',
     color: '#128ba8',
+    width: '100%',
+    border: 0,
+    background: '#eeeeee',
+    borderRadius: 2,
+    padding: 5,
   },
 
   userInfo: {
     display: 'flex',
+    flexDirection: 'row',
     marginTop: 5,
+    marginBottom: 5,
+    alignItems: 'center',
+    fontWeight: 800,
   },
 
   profileImage: {
@@ -452,9 +493,10 @@ const styles = StyleSheet.create({
 
   projectDetailButton: {
     backgroundColor: '#84ad2d',
+    borderRadius: 2,
     border: 'none',
     color: 'white',
-    marginBottom: 10,
+    marginTop: 10,
   },
 
   cancelButton: {
@@ -462,13 +504,15 @@ const styles = StyleSheet.create({
   },
 
   description: {
-    marginTop: 10,
-    marginBottom: 10,
+    marginTop: 5,
+    marginBottom: 20,
+    fontSize: 12,
   },
 
   tutorial: {
-    marginTop: 10,
+    marginTop: 5,
     marginBottom: 10,
+    fontSize: 12,
   },
 
   tutorialTitle: {
@@ -487,18 +531,49 @@ const styles = StyleSheet.create({
   },
 
   iconsContainer: {
-    flexDirection: 'column',
-    margin: 'auto',
+    display: 'flex',
+    flexDirection: 'row',
+    marginLeft: 'auto',
+    marginRight: 5,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 
   iconContainer: {
-    alignSelf: 'end',
-    marginTop: 5,
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: 5,
   },
 
   datesContainer: {
     fontSize: 12,
     color: '#58585a',
+    marginBottom: 'auto',
+    marginTop: 5,
+  },
+
+  filler: {
+    flexGrow: 1,
+  },
+
+  edit: {
+    border: 0,
+    background: '#eeeeee',
+    borderRadius: 2,
+    fontSize: 12,
+    width: '100%',
+    boxSizing: 'border-box',
+  },
+
+  editTitle: {
+    fontSize: 15,
+    marginBottom: 5,
+  },
+
+  detailTitle: {
+    fontSize: 15,
+    marginBottom: 5,
   },
 });
 
