@@ -1,5 +1,6 @@
 // Action Types
 export const UPDATE_PROJECTS = 'UPDATE_PROJECTS';
+export const APPEND_PROJECTS = 'APPEND_PROJECTS';
 export const UPDATE_SELECTED_PROJECT = 'UPDATE_SELECTED_PROJECT';
 export const UPDATE_PROJECT_DETAILS = 'UPDATE_PROJECT_DETAILS';
 export const EDIT_PROJECT = 'EDIT_PROJECT';
@@ -7,10 +8,8 @@ export const CANCEL_EDIT_PROJECT = 'CANCEL_EDIT_PROJECT';
 export const SELECT_PROFILE = 'SELECT_PROFILE';
 
 // Action Creators
-function fetchProjects() {
-  return fetch('/api/projects')
-    .then(res => res.json())
-    .then(res => res.projects);
+function fetchProjects(offset) {
+  return fetch(`/api/projects?offset=${offset}`).then(res => res.json());
 }
 
 function fetchProjectById(id) {
@@ -44,10 +43,19 @@ function postProjectDetails(title, id, description, tutorialUrl, credits, newIma
     .then(res => res.project);
 }
 
-function updateProjectsAction(projects) {
+function updateProjectsAction(projects, total) {
   return {
     type: UPDATE_PROJECTS,
     projects,
+    total,
+  };
+}
+
+function appendProjectsAction(projects, total) {
+  return {
+    type: APPEND_PROJECTS,
+    projects,
+    total,
   };
 }
 
@@ -84,8 +92,14 @@ export function cancelEditProject() {
   };
 }
 
-export function getProjects() {
-  return dispatch => fetchProjects().then(projects => dispatch(updateProjectsAction(projects)));
+export function getProjects(offset) {
+  return dispatch => fetchProjects(offset).then((res) => {
+    if (res.offset === 0) {
+      dispatch(updateProjectsAction(res.projects, res.total));
+    } else {
+      dispatch(appendProjectsAction(res.projects, res.total));
+    }
+  });
 }
 
 export function getProjectById(id) {
