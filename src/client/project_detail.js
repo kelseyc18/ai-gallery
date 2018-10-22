@@ -318,7 +318,6 @@ class ProjectDetail extends Component {
 
   render() {
     const { project } = this.props;
-    console.log(this.state);
 
     return project ? (
       <div className={css(styles.galleryContainer)}>

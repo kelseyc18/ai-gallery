@@ -5,10 +5,12 @@ import {
   CANCEL_EDIT_PROJECT,
   UPDATE_PROJECT_DETAILS,
   SELECT_PROFILE,
+  APPEND_PROJECTS,
 } from '../actions';
 
 const initialState = {
   projects: [],
+  projectsTotal: 0,
   selectedProject: null,
   inEditMode: false,
   selectedProfile: null,
@@ -20,6 +22,31 @@ export default function (state = initialState, action) {
       return {
         ...state,
         projects: action.projects,
+        projectsTotal: action.total,
+        selectedProject: null,
+        inEditMode: false,
+        selectedProfile: null,
+      };
+    case APPEND_PROJECTS:
+      const newProjects = state.projects.slice(); // eslint-disable-line
+      const BreakException = {}; // eslint-disable-line
+
+      action.projects.forEach((project) => {
+        try {
+          newProjects.forEach((otherProject) => {
+            if (otherProject._id === project._id) {
+              throw BreakException;
+            }
+          });
+          newProjects.push(project);
+        } catch (e) {
+          if (e !== BreakException) throw e;
+        }
+      });
+      return {
+        ...state,
+        projects: newProjects,
+        projectsTotal: action.total,
         selectedProject: null,
         inEditMode: false,
         selectedProfile: null,
@@ -28,6 +55,7 @@ export default function (state = initialState, action) {
       return {
         ...state,
         projects: [],
+        projectsTotal: 0,
         selectedProject: action.project,
         inEditMode: false,
         selectedProfile: null,

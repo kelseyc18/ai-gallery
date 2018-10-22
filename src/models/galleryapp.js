@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const mongoosePaginate = require('mongoose-paginate');
 
 const { Schema } = mongoose;
 
@@ -20,5 +21,6 @@ const GalleryAppSchema = new Schema({
   parentProjectId: String,
   appInventorInstance: String,
 });
+GalleryAppSchema.plugin(mongoosePaginate);
 
 module.exports = mongoose.model('GalleryApp', GalleryAppSchema);

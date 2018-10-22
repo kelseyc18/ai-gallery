@@ -10,17 +10,28 @@ import './app.css';
 
 class GalleryContainer extends Component {
   componentDidMount() {
-    this.props.getProjects(); // eslint-disable-line
+    this.props.getProjects(this.state ? this.state.projects.length : 0); // eslint-disable-line
   }
 
   render() {
-    const { projects } = this.props;
+    const { projects, getProjects, projectsTotal } = this.props;
 
     return (
       <div className={css(styles.galleryContainer)}>
         {projects.map(project => (
           <GalleryApp project={project} key={project._id} />
         ))}
+        {projects.length < projectsTotal ? (
+          <div className={css(styles.footer)}>
+            <button
+              className={css(styles.button)}
+              onClick={() => getProjects(projects.length)}
+              type="button"
+            >
+              Load more projects
+            </button>
+          </div>
+        ) : null}
       </div>
     );
   }
@@ -33,6 +44,7 @@ GalleryContainer.propTypes = {
     }),
   ).isRequired,
   getProjects: PropTypes.func.isRequired,
+  projectsTotal: PropTypes.number.isRequired,
 };
 
 const styles = StyleSheet.create({
@@ -45,10 +57,23 @@ const styles = StyleSheet.create({
     paddingLeft: 20,
     paddingRight: 20,
   },
+
+  footer: {
+    width: '100%',
+    display: 'flex',
+    alignItems: 'center',
+    margin: 20,
+    marginTop: 0,
+  },
+
+  button: {
+    margin: 'auto',
+  },
 });
 
 const mapStateToProps = state => ({
   projects: state.projects,
+  projectsTotal: state.projectsTotal,
 });
 
 const mapDispatchToProps = dispatch => bindActionCreators(
