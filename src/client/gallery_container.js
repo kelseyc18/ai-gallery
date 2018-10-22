@@ -44,7 +44,6 @@ const styles = StyleSheet.create({
     maxWidth: 850,
     paddingLeft: 20,
     paddingRight: 20,
-    justifyContent: 'space-between',
   },
 });
 

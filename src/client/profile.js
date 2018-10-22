@@ -78,7 +78,6 @@ const styles = StyleSheet.create({
     display: 'flex',
     background: 'white',
     width: '100%',
-    padding: 10,
     borderRadius: 10,
   },
 
@@ -86,12 +85,13 @@ const styles = StyleSheet.create({
     height: 72,
     width: 72,
     borderRadius: 5,
+    margin: 10,
   },
 
   profileTextContainer: {
     display: 'flex',
     flexDirection: 'column',
-    marginLeft: 10,
+    margin: 10,
   },
 
   username: {
@@ -107,7 +107,9 @@ const styles = StyleSheet.create({
   projectContainer: {
     display: 'flex',
     flexDirection: 'row',
+    flexWrap: 'wrap',
     marginTop: 10,
+    width: '100%',
   },
 
   header: {

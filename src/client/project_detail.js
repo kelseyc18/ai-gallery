@@ -143,7 +143,9 @@ class ProjectDetail extends Component {
             type="button"
             className={css(styles.projectDetailButton)}
             onClick={() => {
-              updateProjectDetails(title, project._id, description, tutorialUrl, credits, newImage, isDraft);
+              updateProjectDetails(
+                title, project._id, description, tutorialUrl, credits, newImage, isDraft,
+              );
             }}
           >
             Save
