@@ -11,6 +11,7 @@ import {
 const initialState = {
   projects: [],
   projectsTotal: 0,
+  searchQuery: null,
   selectedProject: null,
   inEditMode: false,
   selectedProfile: null,
@@ -23,6 +24,7 @@ export default function (state = initialState, action) {
         ...state,
         projects: action.projects,
         projectsTotal: action.total,
+        searchQuery: action.searchQuery,
         selectedProject: null,
         inEditMode: false,
         selectedProfile: null,
@@ -47,6 +49,7 @@ export default function (state = initialState, action) {
         ...state,
         projects: newProjects,
         projectsTotal: action.total,
+        searchQuery: action.searchQuery,
         selectedProject: null,
         inEditMode: false,
         selectedProfile: null,

@@ -10,7 +10,7 @@ import './app.css';
 
 class GalleryContainer extends Component {
   componentDidMount() {
-    this.props.getProjects(this.state ? this.state.projects.length : 0); // eslint-disable-line
+    this.props.getProjects(); // eslint-disable-line
   }
 
   render() {

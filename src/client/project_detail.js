@@ -20,7 +20,6 @@ import {
 
 class ProjectDetail extends Component {
   state = {
-    id: undefined,
     title: undefined,
     tutorialUrl: undefined,
     description: undefined,

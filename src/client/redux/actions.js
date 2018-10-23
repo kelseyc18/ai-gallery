@@ -8,7 +8,10 @@ export const CANCEL_EDIT_PROJECT = 'CANCEL_EDIT_PROJECT';
 export const SELECT_PROFILE = 'SELECT_PROFILE';
 
 // Action Creators
-function fetchProjects(offset) {
+function fetchProjects(offset, searchQuery) {
+  if (searchQuery) {
+    return fetch(`/api/projects?offset=${offset}&q=${encodeURIComponent(searchQuery)}`).then(res => res.json());
+  }
   return fetch(`/api/projects?offset=${offset}`).then(res => res.json());
 }
 
@@ -43,19 +46,21 @@ function postProjectDetails(title, id, description, tutorialUrl, credits, newIma
     .then(res => res.project);
 }
 
-function updateProjectsAction(projects, total) {
+function updateProjectsAction(projects, total, searchQuery) {
   return {
     type: UPDATE_PROJECTS,
     projects,
     total,
+    searchQuery,
   };
 }
 
-function appendProjectsAction(projects, total) {
+function appendProjectsAction(projects, total, searchQuery) {
   return {
     type: APPEND_PROJECTS,
     projects,
     total,
+    searchQuery,
   };
 }
 
@@ -92,12 +97,12 @@ export function cancelEditProject() {
   };
 }
 
-export function getProjects(offset) {
-  return dispatch => fetchProjects(offset).then((res) => {
+export function getProjects(offset, searchQuery) {
+  return dispatch => fetchProjects(offset, searchQuery).then((res) => {
     if (res.offset === 0) {
-      dispatch(updateProjectsAction(res.projects, res.total));
+      dispatch(updateProjectsAction(res.projects, res.total, searchQuery));
     } else {
-      dispatch(appendProjectsAction(res.projects, res.total));
+      dispatch(appendProjectsAction(res.projects, res.total, searchQuery));
     }
   });
 }
