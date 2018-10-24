@@ -8,13 +8,27 @@ import { getProjects } from './redux/actions';
 import GalleryApp from './gallery_app';
 import './app.css';
 
+const queryString = require('query-string');
+
 class GalleryContainer extends Component {
   componentDidMount() {
-    this.props.getProjects(); // eslint-disable-line
+    const { getProjects, location } = this.props;
+    const query = queryString.parse(location.search).q;
+    getProjects(0, query);
+  }
+
+  componentDidUpdate(prevProps) {
+    const { location, getProjects } = this.props;
+    if (location.search !== prevProps.location.search) {
+      const query = queryString.parse(location.search).q;
+      getProjects(0, query);
+    }
   }
 
   render() {
-    const { projects, getProjects, projectsTotal } = this.props;
+    const {
+      projects, getProjects, projectsTotal, searchQuery,
+    } = this.props;
 
     return (
       <div className={css(styles.galleryContainer)}>
@@ -25,7 +39,7 @@ class GalleryContainer extends Component {
           <div className={css(styles.footer)}>
             <button
               className={css(styles.button)}
-              onClick={() => getProjects(projects.length)}
+              onClick={() => getProjects(projects.length, searchQuery)}
               type="button"
             >
               Load more projects
@@ -45,6 +59,10 @@ GalleryContainer.propTypes = {
   ).isRequired,
   getProjects: PropTypes.func.isRequired,
   projectsTotal: PropTypes.number.isRequired,
+  searchQuery: PropTypes.string,
+  location: PropTypes.shape({
+    search: PropTypes.string.isRequired,
+  }),
 };
 
 const styles = StyleSheet.create({
@@ -74,6 +92,7 @@ const styles = StyleSheet.create({
 const mapStateToProps = state => ({
   projects: state.projects,
   projectsTotal: state.projectsTotal,
+  searchQuery: state.searchQuery,
 });
 
 const mapDispatchToProps = dispatch => bindActionCreators(

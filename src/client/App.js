@@ -6,7 +6,6 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { StyleSheet, css } from 'aphrodite';
 import { bindActionCreators } from 'redux';
-import { getProjects } from './redux/actions';
 
 import Icon from './icon';
 import ICONS from './icon_constants';
@@ -27,10 +26,13 @@ class App extends Component {
 
   handleKeyPress = (event) => {
     const { searchQuery } = this.state;
-    const { getProjects } = this.props;
+    const { history } = this.props;
 
     if (event.key === 'Enter') {
-      getProjects(0, searchQuery);
+      history.push({
+        pathname: '/',
+        search: `?q=${searchQuery}`,
+      });
     }
   };
 
@@ -74,7 +76,7 @@ class App extends Component {
 }
 
 App.propTypes = {
-  getProjects: PropTypes.func.isRequired,
+  history: PropTypes.object.isRequired, // eslint-disable-line
 };
 
 const styles = StyleSheet.create({
@@ -114,16 +116,4 @@ const styles = StyleSheet.create({
   },
 });
 
-const mapDispatchToProps = dispatch => bindActionCreators(
-  {
-    getProjects,
-  },
-  dispatch,
-);
-
-export default withRouter(
-  connect(
-    null,
-    mapDispatchToProps,
-  )(App),
-);
+export default withRouter(connect()(App));
