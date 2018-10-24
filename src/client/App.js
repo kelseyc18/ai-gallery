@@ -5,7 +5,6 @@ import {
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { StyleSheet, css } from 'aphrodite';
-import { bindActionCreators } from 'redux';
 
 import Icon from './icon';
 import ICONS from './icon_constants';
@@ -76,7 +75,12 @@ class App extends Component {
 }
 
 App.propTypes = {
-  history: PropTypes.object.isRequired, // eslint-disable-line
+  history: PropTypes.shape({
+    push: PropTypes.func.isRequired,
+  }).isRequired,
+  location: PropTypes.shape({
+    search: PropTypes.string.isRequired,
+  }),
 };
 
 const styles = StyleSheet.create({

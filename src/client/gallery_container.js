@@ -31,21 +31,28 @@ class GalleryContainer extends Component {
     } = this.props;
 
     return (
-      <div className={css(styles.galleryContainer)}>
-        {projects.map(project => (
-          <GalleryApp project={project} key={project._id} />
-        ))}
-        {projects.length < projectsTotal ? (
-          <div className={css(styles.footer)}>
-            <button
-              className={css(styles.button)}
-              onClick={() => getProjects(projects.length, searchQuery)}
-              type="button"
-            >
-              Load more projects
-            </button>
+      <div className={css(styles.outerContainer)}>
+        {!!searchQuery && (
+          <div className={css(styles.searchBanner)}>
+            <div>Search</div>
           </div>
-        ) : null}
+        )}
+        <div className={css(styles.galleryContainer)}>
+          {projects.map(project => (
+            <GalleryApp project={project} key={project._id} />
+          ))}
+          {projects.length < projectsTotal ? (
+            <div className={css(styles.footer)}>
+              <button
+                className={css(styles.button)}
+                onClick={() => getProjects(projects.length, searchQuery)}
+                type="button"
+              >
+                Load more projects
+              </button>
+            </div>
+          ) : null}
+        </div>
       </div>
     );
   }
@@ -66,14 +73,29 @@ GalleryContainer.propTypes = {
 };
 
 const styles = StyleSheet.create({
+  outerContainer: {
+    margin: 'auto',
+    marginTop: 80,
+  },
+
   galleryContainer: {
     display: 'flex',
     flexWrap: 'wrap',
-    margin: 'auto',
-    marginTop: 100,
     maxWidth: 850,
+    paddingTop: 20,
     paddingLeft: 20,
     paddingRight: 20,
+  },
+
+  searchBanner: {
+    backgroundColor: '#92267C',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: 100,
+    color: 'white',
+    fontSize: 48,
+    fontWeight: 'bold',
   },
 
   footer: {
