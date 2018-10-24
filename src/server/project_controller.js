@@ -6,7 +6,8 @@ const GalleryApp = require('../models/galleryapp');
 const LIMIT = 12;
 
 exports.all_projects = (req, res) => {
-  const query = {};
+  const searchQuery = req.query.q;
+  const query = searchQuery ? { title: new RegExp(searchQuery, 'i') } : {};
   const options = {
     populate: 'author',
     offset: parseInt(req.query.offset, 10) || 0,
