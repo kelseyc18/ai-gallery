@@ -82,6 +82,7 @@ const styles = StyleSheet.create({
     display: 'flex',
     flexWrap: 'wrap',
     maxWidth: 850,
+    margin: 'auto',
     paddingTop: 20,
     paddingLeft: 20,
     paddingRight: 20,
