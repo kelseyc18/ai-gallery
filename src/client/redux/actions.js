@@ -6,6 +6,7 @@ export const UPDATE_PROJECT_DETAILS = 'UPDATE_PROJECT_DETAILS';
 export const EDIT_PROJECT = 'EDIT_PROJECT';
 export const CANCEL_EDIT_PROJECT = 'CANCEL_EDIT_PROJECT';
 export const SELECT_PROFILE = 'SELECT_PROFILE';
+export const LOGIN_AS_USER = 'LOGIN_AS_USER';
 
 // Action Creators
 function fetchProjects(offset, searchQuery) {
@@ -134,5 +135,12 @@ export function updateProjectDetails(
         dispatch(updateProjectDetailsAction(project));
       },
     );
+  };
+}
+
+export function loginAsUser(userId) {
+  return {
+    type: LOGIN_AS_USER,
+    userId,
   };
 }
