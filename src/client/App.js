@@ -3,8 +3,10 @@ import {
   Route, Link, Switch, Redirect, withRouter,
 } from 'react-router-dom';
 import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
 import { StyleSheet, css } from 'aphrodite';
+import { loginAsUser } from './redux/actions';
 
 import Icon from './icon';
 import ICONS from './icon_constants';
@@ -13,6 +15,22 @@ import ProjectDetail from './project_detail';
 import Profile from './profile';
 import './app.css';
 import logo from './logo.png';
+
+// TODO(kelsey): Replace when implementing actual user authentication
+const USERS = [
+  {
+    id: '5bb3cdb8c47ccf553251d0f6',
+    username: 'piazza_master',
+  },
+  {
+    id: '5bb3cde6c47ccf553251d0f7',
+    username: 'boba_master',
+  },
+  {
+    id: '5bbfd5adac85e209d0d4a598',
+    username: 'coffee_master',
+  },
+];
 
 class App extends Component {
   state = {
@@ -35,8 +53,15 @@ class App extends Component {
     }
   };
 
+  handleUserLogin = (event) => {
+    const { loginAsUser } = this.props;
+    loginAsUser(event.target.value);
+  };
+
   render() {
     const { searchQuery } = this.state;
+
+    const USER_DROPDOWN_ID = 'user-dropdown-id';
 
     return (
       <div>
@@ -56,6 +81,19 @@ class App extends Component {
                 onKeyPress={this.handleKeyPress}
                 placeholder="Search"
               />
+            </div>
+            <div className={css(styles.userAuthentication)}>
+              {/* eslint-disable-next-line */}
+              <label htmlFor={USER_DROPDOWN_ID}>
+                {'Logged in as: '}
+                <select id={USER_DROPDOWN_ID} onChange={this.handleUserLogin}>
+                  {USERS.map(user => (
+                    <option value={user.id} key={user.id}>
+                      {user.username}
+                    </option>
+                  ))}
+                </select>
+              </label>
             </div>
           </div>
         </div>
@@ -81,6 +119,7 @@ App.propTypes = {
   location: PropTypes.shape({
     search: PropTypes.string.isRequired,
   }),
+  loginAsUser: PropTypes.func.isRequired,
 };
 
 const styles = StyleSheet.create({
@@ -118,6 +157,22 @@ const styles = StyleSheet.create({
   searchContainer: {
     marginLeft: 20,
   },
+
+  userAuthentication: {
+    marginLeft: 'auto',
+  },
 });
 
-export default withRouter(connect()(App));
+const mapDispatchToProps = dispatch => bindActionCreators(
+  {
+    loginAsUser,
+  },
+  dispatch,
+);
+
+export default withRouter(
+  connect(
+    null,
+    mapDispatchToProps,
+  )(App),
+);

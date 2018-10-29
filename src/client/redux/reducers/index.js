@@ -6,6 +6,7 @@ import {
   UPDATE_PROJECT_DETAILS,
   SELECT_PROFILE,
   APPEND_PROJECTS,
+  LOGIN_AS_USER,
 } from '../actions';
 
 const initialState = {
@@ -15,6 +16,7 @@ const initialState = {
   selectedProject: null,
   inEditMode: false,
   selectedProfile: null,
+  loggedInUser: '5bb3cdb8c47ccf553251d0f6',
 };
 
 export default function (state = initialState, action) {
@@ -84,6 +86,12 @@ export default function (state = initialState, action) {
       return {
         ...state,
         selectedProfile: action.user,
+      };
+    }
+    case LOGIN_AS_USER: {
+      return {
+        ...state,
+        loggedInUser: action.userId,
       };
     }
     default:

@@ -106,11 +106,14 @@ class ProjectDetail extends Component {
       cancelEditProject,
       inEditMode,
       updateProjectDetails,
+      loggedInUser,
     } = this.props;
-    const { imagePath } = project;
+    const { imagePath, author } = project;
     const {
       title, description, tutorialUrl, credits, newImage, isDraft,
     } = this.state;
+
+    const loggedInAsAuthor = loggedInUser === author._id;
 
     return inEditMode ? (
       <form>
@@ -143,7 +146,13 @@ class ProjectDetail extends Component {
             className={css(styles.projectDetailButton)}
             onClick={() => {
               updateProjectDetails(
-                title, project._id, description, tutorialUrl, credits, newImage, isDraft,
+                title,
+                project._id,
+                description,
+                tutorialUrl,
+                credits,
+                newImage,
+                isDraft,
               );
             }}
           >
@@ -165,13 +174,15 @@ class ProjectDetail extends Component {
             <img className={css(styles.appImage)} src={imagePath || puppyImage} alt="project" />
           </div>
         </Link>
-        <button
-          type="button"
-          className={css(styles.projectDetailButton)}
-          onClick={() => editProject()}
-        >
-          Edit
-        </button>
+        {loggedInAsAuthor && (
+          <button
+            type="button"
+            className={css(styles.projectDetailButton)}
+            onClick={() => editProject()}
+          >
+            Edit
+          </button>
+        )}
       </div>
     );
   };
@@ -219,7 +230,11 @@ class ProjectDetail extends Component {
             />
           </div>
           <div className={css(styles.userInfo)}>
-            <img className={css(styles.profileImage)} src={profileImage || bobaImage} alt="profile" />
+            <img
+              className={css(styles.profileImage)}
+              src={profileImage || bobaImage}
+              alt="profile"
+            />
             <p className={css(styles.appAuthor)}>{project.author.username}</p>
           </div>
           <div className={css(styles.description)}>
@@ -341,9 +356,11 @@ ProjectDetail.propTypes = {
     title: PropTypes.string.isRequired,
     author: PropTypes.shape({
       username: PropTypes.string.isRequired,
-      projects: PropTypes.arrayOf(PropTypes.shape({
-        title: PropTypes.string.isRequired,
-      })),
+      projects: PropTypes.arrayOf(
+        PropTypes.shape({
+          title: PropTypes.string.isRequired,
+        }),
+      ),
     }).isRequired,
     description: PropTypes.string,
     tutorialUrl: PropTypes.string,
@@ -355,6 +372,7 @@ ProjectDetail.propTypes = {
   cancelEditProject: PropTypes.func.isRequired,
   inEditMode: PropTypes.bool.isRequired,
   updateProjectDetails: PropTypes.func.isRequired,
+  loggedInUser: PropTypes.string.isRequired,
 };
 
 const styles = StyleSheet.create({
@@ -580,6 +598,7 @@ const styles = StyleSheet.create({
 const mapStateToProps = state => ({
   project: state.selectedProject,
   inEditMode: state.inEditMode,
+  loggedInUser: state.loggedInUser,
 });
 
 const mapDispatchToProps = dispatch => bindActionCreators(
