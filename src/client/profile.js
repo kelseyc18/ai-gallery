@@ -66,13 +66,30 @@ class Profile extends Component {
     return (
       <div className={css(styles.galleryContainer)}>
         <div className={css(styles.profileContainer)}>
-          <img className={css(styles.profileImage)} src={imagePath || bobaImage} alt="profile" />
-          <div className={css(styles.profileTextContainer)}>
-            <Link to={`/profile/${username}`}>
-              <p className={css(styles.username)}>{username}</p>
-            </Link>
-            <p>{name}</p>
-            <p className={css(styles.bio)}>{bio || `This is ${name}'s bio!`}</p>
+          <div className={css(styles.profileHeader)}>
+            <img className={css(styles.profileImage)} src={imagePath || bobaImage} alt="profile" />
+            <div className={css(styles.profileTextContainer)}>
+              <Link to={`/profile/${username}`}>
+                <p className={css(styles.username)}>{username}</p>
+              </Link>
+              <p>{name}</p>
+              {isLoggedInUserProfile && (
+                <button type="button" className={css(styles.editButton)}>
+                  Edit Profile
+                </button>
+              )}
+            </div>
+          </div>
+
+          <div className={css(styles.profileBody)}>
+            <div className={css(styles.bioContainer)}>
+              <p className={css(styles.profileTitle)}>About Me</p>
+              <p className={css(styles.bio)}>{bio || `This is ${name}'s bio!`}</p>
+            </div>
+
+            <div className={css(styles.featuredProjectContainer)}>
+              <p className={css(styles.profileTitle)}>Featured Project</p>
+            </div>
           </div>
           {!isLoggedInUserProfile && (
             <button
@@ -190,6 +207,7 @@ Profile.propTypes = {
   loggedInUser: PropTypes.shape({
     id: PropTypes.number.isRequired,
   }),
+  loggedInUser: PropTypes.string.isRequired,
 };
 
 const styles = StyleSheet.create({
@@ -281,6 +299,10 @@ const styles = StyleSheet.create({
   followButton: {
     height: 30,
     marginLeft: 'auto',
+  },
+
+  editButton: {
+    marginTop: 10,
   },
 });
 
