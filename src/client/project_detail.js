@@ -21,7 +21,6 @@ import {
 
 class ProjectDetail extends Component {
   state = {
-    id: undefined,
     title: undefined,
     tutorialUrl: undefined,
     description: undefined,
@@ -153,11 +152,14 @@ class ProjectDetail extends Component {
       cancelEditProject,
       inEditMode,
       updateProjectDetails,
+      loggedInUser,
     } = this.props;
-    const { imagePath } = project;
+    const { imagePath, author } = project;
     const {
       title, description, tutorialUrl, credits, newImage, isDraft, tags,
     } = this.state;
+
+    const loggedInAsAuthor = loggedInUser === author._id;
 
     return inEditMode ? (
       <form>
@@ -219,13 +221,15 @@ class ProjectDetail extends Component {
             <img className={css(styles.appImage)} src={imagePath || puppyImage} alt="project" />
           </div>
         </Link>
-        <button
-          type="button"
-          className={css(styles.projectDetailButton)}
-          onClick={() => editProject()}
-        >
-          Edit
-        </button>
+        {loggedInAsAuthor && (
+          <button
+            type="button"
+            className={css(styles.projectDetailButton)}
+            onClick={() => editProject()}
+          >
+            Edit
+          </button>
+        )}
       </div>
     );
   };
@@ -439,6 +443,7 @@ ProjectDetail.propTypes = {
       name: PropTypes.string.isRequired,
     }),
   ),
+  loggedInUser: PropTypes.string.isRequired,
 };
 
 const styles = StyleSheet.create({
@@ -693,6 +698,7 @@ const mapStateToProps = state => ({
   project: state.selectedProject,
   inEditMode: state.inEditMode,
   allTags: state.allTags,
+  loggedInUser: state.loggedInUser,
 });
 
 const mapDispatchToProps = dispatch => bindActionCreators(

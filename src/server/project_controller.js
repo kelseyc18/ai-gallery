@@ -4,12 +4,24 @@ const User = require('../models/user');
 const GalleryApp = require('../models/galleryapp');
 const Tag = require('../models/tag');
 
+const LIMIT = 12;
+
 exports.all_projects = (req, res) => {
-  GalleryApp.find()
-    .populate('author')
-    .exec((err, projects) => {
-      res.send({ projects });
+  const searchQuery = req.query.q;
+  const query = searchQuery ? { title: new RegExp(searchQuery, 'i') } : {};
+  const options = {
+    populate: 'author',
+    offset: parseInt(req.query.offset, 10) || 0,
+    limit: LIMIT,
+  };
+  GalleryApp.paginate(query, options).then((result) => {
+    res.send({
+      projects: result.docs,
+      total: result.total,
+      offset: result.offset,
+      limit: result.limit,
     });
+  });
 };
 
 exports.project_by_id = (req, res) => {

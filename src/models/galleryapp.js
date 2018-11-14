@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const mongoosePaginate = require('mongoose-paginate');
 
 const { Schema } = mongoose;
 
@@ -21,5 +22,6 @@ const GalleryAppSchema = new Schema({
   appInventorInstance: String,
   tags: [{ type: Schema.Types.ObjectId, ref: 'Tag' }],
 });
+GalleryAppSchema.plugin(mongoosePaginate);
 
 module.exports = mongoose.model('GalleryApp', GalleryAppSchema);

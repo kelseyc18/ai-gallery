@@ -6,14 +6,19 @@ import {
   CANCEL_EDIT_PROJECT,
   UPDATE_PROJECT_DETAILS,
   SELECT_PROFILE,
+  APPEND_PROJECTS,
+  LOGIN_AS_USER,
 } from '../actions';
 
 const initialState = {
   projects: [],
+  projectsTotal: 0,
+  searchQuery: null,
   selectedProject: null,
   inEditMode: false,
   selectedProfile: null,
   allTags: [],
+  loggedInUser: '5bb3cdb8c47ccf553251d0f6',
 };
 
 export default function (state = initialState, action) {
@@ -22,6 +27,33 @@ export default function (state = initialState, action) {
       return {
         ...state,
         projects: action.projects,
+        projectsTotal: action.total,
+        searchQuery: action.searchQuery,
+        selectedProject: null,
+        inEditMode: false,
+        selectedProfile: null,
+      };
+    case APPEND_PROJECTS:
+      const newProjects = state.projects.slice(); // eslint-disable-line
+      const BreakException = {}; // eslint-disable-line
+
+      action.projects.forEach((project) => {
+        try {
+          newProjects.forEach((otherProject) => {
+            if (otherProject._id === project._id) {
+              throw BreakException;
+            }
+          });
+          newProjects.push(project);
+        } catch (e) {
+          if (e !== BreakException) throw e;
+        }
+      });
+      return {
+        ...state,
+        projects: newProjects,
+        projectsTotal: action.total,
+        searchQuery: action.searchQuery,
         selectedProject: null,
         inEditMode: false,
         selectedProfile: null,
@@ -30,6 +62,7 @@ export default function (state = initialState, action) {
       return {
         ...state,
         projects: [],
+        projectsTotal: 0,
         selectedProject: action.project,
         inEditMode: false,
         selectedProfile: null,
@@ -60,6 +93,12 @@ export default function (state = initialState, action) {
       return {
         ...state,
         selectedProfile: action.user,
+      };
+    }
+    case LOGIN_AS_USER: {
+      return {
+        ...state,
+        loggedInUser: action.userId,
       };
     }
     default:
