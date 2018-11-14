@@ -19,6 +19,7 @@ const GalleryAppSchema = new Schema({
   rootProjectId: String,
   parentProjectId: String,
   appInventorInstance: String,
+  tags: [{ type: Schema.Types.ObjectId, ref: 'Tag' }],
 });
 
 module.exports = mongoose.model('GalleryApp', GalleryAppSchema);

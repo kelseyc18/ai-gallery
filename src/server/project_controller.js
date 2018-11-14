@@ -2,6 +2,7 @@ const async = require('async');
 
 const User = require('../models/user');
 const GalleryApp = require('../models/galleryapp');
+const Tag = require('../models/tag');
 
 exports.all_projects = (req, res) => {
   GalleryApp.find()
@@ -19,7 +20,33 @@ exports.project_by_id = (req, res) => {
         path: 'projects',
       },
     })
+    .populate({
+      path: 'tags',
+      populate: {
+        path: 'projects',
+      },
+    })
     .exec((err, project) => res.send({ err, project }));
+};
+
+exports.all_tags = (req, res) => {
+  Tag.find({}, (err, allTags) => {
+    res.send({ allTags });
+  });
+};
+
+exports.create_tag = (req, res) => {
+  const { name } = req.body;
+
+  Tag.create(
+    {
+      name,
+    },
+    (err, tag) => {
+      if (err) res.send(err);
+      else res.send({ tag });
+    },
+  );
 };
 
 exports.create_project = (req, res) => {
@@ -68,57 +95,85 @@ exports.create_project = (req, res) => {
 
 exports.edit_project = (req, res) => {
   const {
-    title, id, description, tutorialUrl, credits, isDraft,
+    title, id, description, tutorialUrl, credits, isDraft, tags,
   } = req.body;
 
-  if (req.file) {
-    const imagePath = req.file.path;
+  async.waterfall(
+    [
+      (next) => {
+        Tag.find({ name: { $in: JSON.parse(tags) } }, (err, tags) => {
+          next(err, tags);
+        });
+      },
 
-    GalleryApp.findByIdAndUpdate(
-      id,
-      {
-        title,
-        description,
-        tutorialUrl,
-        credits,
-        lastModifiedDate: Date.now(),
-        imagePath,
-        isDraft,
+      (tags, next) => {
+        if (req.file) {
+          const imagePath = req.file.path;
+
+          GalleryApp.findByIdAndUpdate(
+            id,
+            {
+              title,
+              description,
+              tutorialUrl,
+              credits,
+              lastModifiedDate: Date.now(),
+              imagePath,
+              isDraft,
+              tags,
+            },
+            { new: true },
+          )
+            .populate({
+              path: 'author',
+              populate: {
+                path: 'projects',
+              },
+            })
+            .populate({
+              path: 'tags',
+              populate: {
+                path: 'projects',
+              },
+            })
+            .exec((err, project) => {
+              next(err, project);
+            });
+        } else {
+          GalleryApp.findByIdAndUpdate(
+            id,
+            {
+              title,
+              description,
+              tutorialUrl,
+              credits,
+              lastModifiedDate: Date.now(),
+              isDraft,
+              tags,
+            },
+            { new: true },
+          )
+            .populate({
+              path: 'author',
+              populate: {
+                path: 'projects',
+              },
+            })
+            .populate({
+              path: 'tags',
+              populate: {
+                path: 'projects',
+              },
+            })
+            .exec((err, project) => {
+              next(err, project);
+            });
+        }
       },
-      { new: true },
-    )
-      .populate({
-        path: 'author',
-        populate: {
-          path: 'projects',
-        },
-      })
-      .exec((err, project) => {
-        if (err) return res.send(err);
-        return res.json({ project });
-      });
-  } else {
-    GalleryApp.findByIdAndUpdate(
-      id,
-      {
-        title,
-        description,
-        tutorialUrl,
-        credits,
-        lastModifiedDate: Date.now(),
-        isDraft,
-      },
-      { new: true },
-    )
-      .populate({
-        path: 'author',
-        populate: {
-          path: 'projects',
-        },
-      })
-      .exec((err, project) => {
-        if (err) return res.send(err);
-        return res.json({ project });
-      });
-  }
+    ],
+    (err, project) => {
+      if (err) res.send(err);
+      else res.send({ project });
+    },
+  );
 };

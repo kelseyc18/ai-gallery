@@ -13,6 +13,7 @@ import bobaImage from './boba.png';
 import './app.css';
 import {
   getProjectById,
+  getAllTags,
   editProject,
   cancelEditProject,
   updateProjectDetails,
@@ -27,6 +28,7 @@ class ProjectDetail extends Component {
     credits: undefined,
     newImage: undefined,
     isDraft: undefined,
+    tags: undefined,
   };
 
   constructor(props) {
@@ -39,6 +41,7 @@ class ProjectDetail extends Component {
   componentDidMount() {
     const projectId = this.props.match.params.projectId; // eslint-disable-line
     this.props.getProjectById(projectId); // eslint-disable-line
+    this.props.getAllTags(); // eslint-disable-line
   }
 
   componentDidUpdate(prevProps) {
@@ -47,6 +50,7 @@ class ProjectDetail extends Component {
     if (prevProps.project && match.params.projectId !== prevProps.project._id) {
       const projectId = match.params.projectId; // eslint-disable-line
       this.props.getProjectById(projectId); // eslint-disable-line
+      this.props.getAllTags(); // eslint-disable-line
     }
   }
 
@@ -60,6 +64,7 @@ class ProjectDetail extends Component {
         credits: props.project.credits,
         imagePath: props.project.imagePath,
         isDraft: props.project.isDraft,
+        tags: props.project.tags,
       };
     }
     return null;
@@ -100,6 +105,47 @@ class ProjectDetail extends Component {
     this.setState({ isDraft: event.target.checked });
   };
 
+  handleTagsChange = (event) => {
+    const { allTags } = this.props;
+    const { tags } = this.state;
+
+    const tag = allTags.filter(tag => tag.name === event.target.value)[0];
+    const currentTags = tags;
+
+    if (currentTags.filter(item => item.name === tag.name).length > 0) {
+      const newTags = currentTags.filter(item => item.name !== tag.name);
+      this.setState({ tags: newTags });
+    } else {
+      const newTags = currentTags.concat([tag]);
+      this.setState({ tags: newTags });
+    }
+  };
+
+  renderTagsButtons = (tagName, tagExists) => {
+    const { inEditMode } = this.props;
+    return tagExists ? (
+      <button
+        className={css(styles.tagsButton, styles.tagExists)}
+        type="button"
+        value={tagName}
+        onClick={this.handleTagsChange}
+        disabled={!inEditMode}
+      >
+        {tagName}
+      </button>
+    ) : (
+      <button
+        className={css(styles.tagsButton, styles.tagDoesNotExist)}
+        type="button"
+        value={tagName}
+        onClick={this.handleTagsChange}
+        disabled={!inEditMode}
+      >
+        {tagName}
+      </button>
+    );
+  };
+
   renderLeftContainer = () => {
     const {
       project,
@@ -110,7 +156,7 @@ class ProjectDetail extends Component {
     } = this.props;
     const { imagePath } = project;
     const {
-      title, description, tutorialUrl, credits, newImage, isDraft,
+      title, description, tutorialUrl, credits, newImage, isDraft, tags,
     } = this.state;
 
     return inEditMode ? (
@@ -143,7 +189,16 @@ class ProjectDetail extends Component {
             type="button"
             className={css(styles.projectDetailButton)}
             onClick={() => {
-              updateProjectDetails(title, project._id, description, tutorialUrl, credits, newImage, isDraft);
+              updateProjectDetails(
+                title,
+                project._id,
+                description,
+                tutorialUrl,
+                credits,
+                newImage,
+                isDraft,
+                tags.map(tag => tag.name),
+              );
             }}
           >
             Save
@@ -176,9 +231,9 @@ class ProjectDetail extends Component {
   };
 
   renderDescriptionContainer = () => {
-    const { project, inEditMode } = this.props;
+    const { project, inEditMode, allTags } = this.props;
     const {
-      title, tutorialUrl, description, credits, isDraft,
+      title, tutorialUrl, description, credits, isDraft, tags,
     } = this.state;
     const profileImage = project.author.imagePath;
 
@@ -202,6 +257,17 @@ class ProjectDetail extends Component {
       </div>
     );
 
+    const tagButtons = [];
+    const tagNames = inEditMode ? (tags.map(tag => tag.name)) : (project.tags.map(tag => tag.name));
+    allTags.forEach((tag) => {
+      tagButtons.push(this.renderTagsButtons(tag.name, tagNames.indexOf(tag.name) > -1));
+    });
+    const tagsContainer = (
+      <div className={css(styles.tagsContainer)}>
+        {tagButtons}
+      </div>
+    );
+
     const tutorialInputId = 'tutorial-input';
     const creditsInputId = 'credits-input';
     const draftCheckboxId = 'draft-checkbox';
@@ -218,7 +284,11 @@ class ProjectDetail extends Component {
             />
           </div>
           <div className={css(styles.userInfo)}>
-            <img className={css(styles.profileImage)} src={profileImage || bobaImage} alt="profile" />
+            <img
+              className={css(styles.profileImage)}
+              src={profileImage || bobaImage}
+              alt="profile"
+            />
             <p className={css(styles.appAuthor)}>{project.author.username}</p>
           </div>
           <div className={css(styles.description)}>
@@ -230,6 +300,7 @@ class ProjectDetail extends Component {
               placeholder="Description"
             />
           </div>
+          {tagsContainer}
           <div className={css(styles.tutorial)}>
             <label htmlFor={tutorialInputId}>
               <p className={css(styles.editTitle)}>Tutorial / Video:</p>
@@ -290,6 +361,7 @@ class ProjectDetail extends Component {
         <div className={css(styles.description)}>
           {!!project.description && project.description}
         </div>
+        {tagsContainer}
         <div className={css(styles.tutorial)}>
           {!!project.tutorialUrl && (
             <div>
@@ -316,7 +388,6 @@ class ProjectDetail extends Component {
 
   render() {
     const { project } = this.props;
-    console.log(this.state);
 
     return project ? (
       <div className={css(styles.galleryContainer)}>
@@ -341,20 +412,33 @@ ProjectDetail.propTypes = {
     title: PropTypes.string.isRequired,
     author: PropTypes.shape({
       username: PropTypes.string.isRequired,
-      projects: PropTypes.arrayOf(PropTypes.shape({
-        title: PropTypes.string.isRequired,
-      })),
+      projects: PropTypes.arrayOf(
+        PropTypes.shape({
+          title: PropTypes.string.isRequired,
+        }),
+      ),
     }).isRequired,
     description: PropTypes.string,
     tutorialUrl: PropTypes.string,
     imagePath: PropTypes.string,
     isDraft: PropTypes.bool.isRequired,
+    tags: PropTypes.arrayOf(
+      PropTypes.shape({
+        name: PropTypes.string.isRequired,
+      }),
+    ),
   }),
   getProjectById: PropTypes.func.isRequired,
+  getAllTags: PropTypes.func.isRequired,
   editProject: PropTypes.func.isRequired,
   cancelEditProject: PropTypes.func.isRequired,
   inEditMode: PropTypes.bool.isRequired,
   updateProjectDetails: PropTypes.func.isRequired,
+  allTags: PropTypes.arrayOf(
+    PropTypes.shape({
+      name: PropTypes.string.isRequired,
+    }),
+  ),
 };
 
 const styles = StyleSheet.create({
@@ -404,7 +488,7 @@ const styles = StyleSheet.create({
 
   rightContainer: {
     display: 'grid',
-    gridTemplateColumns: '80% 20%',
+    gridTemplateColumns: '85% 15%',
     width: 'max-content',
     flexGrow: 1,
   },
@@ -421,6 +505,34 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     margin: 10,
     flexGrow: 1,
+  },
+
+  tagsContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    marginBottom: 50,
+  },
+
+  tagsButton: {
+    display: 'inline-block',
+    textAlign: 'center',
+    justifyContent: 'center',
+    margin: 5,
+    fontSize: 12,
+    padding: 5,
+    borderRadius: 10,
+    border: 'none',
+    whiteSpace: 'nowrap',
+  },
+
+  tagExists: {
+    backgroundColor: '#84ad2d',
+    color: 'white',
+  },
+
+  tagDoesNotExist: {
+    backgroundColor: '#eeeeee',
+    color: 'black',
   },
 
   draft: {
@@ -505,7 +617,7 @@ const styles = StyleSheet.create({
 
   description: {
     marginTop: 5,
-    marginBottom: 20,
+    marginBottom: 10,
     fontSize: 12,
   },
 
@@ -580,11 +692,13 @@ const styles = StyleSheet.create({
 const mapStateToProps = state => ({
   project: state.selectedProject,
   inEditMode: state.inEditMode,
+  allTags: state.allTags,
 });
 
 const mapDispatchToProps = dispatch => bindActionCreators(
   {
     getProjectById,
+    getAllTags,
     editProject,
     cancelEditProject,
     updateProjectDetails,

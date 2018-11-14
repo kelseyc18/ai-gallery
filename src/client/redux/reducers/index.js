@@ -1,6 +1,7 @@
 import {
   UPDATE_PROJECTS,
   UPDATE_SELECTED_PROJECT,
+  SELECT_ALL_TAGS,
   EDIT_PROJECT,
   CANCEL_EDIT_PROJECT,
   UPDATE_PROJECT_DETAILS,
@@ -12,6 +13,7 @@ const initialState = {
   selectedProject: null,
   inEditMode: false,
   selectedProfile: null,
+  allTags: [],
 };
 
 export default function (state = initialState, action) {
@@ -31,6 +33,11 @@ export default function (state = initialState, action) {
         selectedProject: action.project,
         inEditMode: false,
         selectedProfile: null,
+      };
+    case SELECT_ALL_TAGS:
+      return {
+        ...state,
+        allTags: action.allTags,
       };
     case EDIT_PROJECT:
       return {

@@ -37,7 +37,9 @@ app.get('/api/user/:username', UserController.user_detail);
 
 // PROJECT ROUTES
 app.get('/api/projects', ProjectController.all_projects);
+app.get('/api/project/alltags', ProjectController.all_tags);
 app.get('/api/project/:id', ProjectController.project_by_id);
 app.post('/api/project/create', upload.single('aia'), ProjectController.create_project);
 app.post('/api/project/edit', upload.single('newImage'), ProjectController.edit_project);
+app.post('/api/project/createtag', ProjectController.create_tag);
 app.listen(8080, () => console.log('Listening on port 8080!'));
