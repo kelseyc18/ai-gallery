@@ -145,6 +145,23 @@ class ProjectDetail extends Component {
     );
   };
 
+  resetState = () => {
+    const { project } = this.props;
+    const {
+      title, tutorialUrl, description, credits, isDraft, tags,
+    } = project;
+
+    this.setState({
+      title,
+      tutorialUrl,
+      description,
+      credits,
+      newImage: undefined,
+      isDraft,
+      tags,
+    });
+  }
+
   renderLeftContainer = () => {
     const {
       project,
@@ -208,7 +225,10 @@ class ProjectDetail extends Component {
           <button
             type="button"
             className={css(styles.projectDetailButton, styles.cancelButton)}
-            onClick={() => cancelEditProject()}
+            onClick={() => {
+              this.resetState();
+              cancelEditProject();
+            }}
           >
             Cancel
           </button>
