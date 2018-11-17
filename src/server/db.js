@@ -1,0 +1,33 @@
+const Sequelize = require('sequelize');
+const path = require('path');
+
+const db = {};
+
+const sequelize = new Sequelize('database', 'username', 'password', {
+  host: 'localhost',
+  dialect: 'sqlite',
+  operatorsAliases: false,
+  storage: path.resolve(__dirname, '../server/database.db'),
+  logging: false,
+});
+sequelize.sync();
+
+db.Sequelize = Sequelize;
+db.sequelize = sequelize;
+
+// Models/tables
+db.User = require('../models/user')(sequelize, Sequelize);
+db.Project = require('../models/project')(sequelize, Sequelize);
+
+// Relations
+
+// Adds attribute `author_id` to Project
+// Users will have `getProjects` and `setProjects`
+db.UserProjects = db.User.hasMany(db.Project, { foreignKey: 'author_id', as: 'projects' });
+db.Project.belongsTo(db.User, { foreignKey: 'author_id', as: 'author' });
+
+// `root_project_id` will be added on Project / Target model
+db.Project.hasMany(db.Project, { foreignKey: 'root_project_id', as: 'RootProject' });
+db.Project.hasMany(db.Project, { foreignKey: 'parent_project_id', as: 'ParentProject' });
+
+module.exports = db;

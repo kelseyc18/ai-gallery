@@ -43,16 +43,16 @@ class ProjectDetail extends Component {
   componentDidUpdate(prevProps) {
     const { match } = this.props;
 
-    if (prevProps.project && match.params.projectId !== prevProps.project._id) {
+    if (prevProps.project && match.params.projectId !== prevProps.project.id.toString()) {
       const projectId = match.params.projectId; // eslint-disable-line
       this.props.getProjectById(projectId); // eslint-disable-line
     }
   }
 
   static getDerivedStateFromProps(props, state) {
-    if (props.project && state.id !== props.project._id) {
+    if (props.project && state.id !== props.project.id) {
       return {
-        id: props.project._id,
+        id: props.project.id,
         title: props.project.title,
         tutorialUrl: props.project.tutorialUrl,
         description: props.project.description,
@@ -129,7 +129,7 @@ class ProjectDetail extends Component {
       title, description, tutorialUrl, credits, newImage, isDraft,
     } = this.state;
 
-    const loggedInAsAuthor = loggedInUser === author._id;
+    const loggedInAsAuthor = loggedInUser === author.id;
 
     return inEditMode ? (
       <form>
@@ -163,7 +163,7 @@ class ProjectDetail extends Component {
             onClick={() => {
               updateProjectDetails(
                 title,
-                project._id,
+                project.id,
                 description,
                 tutorialUrl,
                 credits,
@@ -188,7 +188,7 @@ class ProjectDetail extends Component {
       </form>
     ) : (
       <div className={css(styles.leftContainer)}>
-        <Link to={`/project/${project._id}`}>
+        <Link to={`/project/${project.id}`}>
           <div className={css(styles.imageContainer)}>
             <img className={css(styles.appImage)} src={imagePath || puppyImage} alt="project" />
           </div>
@@ -304,7 +304,7 @@ class ProjectDetail extends Component {
     ) : (
       <div className={css(styles.descriptionContainer)}>
         <div className={css(styles.titleContainer)}>
-          <Link to={`/project/${project._id}`}>
+          <Link to={`/project/${project.id}`}>
             <p className={css(styles.appTitle)}>{project.title}</p>
           </Link>
           {project.isDraft && <div className={css(styles.draft)}>Draft</div>}
@@ -371,7 +371,7 @@ class ProjectDetail extends Component {
 
 ProjectDetail.propTypes = {
   project: PropTypes.shape({
-    _id: PropTypes.string.isRequired,
+    id: PropTypes.number.isRequired,
     title: PropTypes.string.isRequired,
     author: PropTypes.shape({
       username: PropTypes.string.isRequired,
@@ -391,7 +391,7 @@ ProjectDetail.propTypes = {
   cancelEditProject: PropTypes.func.isRequired,
   inEditMode: PropTypes.bool.isRequired,
   updateProjectDetails: PropTypes.func.isRequired,
-  loggedInUser: PropTypes.string.isRequired,
+  loggedInUser: PropTypes.number.isRequired,
 };
 
 const styles = StyleSheet.create({

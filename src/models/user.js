@@ -1,15 +1,25 @@
-const mongoose = require('mongoose');
+'use strict'
 
-const { Schema } = mongoose;
-
-const UserSchema = new Schema({
-  name: String,
-  username: String,
-  authorId: String,
-  appInventorInstance: String,
-  projects: [{ type: Schema.Types.ObjectId, ref: 'GalleryApp' }],
-  imagePath: String,
-  bio: String,
-});
-
-module.exports = mongoose.model('User', UserSchema);
+module.exports = (sequelize, Sequelize) => {
+  const User = sequelize.define('user', {
+    name: {
+      type: Sequelize.STRING,
+    },
+    username: {
+      type: Sequelize.STRING,
+    },
+    authorId: {
+      type: Sequelize.STRING,
+    },
+    appInventorInstance: {
+      type: Sequelize.STRING,
+    },
+    imagePath: {
+      type: Sequelize.STRING,
+    },
+    bio: {
+      type: Sequelize.STRING,
+    },
+  });
+  return User;
+};

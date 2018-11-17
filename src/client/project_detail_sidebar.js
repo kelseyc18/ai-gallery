@@ -11,7 +11,7 @@ export default function ProjectDetailSidebar(props) {
     <div>
       <p className={css(styles.title)}>{`Apps made by ${author.username}`}</p>
       {projects.slice(0, 4).map(project => (
-        <GalleryAppPreview key={project._id} project={project} author={author} />
+        <GalleryAppPreview key={project.id} project={project} author={author} />
       ))}
     </div>
   );

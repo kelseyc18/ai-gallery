@@ -10,7 +10,7 @@ export default function GalleryAppPreview(props) {
 
   return (
     <div className={css(styles.container)}>
-      <Link to={`/project/${project._id}`}>
+      <Link to={`/project/${project.id}`}>
         <img
           className={css(styles.thumbnail)}
           src={project.imagePath || puppyImage}
@@ -18,7 +18,7 @@ export default function GalleryAppPreview(props) {
         />
       </Link>
       <div className={css(styles.rightSide)}>
-        <Link to={`/project/${project._id}`}>
+        <Link to={`/project/${project.id}`}>
           <div className={css(styles.appTitle)}>{project.title}</div>
         </Link>
         <Link to={`/profile/${author.username}`}>
