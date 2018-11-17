@@ -1,21 +1,35 @@
-const User = require('../models/user');
+const db = require('./db');
 
 exports.new_user = (req, res) => {
   const {
     authorId, name, username, appInventorInstance,
   } = req.body;
 
-  const user = new User({
-    authorId,
+  db.User.create({
     name,
     username,
+    authorId,
     appInventorInstance,
-  });
-  user.save((err, user) => res.send({ err, user }));
+  })
+    .then(user => res.send({ user }))
+    .catch(err => res.send({ err }));
 };
 
 exports.user_detail = (req, res) => {
-  User.findOne({ username: req.params.username })
-    .populate({ path: 'projects', populate: { path: 'author' } })
-    .exec((err, user) => res.send({ err, user }));
+  db.User.findOne({
+    where: {
+      username: req.params.username,
+    },
+    include: [
+      {
+        all: true,
+        nested: true,
+        include: {
+          all: true,
+        },
+      },
+    ],
+  })
+    .then(user => res.send({ user }))
+    .catch(err => res.send({ err }));
 };

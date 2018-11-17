@@ -19,15 +19,15 @@ import logo from './logo.png';
 // TODO(kelsey): Replace when implementing actual user authentication
 const USERS = [
   {
-    id: '5bb3cdb8c47ccf553251d0f6',
+    id: 1,
     username: 'piazza_master',
   },
   {
-    id: '5bb3cde6c47ccf553251d0f7',
+    id: 2,
     username: 'boba_master',
   },
   {
-    id: '5bbfd5adac85e209d0d4a598',
+    id: 3,
     username: 'coffee_master',
   },
 ];
@@ -55,7 +55,7 @@ class App extends Component {
 
   handleUserLogin = (event) => {
     const { loginAsUser } = this.props;
-    loginAsUser(event.target.value);
+    loginAsUser(Number(event.target.value));
   };
 
   render() {

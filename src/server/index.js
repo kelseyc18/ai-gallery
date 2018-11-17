@@ -1,7 +1,12 @@
 const express = require('express');
-const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const multer = require('multer');
+
+const db = require('./db');
+
+db.sequelize.sync().then(() => {
+  console.log('Tables synced');
+});
 
 const upload = multer({ dest: 'uploads/' });
 
@@ -9,13 +14,6 @@ const app = express();
 
 const ProjectController = require('./project_controller');
 const UserController = require('./user_controller');
-
-mongoose.connect(
-  process.env.MONGODB_URI || 'mongodb://hal:abelson1@ds113703.mlab.com:13703/ai-gallery',
-);
-const db = mongoose.connection;
-
-db.on('error', console.error.bind(console, 'connection error:'));
 
 app.use(express.static('dist'));
 app.use(bodyParser.json());

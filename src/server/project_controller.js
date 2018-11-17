@@ -1,37 +1,61 @@
-const async = require('async');
+const db = require('./db');
 
-const User = require('../models/user');
-const GalleryApp = require('../models/galleryapp');
+const { Op } = db.Sequelize;
+const { sequelize, User, Project } = db;
 
 const LIMIT = 12;
 
 exports.all_projects = (req, res) => {
   const searchQuery = req.query.q;
-  const query = searchQuery ? { title: new RegExp(searchQuery, 'i') } : {};
-  const options = {
-    populate: 'author',
-    offset: parseInt(req.query.offset, 10) || 0,
+  const offset = parseInt(req.query.offset, 10) || 0;
+  const query = searchQuery
+    ? {
+      where: {
+        title: {
+          [Op.iLike]: `%${searchQuery}%`,
+        },
+      },
+    }
+    : {};
+
+  Project.findAndCountAll({
+    query,
+    offset,
     limit: LIMIT,
-  };
-  GalleryApp.paginate(query, options).then((result) => {
-    res.send({
-      projects: result.docs,
-      total: result.total,
-      offset: result.offset,
-      limit: result.limit,
-    });
-  });
+    distinct: true,
+    include: [
+      {
+        all: true,
+        include: {
+          all: true,
+        },
+      },
+    ],
+  })
+    .then((result) => {
+      res.send({
+        projects: result.rows,
+        total: result.count,
+        offset,
+        limit: LIMIT,
+      });
+    })
+    .catch(err => res.send({ err }));
 };
 
 exports.project_by_id = (req, res) => {
-  GalleryApp.findById(req.params.id)
-    .populate({
-      path: 'author',
-      populate: {
-        path: 'projects',
+  Project.findByPk(req.params.id, {
+    include: [
+      {
+        all: true,
+        include: {
+          all: true,
+        },
       },
-    })
-    .exec((err, project) => res.send({ err, project }));
+    ],
+  })
+    .then(project => res.send({ project }))
+    .catch(err => res.send({ err }));
 };
 
 exports.create_project = (req, res) => {
@@ -39,43 +63,29 @@ exports.create_project = (req, res) => {
     title, authorId, projectId, appInventorInstance,
   } = req.body;
 
-  async.waterfall(
-    [
-      (next) => {
-        User.findOne({ authorId, appInventorInstance }, (err, user) => {
-          next(err, user);
-        });
+  let newProject;
+  sequelize
+    .transaction(t => User.findByPk(authorId, { transaction: t }).then(user => Project.create(
+      {
+        title,
+        projectId,
+        appInventorInstance,
+        aiaPath: req.file.path,
       },
-
-      (user, next) => {
-        GalleryApp.create(
-          {
-            title,
-            author: user,
-            projectId,
-            appInventorInstance,
-            aiaPath: req.file.path,
-          },
-          (err, project) => next(err, project, user),
-        );
+      { transaction: t },
+    ).then(
+      (project) => {
+        newProject = project;
+        return user.addProject(project, { transaction: t });
       },
-
-      (project, user, next) => {
-        User.findByIdAndUpdate(user._id, { $push: { projects: project._id } })
-          .populate({
-            path: 'author',
-            populate: {
-              path: 'projects',
-            },
-          })
-          .exec((err, project) => next(err, project));
-      },
-    ],
-    (err, project) => {
-      if (err) res.send(err);
-      else res.send({ project });
-    },
-  );
+      { transaction: t },
+    )))
+    .then(_ => Project.findByPk(newProject.id)
+      .then(project => res.send({ project }))
+      .catch(err => res.send({ err })))
+    .catch((err) => {
+      res.send({ err });
+    });
 };
 
 exports.edit_project = (req, res) => {
@@ -86,51 +96,41 @@ exports.edit_project = (req, res) => {
   if (req.file) {
     const imagePath = req.file.path;
 
-    GalleryApp.findByIdAndUpdate(
-      id,
+    Project.update(
       {
         title,
         description,
         tutorialUrl,
         credits,
-        lastModifiedDate: Date.now(),
         imagePath,
         isDraft,
+        lastModifiedDate: Date.now(),
       },
-      { new: true },
-    )
-      .populate({
-        path: 'author',
-        populate: {
-          path: 'projects',
+      {
+        where: {
+          id,
         },
-      })
-      .exec((err, project) => {
-        if (err) return res.send(err);
-        return res.json({ project });
-      });
+      },
+    )
+      .then(project => res.send({ project }))
+      .catch(err => res.send({ err }));
   } else {
-    GalleryApp.findByIdAndUpdate(
-      id,
+    Project.update(
       {
         title,
         description,
         tutorialUrl,
         credits,
-        lastModifiedDate: Date.now(),
         isDraft,
+        lastModifiedDate: Date.now(),
       },
-      { new: true },
-    )
-      .populate({
-        path: 'author',
-        populate: {
-          path: 'projects',
+      {
+        where: {
+          id,
         },
-      })
-      .exec((err, project) => {
-        if (err) return res.send(err);
-        return res.json({ project });
-      });
+      },
+    )
+      .then(project => res.send({ project }))
+      .catch(err => res.send({ err }));
   }
 };
