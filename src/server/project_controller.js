@@ -6,20 +6,15 @@ const { sequelize, User, Project } = db;
 const LIMIT = 12;
 
 exports.all_projects = (req, res) => {
-  const searchQuery = req.query.q;
+  const searchQuery = req.query.q || '';
   const offset = parseInt(req.query.offset, 10) || 0;
-  const query = searchQuery
-    ? {
-      where: {
-        title: {
-          [Op.iLike]: `%${searchQuery}%`,
-        },
-      },
-    }
-    : {};
 
   Project.findAndCountAll({
-    query,
+    where: {
+      title: {
+        [Op.like]: `%${searchQuery}%`,
+      },
+    },
     offset,
     limit: LIMIT,
     distinct: true,
