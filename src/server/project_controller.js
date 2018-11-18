@@ -1,3 +1,6 @@
+const { Base64Encode } = require('base64-stream');
+const fs = require('fs');
+const path = require('path');
 const db = require('./db');
 
 const { Op } = db.Sequelize;
@@ -17,6 +20,7 @@ exports.all_projects = (req, res) => {
     },
     offset,
     limit: LIMIT,
+    order: [['creationDate', 'DESC']],
     distinct: true,
     include: [
       {
@@ -65,7 +69,7 @@ exports.create_project = (req, res) => {
         title,
         projectId,
         appInventorInstance,
-        aiaPath: req.file.path,
+        aiaPath: path.basename(req.file.path),
       },
       { transaction: t },
     ).then(
@@ -75,8 +79,14 @@ exports.create_project = (req, res) => {
       },
       { transaction: t },
     )))
-    .then(_ => Project.findByPk(newProject.id)
-      .then(project => res.send({ project }))
+    .then(() => Project.findByPk(newProject.id)
+      .then((project) => {
+        const filepath = req.file.path;
+        const readStream = fs.createReadStream(`${filepath}`);
+        const writeStream = fs.createWriteStream(`${filepath}.asc`);
+        readStream.pipe(new Base64Encode()).pipe(writeStream);
+        res.send({ project });
+      })
       .catch(err => res.send({ err })))
     .catch((err) => {
       res.send({ err });
@@ -89,7 +99,7 @@ exports.edit_project = (req, res) => {
   } = req.body;
 
   if (req.file) {
-    const imagePath = req.file.path;
+    const imagePath = `api/uploads/${path.basename(req.file.path)}`;
 
     Project.update(
       {
@@ -107,7 +117,20 @@ exports.edit_project = (req, res) => {
         },
       },
     )
-      .then(project => res.send({ project }))
+      .then(() => {
+        Project.findByPk(id, {
+          include: [
+            {
+              all: true,
+              include: {
+                all: true,
+              },
+            },
+          ],
+        })
+          .then(project => res.send({ project }))
+          .catch(err => res.send({ err }));
+      })
       .catch(err => res.send({ err }));
   } else {
     Project.update(
@@ -125,7 +148,20 @@ exports.edit_project = (req, res) => {
         },
       },
     )
-      .then(project => res.send({ project }))
+      .then(() => {
+        Project.findByPk(id, {
+          include: [
+            {
+              all: true,
+              include: {
+                all: true,
+              },
+            },
+          ],
+        })
+          .then(project => res.send({ project }))
+          .catch(err => res.send({ err }));
+      })
       .catch(err => res.send({ err }));
   }
 };

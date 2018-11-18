@@ -8,7 +8,7 @@ db.sequelize.sync().then(() => {
   console.log('Tables synced');
 });
 
-const upload = multer({ dest: 'uploads/' });
+const upload = multer({ dest: `${__dirname}/uploads` });
 
 const app = express();
 
@@ -17,11 +17,8 @@ const UserController = require('./user_controller');
 
 app.use(express.static('dist'));
 app.use(bodyParser.json());
-app.use(
-  bodyParser.urlencoded({
-    encoded: true,
-  }),
-);
+app.use('/api/exports', express.static(`${__dirname}/uploads`));
+app.use('/api/uploads', express.static(`${__dirname}/uploads`));
 
 // Make db accessible to router
 app.use((req, _, next) => {
