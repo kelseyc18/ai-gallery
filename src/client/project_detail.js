@@ -320,14 +320,14 @@ class ProjectDetail extends Component {
           {iconContainer}
         </div>
         <div className={css(styles.userInfo)}>
-          <Link to={`/profile/${project.author.username}`}>
+          <Link to={`/profile/${project.author.username}`} className={css(styles.userInfoLinks)}>
             <img
               className={css(styles.profileImage)}
               src={profileImage || bobaImage}
               alt="profile"
             />
           </Link>
-          <Link to={`/profile/${project.author.username}`}>
+          <Link to={`/profile/${project.author.username}`} className={css(styles.userInfoLinks)}>
             <p className={css(styles.appAuthor)}>{project.author.username}</p>
           </Link>
         </div>
@@ -526,6 +526,10 @@ const styles = StyleSheet.create({
     fontWeight: 800,
   },
 
+  userInfoLinks: {
+    height: 24,
+  },
+
   profileImage: {
     height: 24,
     width: 24,
@@ -535,6 +539,9 @@ const styles = StyleSheet.create({
   appAuthor: {
     color: '#58585a',
     marginLeft: 5,
+    ':hover': {
+      textDecoration: 'underline',
+    }
   },
 
   projectDetailButton: {

@@ -55,6 +55,10 @@ const styles = StyleSheet.create({
 
   appAuthor: {
     color: '#58585a',
+    fontSize: 12,
+    ':hover': {
+      textDecoration: 'underline',
+    },
   },
 
   thumbnail: {
