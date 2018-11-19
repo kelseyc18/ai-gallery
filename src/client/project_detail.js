@@ -124,7 +124,7 @@ class ProjectDetail extends Component {
       updateProjectDetails,
       loggedInUser,
     } = this.props;
-    const { imagePath, author } = project;
+    const { imagePath, author, aiaPath } = project;
     const {
       title, description, tutorialUrl, credits, newImage, isDraft,
     } = this.state;
@@ -193,6 +193,15 @@ class ProjectDetail extends Component {
             <img className={css(styles.appImage)} src={imagePath || puppyImage} alt="project" />
           </div>
         </Link>
+        <button
+          type="button"
+          className={css(styles.openAppButton)}
+          onClick={() => {
+            window.open(`http://ai2.appinventor.mit.edu/?locale=en&repo=http://localhost:3000/api/exports/${aiaPath}.asc`);
+          }}
+        >
+          Open App
+        </button>
         {loggedInAsAuthor && (
           <button
             type="button"
@@ -529,6 +538,14 @@ const styles = StyleSheet.create({
   },
 
   projectDetailButton: {
+    backgroundColor: '#92267C',
+    borderRadius: 2,
+    border: 'none',
+    color: 'white',
+    marginTop: 10,
+  },
+
+  openAppButton: {
     backgroundColor: '#84ad2d',
     borderRadius: 2,
     border: 'none',

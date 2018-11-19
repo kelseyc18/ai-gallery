@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const multer = require('multer');
+const cors = require('cors');
 
 const db = require('./db');
 
@@ -8,13 +9,27 @@ db.sequelize.sync().then(() => {
   console.log('Tables synced');
 });
 
-const upload = multer({ dest: `${__dirname}/uploads` });
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, `${__dirname}/uploads`);
+  },
+  filename: (req, file, cb) => {
+    cb(
+      null,
+      req.path === '/api/project/create'
+        ? `${req.body.title}_${Date.now()}`
+        : `${file.originalname}_${Date.now()}`,
+    );
+  },
+});
+const upload = multer({ storage });
 
 const app = express();
 
 const ProjectController = require('./project_controller');
 const UserController = require('./user_controller');
 
+app.use(cors());
 app.use(express.static('dist'));
 app.use(bodyParser.json());
 app.use('/api/exports', express.static(`${__dirname}/uploads`));
