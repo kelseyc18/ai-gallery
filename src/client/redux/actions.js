@@ -47,6 +47,14 @@ function postProjectDetails(title, id, description, tutorialUrl, credits, newIma
     .then(res => res.project);
 }
 
+function postAddDownload(id) {
+  return fetch(`/api/project/download/${id}`, {
+    method: 'POST',
+  })
+    .then(res => res.json())
+    .then(res => res.project);
+}
+
 function updateProjectsAction(projects, total, searchQuery) {
   return {
     type: UPDATE_PROJECTS,
@@ -142,5 +150,11 @@ export function loginAsUser(userId) {
   return {
     type: LOGIN_AS_USER,
     userId,
+  };
+}
+
+export function incrementDownloadCount(id) {
+  return (dispatch) => {
+    postAddDownload(id).then(project => dispatch(updateSelectedProjectAction(project)));
   };
 }
