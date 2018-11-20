@@ -165,3 +165,21 @@ exports.edit_project = (req, res) => {
       .catch(err => res.send({ err }));
   }
 };
+
+exports.add_download = (req, res) => {
+  const { id } = req.params;
+
+  Project.findByPk(id, {
+    include: [
+      {
+        all: true,
+        include: {
+          all: true,
+        },
+      },
+    ],
+  })
+    .then(project => project.increment('numDownloads'))
+    .then(project => project.reload().then(() => res.send({ project })))
+    .catch(err => res.send({ err }));
+};

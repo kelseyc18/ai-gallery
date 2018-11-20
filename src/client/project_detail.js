@@ -16,6 +16,7 @@ import {
   editProject,
   cancelEditProject,
   updateProjectDetails,
+  incrementDownloadCount,
 } from './redux/actions';
 
 class ProjectDetail extends Component {
@@ -123,8 +124,9 @@ class ProjectDetail extends Component {
       inEditMode,
       updateProjectDetails,
       loggedInUser,
+      incrementDownloadCount,
     } = this.props;
-    const { imagePath, author, aiaPath } = project;
+    const { imagePath, author, aiaPath, id } = project;
     const {
       title, description, tutorialUrl, credits, newImage, isDraft,
     } = this.state;
@@ -198,6 +200,7 @@ class ProjectDetail extends Component {
           className={css(styles.openAppButton)}
           onClick={() => {
             window.open(`http://ai2.appinventor.mit.edu/?locale=en&repo=http://localhost:3000/api/exports/${aiaPath}.asc`);
+            incrementDownloadCount(id);
           }}
         >
           Open App
@@ -400,6 +403,7 @@ ProjectDetail.propTypes = {
   cancelEditProject: PropTypes.func.isRequired,
   inEditMode: PropTypes.bool.isRequired,
   updateProjectDetails: PropTypes.func.isRequired,
+  incrementDownloadCount: PropTypes.func.isRequired,
   loggedInUser: PropTypes.number.isRequired,
 };
 
@@ -541,7 +545,7 @@ const styles = StyleSheet.create({
     marginLeft: 5,
     ':hover': {
       textDecoration: 'underline',
-    }
+    },
   },
 
   projectDetailButton: {
@@ -650,6 +654,7 @@ const mapDispatchToProps = dispatch => bindActionCreators(
     editProject,
     cancelEditProject,
     updateProjectDetails,
+    incrementDownloadCount,
   },
   dispatch,
 );
