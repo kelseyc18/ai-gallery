@@ -43,6 +43,7 @@ app.use((req, _, next) => {
 
 // USER ROUTES
 app.post('/api/user/create', UserController.new_user);
+app.get('/api/user/from_cookie/:cookie', UserController.user_info);
 app.get('/api/user/:username', UserController.user_detail);
 
 // PROJECT ROUTES

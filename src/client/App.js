@@ -38,6 +38,10 @@ class App extends Component {
     searchQuery: '',
   };
 
+  componentDidMount() {
+    console.log(document.cookie);
+  }
+
   handleQueryInput = (event) => {
     this.setState({ searchQuery: event.target.value });
   };
