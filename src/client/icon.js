@@ -2,7 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 const Icon = (props) => {
-  const { color, size, icon } = props;
+  const {
+    color, size, icon, onClick,
+  } = props;
 
   const styles = {
     svg: {
@@ -15,7 +17,13 @@ const Icon = (props) => {
   };
 
   return (
-    <svg style={styles.svg} width={`${size}px`} height={`${size}px`} viewBox="0 0 24 24">
+    <svg
+      style={styles.svg}
+      width={`${size}px`}
+      height={`${size}px`}
+      viewBox="0 0 24 24"
+      onClick={onClick}
+    >
       <path style={styles.path} d={icon} />
     </svg>
   );
@@ -25,6 +33,7 @@ Icon.propTypes = {
   icon: PropTypes.string.isRequired,
   size: PropTypes.number,
   color: PropTypes.string,
+  onClick: PropTypes.func,
 };
 
 Icon.defaultProps = {

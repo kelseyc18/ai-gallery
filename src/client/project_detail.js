@@ -17,6 +17,8 @@ import {
   cancelEditProject,
   updateProjectDetails,
   incrementDownloadCount,
+  addFavorite,
+  removeFavorite,
 } from './redux/actions';
 
 class ProjectDetail extends Component {
@@ -100,6 +102,16 @@ class ProjectDetail extends Component {
     this.setState({ isDraft: event.target.checked });
   };
 
+  handleStarClicked = (isFavorited) => {
+    const { project, loggedInUser, addFavorite, removeFavorite } = this.props;
+
+    if (!isFavorited) {
+      addFavorite(project.id, loggedInUser);
+    } else {
+      removeFavorite(project.id, loggedInUser);
+    }
+  };
+
   resetState = () => {
     const { project } = this.props;
     const {
@@ -126,7 +138,9 @@ class ProjectDetail extends Component {
       loggedInUser,
       incrementDownloadCount,
     } = this.props;
-    const { imagePath, author, aiaPath, id } = project;
+    const {
+      imagePath, author, aiaPath, id,
+    } = project;
     const {
       title, description, tutorialUrl, credits, newImage, isDraft,
     } = this.state;
@@ -214,12 +228,19 @@ class ProjectDetail extends Component {
             Edit
           </button>
         )}
+        <div className={css(styles.centeredContainer)}>
+          <div className={css(styles.iconContainer)}>
+            <span>{project.numDownloads}</span>
+            <Icon icon={ICONS.DOWNLOAD} color="#58585a" />
+          </div>
+        </div>
       </div>
     );
   };
 
   renderDescriptionContainer = () => {
-    const { project, inEditMode } = this.props;
+    const { project, inEditMode, loggedInUser } = this.props;
+    const { FavoritedUsers } = project;
     const {
       title, tutorialUrl, description, credits, isDraft,
     } = this.state;
@@ -232,15 +253,21 @@ class ProjectDetail extends Component {
       </div>
     );
 
+    let favorited = false;
+    for (let i = 0; i < FavoritedUsers.length; i += 1) {
+      if (FavoritedUsers[i].id === loggedInUser) {
+        favorited = true;
+        break;
+      }
+    }
+
+    const starColor = favorited ? '#ffd633' : '#58585a';
+
     const iconContainer = (
       <div className={css(styles.iconsContainer)}>
         <div className={css(styles.iconContainer)}>
-          <span>{project.numDownloads}</span>
-          <Icon icon={ICONS.DOWNLOAD} color="#58585a" />
-        </div>
-        <div className={css(styles.iconContainer)}>
-          <span>{project.numFavorites}</span>
-          <Icon icon={ICONS.FAVORITE} color="#58585a" />
+          <span>{project.FavoritedUsers.length}</span>
+          <Icon icon={ICONS.FAVORITE} color={starColor} onClick={() => this.handleStarClicked(favorited)} />
         </div>
       </div>
     );
@@ -404,6 +431,8 @@ ProjectDetail.propTypes = {
   inEditMode: PropTypes.bool.isRequired,
   updateProjectDetails: PropTypes.func.isRequired,
   incrementDownloadCount: PropTypes.func.isRequired,
+  addFavorite: PropTypes.func.isRequired,
+  removeFavorite: PropTypes.func.isRequired,
   loggedInUser: PropTypes.number.isRequired,
 };
 
@@ -611,6 +640,12 @@ const styles = StyleSheet.create({
     marginLeft: 5,
   },
 
+  centeredContainer: {
+    display: 'flex',
+    justifyContent: 'center',
+    marginTop: 5,
+  },
+
   datesContainer: {
     fontSize: 12,
     color: '#58585a',
@@ -655,6 +690,8 @@ const mapDispatchToProps = dispatch => bindActionCreators(
     cancelEditProject,
     updateProjectDetails,
     incrementDownloadCount,
+    addFavorite,
+    removeFavorite,
   },
   dispatch,
 );
