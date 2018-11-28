@@ -26,6 +26,20 @@ db.Project = require('../models/project')(sequelize, Sequelize);
 db.UserProjects = db.User.hasMany(db.Project, { foreignKey: 'author_id', as: 'projects' });
 db.Project.belongsTo(db.User, { foreignKey: 'author_id', as: 'author' });
 
+const UserFavoriteProjects = sequelize.define('userFavoriteProjects', {});
+db.UserFavoriteProjects = UserFavoriteProjects;
+
+db.Project.belongsToMany(db.User, {
+  as: 'FavoritedUsers',
+  through: UserFavoriteProjects,
+  foreignKey: 'projectId',
+});
+db.User.belongsToMany(db.Project, {
+  as: 'FavoriteProjects',
+  through: UserFavoriteProjects,
+  foreignKey: 'userId',
+});
+
 // `root_project_id` will be added on Project / Target model
 db.Project.hasMany(db.Project, { foreignKey: 'root_project_id', as: 'RootProject' });
 db.Project.hasMany(db.Project, { foreignKey: 'parent_project_id', as: 'ParentProject' });

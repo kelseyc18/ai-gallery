@@ -4,7 +4,9 @@ const path = require('path');
 const db = require('./db');
 
 const { Op } = db.Sequelize;
-const { sequelize, User, Project } = db;
+const {
+  sequelize, User, Project, UserFavoriteProjects,
+} = db;
 
 const LIMIT = 12;
 
@@ -181,5 +183,54 @@ exports.add_download = (req, res) => {
   })
     .then(project => project.increment('numDownloads'))
     .then(project => project.reload().then(() => res.send({ project })))
+    .catch(err => res.send({ err }));
+};
+
+exports.add_favorite = (req, res) => {
+  const { userId, projectId } = req.body;
+
+  Project.findByPk(projectId, {
+    include: [
+      {
+        all: true,
+        include: {
+          all: true,
+        },
+      },
+    ],
+  })
+    .then((project) => {
+      User.findByPk(userId).then((user) => {
+        user.addFavoriteProject(project).then(() => {
+          project.reload().then(() => res.send({ project }));
+        });
+      });
+    })
+    .catch(err => res.send({ err }));
+};
+
+exports.remove_favorite = (req, res) => {
+  const { userId, projectId } = req.body;
+
+  UserFavoriteProjects.findOne({
+    where: {
+      userId,
+      projectId,
+    },
+  })
+    .then((favoriteProjectAssociation) => {
+      favoriteProjectAssociation.destroy().then(() => {
+        Project.findByPk(projectId, {
+          include: [
+            {
+              all: true,
+              include: {
+                all: true,
+              },
+            },
+          ],
+        }).then(project => res.send({ project }));
+      });
+    })
     .catch(err => res.send({ err }));
 };

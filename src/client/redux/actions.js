@@ -55,6 +55,30 @@ function postAddDownload(id) {
     .then(res => res.project);
 }
 
+function postAddFavorite(projectId, userId) {
+  return fetch('/api/project/add_favorite', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ projectId, userId }),
+  })
+    .then(res => res.json())
+    .then(res => res.project);
+}
+
+function postRemoveFavorite(projectId, userId) {
+  return fetch('/api/project/remove_favorite', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ projectId, userId }),
+  })
+    .then(res => res.json())
+    .then(res => res.project);
+}
+
 function updateProjectsAction(projects, total, searchQuery) {
   return {
     type: UPDATE_PROJECTS,
@@ -156,5 +180,21 @@ export function loginAsUser(userId) {
 export function incrementDownloadCount(id) {
   return (dispatch) => {
     postAddDownload(id).then(project => dispatch(updateSelectedProjectAction(project)));
+  };
+}
+
+export function addFavorite(projectId, userId) {
+  return (dispatch) => {
+    postAddFavorite(projectId, userId).then((project) => {
+      dispatch(updateSelectedProjectAction(project));
+    });
+  };
+}
+
+export function removeFavorite(projectId, userId) {
+  return (dispatch) => {
+    postRemoveFavorite(projectId, userId).then((project) => {
+      dispatch(updateSelectedProjectAction(project));
+    });
   };
 }
