@@ -42,7 +42,7 @@ class Profile extends Component {
         <p className={css(styles.header)}>{`Apps created by ${username}`}</p>
         <div className={css(styles.projectContainer)}>
           {projects.map(project => (
-            <GalleryApp project={project} key={project._id} />
+            <GalleryApp project={project} key={project.id} />
           ))}
         </div>
       </div>
@@ -98,6 +98,9 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 24,
     color: '#58585a',
+    ':hover': {
+      textDecoration: 'underline',
+    },
   },
 
   bio: {

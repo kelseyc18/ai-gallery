@@ -18,7 +18,7 @@ const initialState = {
   inEditMode: false,
   selectedProfile: null,
   allTags: [],
-  loggedInUser: '5bb3cdb8c47ccf553251d0f6',
+  loggedInUser: 1,
 };
 
 export default function (state = initialState, action) {
@@ -40,7 +40,7 @@ export default function (state = initialState, action) {
       action.projects.forEach((project) => {
         try {
           newProjects.forEach((otherProject) => {
-            if (otherProject._id === project._id) {
+            if (otherProject.id === project.id) {
               throw BreakException;
             }
           });

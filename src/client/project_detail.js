@@ -17,6 +17,11 @@ import {
   editProject,
   cancelEditProject,
   updateProjectDetails,
+  addTag,
+  removeTag,
+  incrementDownloadCount,
+  addFavorite,
+  removeFavorite,
 } from './redux/actions';
 
 class ProjectDetail extends Component {
@@ -27,7 +32,7 @@ class ProjectDetail extends Component {
     credits: undefined,
     newImage: undefined,
     isDraft: undefined,
-    tags: undefined,
+    currentTags: undefined,
   };
 
   constructor(props) {
@@ -46,7 +51,7 @@ class ProjectDetail extends Component {
   componentDidUpdate(prevProps) {
     const { match } = this.props;
 
-    if (prevProps.project && match.params.projectId !== prevProps.project._id) {
+    if (prevProps.project && match.params.projectId !== prevProps.project.id.toString()) {
       const projectId = match.params.projectId; // eslint-disable-line
       this.props.getProjectById(projectId); // eslint-disable-line
       this.props.getAllTags(); // eslint-disable-line
@@ -54,16 +59,16 @@ class ProjectDetail extends Component {
   }
 
   static getDerivedStateFromProps(props, state) {
-    if (props.project && state.id !== props.project._id) {
+    if (props.project && state.id !== props.project.id) {
       return {
-        id: props.project._id,
+        id: props.project.id,
         title: props.project.title,
         tutorialUrl: props.project.tutorialUrl,
         description: props.project.description,
         credits: props.project.credits,
         imagePath: props.project.imagePath,
         isDraft: props.project.isDraft,
-        tags: props.project.tags,
+        currentTags: props.project.Tags,
       };
     }
     return null;
@@ -105,18 +110,17 @@ class ProjectDetail extends Component {
   };
 
   handleTagsChange = (event) => {
-    const { allTags } = this.props;
-    const { tags } = this.state;
+    const { project, addTag, removeTag, allTags } = this.props;
+    const { currentTags } = this.state;
+    const tag = allTags.filter(tag => tag.tagName === event.target.value)[0];
 
-    const tag = allTags.filter(tag => tag.name === event.target.value)[0];
-    const currentTags = tags;
-
-    if (currentTags.filter(item => item.name === tag.name).length > 0) {
-      const newTags = currentTags.filter(item => item.name !== tag.name);
-      this.setState({ tags: newTags });
+    if (currentTags.filter(item => item.tagName === tag.tagName).length > 0) {
+      // currentTags includes the selected tag, so we remove it
+      const newTags = currentTags.filter(item => item.tagName !== tag.tagName);
+      this.setState({ currentTags: newTags });
     } else {
       const newTags = currentTags.concat([tag]);
-      this.setState({ tags: newTags });
+      this.setState({ currentTags: newTags });
     }
   };
 
@@ -125,6 +129,7 @@ class ProjectDetail extends Component {
     return tagExists ? (
       <button
         className={css(styles.tagsButton, styles.tagExists)}
+        key={tagName}
         type="button"
         value={tagName}
         onClick={this.handleTagsChange}
@@ -135,6 +140,7 @@ class ProjectDetail extends Component {
     ) : (
       <button
         className={css(styles.tagsButton, styles.tagDoesNotExist)}
+        key={tagName}
         type="button"
         value={tagName}
         onClick={this.handleTagsChange}
@@ -145,10 +151,20 @@ class ProjectDetail extends Component {
     );
   };
 
+  handleStarClicked = (isFavorited) => {
+    const { project, loggedInUser, addFavorite, removeFavorite } = this.props;
+
+    if (!isFavorited) {
+      addFavorite(project.id, loggedInUser);
+    } else {
+      removeFavorite(project.id, loggedInUser);
+    }
+  };
+
   resetState = () => {
     const { project } = this.props;
     const {
-      title, tutorialUrl, description, credits, isDraft, tags,
+      title, tutorialUrl, description, credits, isDraft, Tags,
     } = project;
 
     this.setState({
@@ -158,7 +174,7 @@ class ProjectDetail extends Component {
       credits,
       newImage: undefined,
       isDraft,
-      tags,
+      currentTags: Tags,
     });
   }
 
@@ -170,13 +186,16 @@ class ProjectDetail extends Component {
       inEditMode,
       updateProjectDetails,
       loggedInUser,
+      incrementDownloadCount,
     } = this.props;
-    const { imagePath, author } = project;
     const {
-      title, description, tutorialUrl, credits, newImage, isDraft, tags,
+      imagePath, author, aiaPath, id, Tags,
+    } = project;
+    const {
+      title, description, tutorialUrl, credits, newImage, isDraft, currentTags,
     } = this.state;
 
-    const loggedInAsAuthor = loggedInUser === author._id;
+    const loggedInAsAuthor = loggedInUser === author.id;
 
     return inEditMode ? (
       <form>
@@ -210,13 +229,13 @@ class ProjectDetail extends Component {
             onClick={() => {
               updateProjectDetails(
                 title,
-                project._id,
+                project.id,
                 description,
                 tutorialUrl,
                 credits,
                 newImage,
                 isDraft,
-                tags.map(tag => tag.name),
+                currentTags.map(tag => tag.tagId),
               );
             }}
           >
@@ -236,11 +255,21 @@ class ProjectDetail extends Component {
       </form>
     ) : (
       <div className={css(styles.leftContainer)}>
-        <Link to={`/project/${project._id}`}>
+        <Link to={`/project/${project.id}`}>
           <div className={css(styles.imageContainer)}>
             <img className={css(styles.appImage)} src={imagePath || puppyImage} alt="project" />
           </div>
         </Link>
+        <button
+          type="button"
+          className={css(styles.openAppButton)}
+          onClick={() => {
+            window.open(`http://ai2.appinventor.mit.edu/?locale=en&repo=http://localhost:3000/api/exports/${aiaPath}.asc`);
+            incrementDownloadCount(id);
+          }}
+        >
+          Open App
+        </button>
         {loggedInAsAuthor && (
           <button
             type="button"
@@ -250,14 +279,21 @@ class ProjectDetail extends Component {
             Edit
           </button>
         )}
+        <div className={css(styles.centeredContainer)}>
+          <div className={css(styles.iconContainer)}>
+            <span>{project.numDownloads}</span>
+            <Icon icon={ICONS.DOWNLOAD} color="#58585a" />
+          </div>
+        </div>
       </div>
     );
   };
 
   renderDescriptionContainer = () => {
-    const { project, inEditMode, allTags } = this.props;
+    const { project, inEditMode, loggedInUser, addTag, removeTag, allTags } = this.props;
+    const { FavoritedUsers, ProjectTags, Tags } = project;
     const {
-      title, tutorialUrl, description, credits, isDraft, tags,
+      title, tutorialUrl, description, credits, isDraft, currentTags,
     } = this.state;
     const profileImage = project.author.imagePath;
 
@@ -268,28 +304,32 @@ class ProjectDetail extends Component {
       </div>
     );
 
+    let favorited = false;
+    for (let i = 0; i < FavoritedUsers.length; i += 1) {
+      if (FavoritedUsers[i].id === loggedInUser) {
+        favorited = true;
+        break;
+      }
+    }
+
+    const starColor = favorited ? '#ffd633' : '#58585a';
+
     const iconContainer = (
       <div className={css(styles.iconsContainer)}>
         <div className={css(styles.iconContainer)}>
-          <span>{project.numDownloads}</span>
-          <Icon icon={ICONS.DOWNLOAD} color="#58585a" />
-        </div>
-        <div className={css(styles.iconContainer)}>
-          <span>{project.numFavorites}</span>
-          <Icon icon={ICONS.FAVORITE} color="#58585a" />
+          <span>{project.FavoritedUsers.length}</span>
+          <Icon icon={ICONS.FAVORITE} color={starColor} onClick={() => this.handleStarClicked(favorited)} />
         </div>
       </div>
     );
 
     const tagButtons = [];
-    const tagNames = inEditMode ? (tags.map(tag => tag.name)) : (project.tags.map(tag => tag.name));
+    const tagExists = inEditMode ? (currentTags.map(tag => tag.tagName)) : (Tags.map(tag => tag.tagName));
     allTags.forEach((tag) => {
-      tagButtons.push(this.renderTagsButtons(tag.name, tagNames.indexOf(tag.name) > -1));
+      tagButtons.push(this.renderTagsButtons(tag.tagName, tagExists.indexOf(tag.tagName) > -1));
     });
     const tagsContainer = (
-      <div className={css(styles.tagsContainer)}>
-        {tagButtons}
-      </div>
+      <div className={css(styles.tagsContainer)}>{tagButtons}</div>
     );
 
     const tutorialInputId = 'tutorial-input';
@@ -364,21 +404,21 @@ class ProjectDetail extends Component {
     ) : (
       <div className={css(styles.descriptionContainer)}>
         <div className={css(styles.titleContainer)}>
-          <Link to={`/project/${project._id}`}>
+          <Link to={`/project/${project.id}`}>
             <p className={css(styles.appTitle)}>{project.title}</p>
           </Link>
           {project.isDraft && <div className={css(styles.draft)}>Draft</div>}
           {iconContainer}
         </div>
         <div className={css(styles.userInfo)}>
-          <Link to={`/profile/${project.author.username}`}>
+          <Link to={`/profile/${project.author.username}`} className={css(styles.userInfoLinks)}>
             <img
               className={css(styles.profileImage)}
               src={profileImage || bobaImage}
               alt="profile"
             />
           </Link>
-          <Link to={`/profile/${project.author.username}`}>
+          <Link to={`/profile/${project.author.username}`} className={css(styles.userInfoLinks)}>
             <p className={css(styles.appAuthor)}>{project.author.username}</p>
           </Link>
         </div>
@@ -432,7 +472,7 @@ class ProjectDetail extends Component {
 
 ProjectDetail.propTypes = {
   project: PropTypes.shape({
-    _id: PropTypes.string.isRequired,
+    id: PropTypes.number.isRequired,
     title: PropTypes.string.isRequired,
     author: PropTypes.shape({
       username: PropTypes.string.isRequired,
@@ -448,7 +488,8 @@ ProjectDetail.propTypes = {
     isDraft: PropTypes.bool.isRequired,
     tags: PropTypes.arrayOf(
       PropTypes.shape({
-        name: PropTypes.string.isRequired,
+        tagId: PropTypes.number.isRequired,
+        tagName: PropTypes.string.isRequired,
       }),
     ),
   }),
@@ -460,10 +501,16 @@ ProjectDetail.propTypes = {
   updateProjectDetails: PropTypes.func.isRequired,
   allTags: PropTypes.arrayOf(
     PropTypes.shape({
-      name: PropTypes.string.isRequired,
+      tagId: PropTypes.number.isRequired,
+      tagName: PropTypes.string.isRequired,
     }),
   ),
-  loggedInUser: PropTypes.string.isRequired,
+  addTag: PropTypes.func.isRequired,
+  removeTag: PropTypes.func.isRequired,
+  incrementDownloadCount: PropTypes.func.isRequired,
+  addFavorite: PropTypes.func.isRequired,
+  removeFavorite: PropTypes.func.isRequired,
+  loggedInUser: PropTypes.number.isRequired,
 };
 
 const styles = StyleSheet.create({
@@ -617,6 +664,10 @@ const styles = StyleSheet.create({
     fontWeight: 800,
   },
 
+  userInfoLinks: {
+    height: 24,
+  },
+
   profileImage: {
     height: 24,
     width: 24,
@@ -626,9 +677,20 @@ const styles = StyleSheet.create({
   appAuthor: {
     color: '#58585a',
     marginLeft: 5,
+    ':hover': {
+      textDecoration: 'underline',
+    },
   },
 
   projectDetailButton: {
+    backgroundColor: '#92267C',
+    borderRadius: 2,
+    border: 'none',
+    color: 'white',
+    marginTop: 10,
+  },
+
+  openAppButton: {
     backgroundColor: '#84ad2d',
     borderRadius: 2,
     border: 'none',
@@ -683,6 +745,12 @@ const styles = StyleSheet.create({
     marginLeft: 5,
   },
 
+  centeredContainer: {
+    display: 'flex',
+    justifyContent: 'center',
+    marginTop: 5,
+  },
+
   datesContainer: {
     fontSize: 12,
     color: '#58585a',
@@ -728,6 +796,11 @@ const mapDispatchToProps = dispatch => bindActionCreators(
     editProject,
     cancelEditProject,
     updateProjectDetails,
+    addTag,
+    removeTag,
+    incrementDownloadCount,
+    addFavorite,
+    removeFavorite,
   },
   dispatch,
 );

@@ -35,7 +35,16 @@ function fetchUserByUsername(username) {
     .then(res => res.user);
 }
 
-function postProjectDetails(title, id, description, tutorialUrl, credits, newImage, isDraft, tags) {
+function postProjectDetails(
+  title,
+  id,
+  description,
+  tutorialUrl,
+  credits,
+  newImage,
+  isDraft,
+  tagIds,
+) {
   const formData = new FormData();
 
   if (title) formData.append('title', title);
@@ -45,11 +54,67 @@ function postProjectDetails(title, id, description, tutorialUrl, credits, newIma
   if (credits) formData.append('credits', credits);
   if (newImage) formData.append('newImage', newImage);
   formData.append('isDraft', isDraft);
-  if (tags) formData.append('tags', JSON.stringify(tags));
+  if (tagIds) formData.append('tagIds', JSON.stringify(tagIds));
 
   return fetch('/api/project/edit', {
     method: 'POST',
     body: formData,
+  })
+    .then(res => res.json())
+    .then(res => res.project);
+}
+
+function postAddTag(projectId, tagId) {
+  return fetch('/api/project/add_tag', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ projectId, tagId }),
+  })
+    .then(res => res.json())
+    .then(res => res.project);
+}
+
+function postRemoveTag(projectId, tagId) {
+  return fetch('/api/project/remove_tag', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ projectId, tagId }),
+  })
+    .then(res => res.json())
+    .then(res => res.project);
+}
+
+function postAddDownload(id) {
+  return fetch(`/api/project/download/${id}`, {
+    method: 'POST',
+  })
+    .then(res => res.json())
+    .then(res => res.project);
+}
+
+function postAddFavorite(projectId, userId) {
+  return fetch('/api/project/add_favorite', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ projectId, userId }),
+  })
+    .then(res => res.json())
+    .then(res => res.project);
+}
+
+function postRemoveFavorite(projectId, userId) {
+  return fetch('/api/project/remove_favorite', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ projectId, userId }),
   })
     .then(res => res.json())
     .then(res => res.project);
@@ -147,14 +212,21 @@ export function updateProjectDetails(
   credits,
   newImage,
   isDraft,
-  tags,
+  tagIds,
 ) {
   return (dispatch) => {
-    postProjectDetails(title, id, description, tutorialUrl, credits, newImage, isDraft, tags).then(
-      (project) => {
-        dispatch(updateProjectDetailsAction(project));
-      },
-    );
+    postProjectDetails(
+      title,
+      id,
+      description,
+      tutorialUrl,
+      credits,
+      newImage,
+      isDraft,
+      tagIds,
+    ).then((project) => {
+      dispatch(updateProjectDetailsAction(project));
+    });
   };
 }
 
@@ -162,5 +234,44 @@ export function loginAsUser(userId) {
   return {
     type: LOGIN_AS_USER,
     userId,
+  };
+}
+
+export function addTag(projectId, tagId) {
+  console.log('actions.addTag()');
+  return (dispatch) => {
+    postAddTag(projectId, tagId).then((project) => {
+      dispatch(updateSelectedProjectAction(project));
+    });
+  };
+}
+
+export function removeTag(projectId, tagId) {
+  return (dispatch) => {
+    postRemoveTag(projectId, tagId).then((project) => {
+      dispatch(updateSelectedProjectAction(project));
+    });
+  };
+}
+
+export function incrementDownloadCount(id) {
+  return (dispatch) => {
+    postAddDownload(id).then(project => dispatch(updateSelectedProjectAction(project)));
+  };
+}
+
+export function addFavorite(projectId, userId) {
+  return (dispatch) => {
+    postAddFavorite(projectId, userId).then((project) => {
+      dispatch(updateSelectedProjectAction(project));
+    });
+  };
+}
+
+export function removeFavorite(projectId, userId) {
+  return (dispatch) => {
+    postRemoveFavorite(projectId, userId).then((project) => {
+      dispatch(updateSelectedProjectAction(project));
+    });
   };
 }

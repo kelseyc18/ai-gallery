@@ -15,7 +15,9 @@
   "dependencies": {
     "aphrodite": "^2.2.3",
     "async": "^2.6.1",
+    "base64-stream": "^1.0.0",
     "body-parser": "^1.18.3",
+    "cors": "^2.8.5",
     "express": "^4.16.3",
     "mongodb": "^3.1.6",
     "mongoose": "^5.2.17",
@@ -28,7 +30,10 @@
     "react-redux": "^5.0.7",
     "react-router-dom": "^4.3.1",
     "redux": "^4.0.0",
-    "redux-thunk": "^2.3.0"
+    "redux-thunk": "^2.3.0",
+    "save": "^2.3.2",
+    "sequelize": "^4.41.2",
+    "sqlite3": "^4.0.4"
   },
   "devDependencies": {
     "@babel/core": "^7.0.0",

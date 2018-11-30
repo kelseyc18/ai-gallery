@@ -39,7 +39,7 @@ class GalleryContainer extends Component {
         )}
         <div className={css(styles.galleryContainer)}>
           {projects.map(project => (
-            <GalleryApp project={project} key={project._id} />
+            <GalleryApp project={project} key={project.id} />
           ))}
           {projects.length < projectsTotal ? (
             <div className={css(styles.footer)}>
@@ -61,7 +61,7 @@ class GalleryContainer extends Component {
 GalleryContainer.propTypes = {
   projects: PropTypes.arrayOf(
     PropTypes.shape({
-      _id: PropTypes.string.isRequired,
+      id: PropTypes.number.isRequired,
     }),
   ).isRequired,
   getProjects: PropTypes.func.isRequired,

@@ -1,29 +1,39 @@
 const express = require('express');
-const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const multer = require('multer');
+const cors = require('cors');
 
-const upload = multer({ dest: 'uploads/' });
+const db = require('./db');
+
+db.sequelize.sync().then(() => {
+  console.log('Tables synced');
+});
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, `${__dirname}/uploads`);
+  },
+  filename: (req, file, cb) => {
+    cb(
+      null,
+      req.path === '/api/project/create'
+        ? `${req.body.title}_${Date.now()}`
+        : `${file.originalname}_${Date.now()}`,
+    );
+  },
+});
+const upload = multer({ storage });
 
 const app = express();
 
 const ProjectController = require('./project_controller');
 const UserController = require('./user_controller');
 
-mongoose.connect(
-  process.env.MONGODB_URI || 'mongodb://hal:abelson1@ds113703.mlab.com:13703/ai-gallery',
-);
-const db = mongoose.connection;
-
-db.on('error', console.error.bind(console, 'connection error:'));
-
+app.use(cors());
 app.use(express.static('dist'));
 app.use(bodyParser.json());
-app.use(
-  bodyParser.urlencoded({
-    encoded: true,
-  }),
-);
+app.use('/api/exports', express.static(`${__dirname}/uploads`));
+app.use('/api/uploads', express.static(`${__dirname}/uploads`));
 
 // Make db accessible to router
 app.use((req, _, next) => {
@@ -42,4 +52,9 @@ app.get('/api/project/:id', ProjectController.project_by_id);
 app.post('/api/project/create', upload.single('aia'), ProjectController.create_project);
 app.post('/api/project/edit', upload.single('newImage'), ProjectController.edit_project);
 app.post('/api/project/createtag', ProjectController.create_tag);
+app.post('/api/project/add_tag', ProjectController.add_tag);
+app.post('/api/project/remove_tag', ProjectController.remove_tag);
+app.post('/api/project/add_favorite', ProjectController.add_favorite);
+app.post('/api/project/remove_favorite', ProjectController.remove_favorite);
+app.post('/api/project/download/:id', ProjectController.add_download);
 app.listen(8080, () => console.log('Listening on port 8080!'));

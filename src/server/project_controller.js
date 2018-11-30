@@ -1,64 +1,85 @@
-const async = require('async');
+const { Base64Encode } = require('base64-stream');
+const fs = require('fs');
+const path = require('path');
+const db = require('./db');
 
-const User = require('../models/user');
-const GalleryApp = require('../models/galleryapp');
-const Tag = require('../models/tag');
+const { Op } = db.Sequelize;
+const {
+  sequelize, User, Project, Tag, UserFavoriteProjects, ProjectTags,
+} = db;
 
 const LIMIT = 12;
 
 exports.all_projects = (req, res) => {
-  const searchQuery = req.query.q;
-  const query = searchQuery ? { title: new RegExp(searchQuery, 'i') } : {};
-  const options = {
-    populate: 'author',
-    offset: parseInt(req.query.offset, 10) || 0,
+  const searchQuery = req.query.q || '';
+  const offset = parseInt(req.query.offset, 10) || 0;
+
+  Project.findAndCountAll({
+    where: {
+      title: {
+        [Op.like]: `%${searchQuery}%`,
+      },
+    },
+    offset,
     limit: LIMIT,
-  };
-  GalleryApp.paginate(query, options).then((result) => {
-    res.send({
-      projects: result.docs,
-      total: result.total,
-      offset: result.offset,
-      limit: result.limit,
-    });
-  });
+    order: [['creationDate', 'DESC']],
+    distinct: true,
+    include: [
+      {
+        all: true,
+        include: {
+          all: true,
+        },
+      },
+    ],
+  })
+    .then((result) => {
+      res.send({
+        projects: result.rows,
+        total: result.count,
+        offset,
+        limit: LIMIT,
+      });
+    })
+    .catch(err => res.send({ err }));
 };
 
 exports.project_by_id = (req, res) => {
-  GalleryApp.findById(req.params.id)
-    .populate({
-      path: 'author',
-      populate: {
-        path: 'projects',
+  Project.findByPk(req.params.id, {
+    include: [
+      {
+        all: true,
+        include: {
+          all: true,
+        },
       },
-    })
-    .populate({
-      path: 'tags',
-      populate: {
-        path: 'projects',
-      },
-    })
-    .exec((err, project) => res.send({ err, project }));
+    ],
+  })
+    .then(project => res.send({ project }))
+    .catch(err => res.send({ err }));
 };
 
 exports.all_tags = (req, res) => {
-  Tag.find({}, (err, allTags) => {
-    res.send({ allTags });
-  });
+  Tag.findAll({
+    raw: true,
+    attributes: ['tagId', 'tagName'],
+  })
+    .then((allTags) => {
+      res.send({ allTags });
+    })
+    .catch(err => res.send({ err }));
 };
 
 exports.create_tag = (req, res) => {
-  const { name } = req.body;
-
-  Tag.create(
-    {
-      name,
-    },
-    (err, tag) => {
-      if (err) res.send(err);
-      else res.send({ tag });
-    },
-  );
+  const { tagId, tagName } = req.body;
+  Tag.create({
+    tagId,
+    tagName,
+  })
+    .then((tag) => {
+      res.send({ tag });
+    })
+    .catch(err => res.send({ err }));
 };
 
 exports.create_project = (req, res) => {
@@ -66,126 +87,250 @@ exports.create_project = (req, res) => {
     title, authorId, projectId, appInventorInstance,
   } = req.body;
 
-  async.waterfall(
-    [
-      (next) => {
-        User.findOne({ authorId, appInventorInstance }, (err, user) => {
-          next(err, user);
-        });
+  let newProject;
+  sequelize
+    .transaction(t => User.findByPk(authorId, { transaction: t }).then(user => Project.create(
+      {
+        title,
+        projectId,
+        appInventorInstance,
+        aiaPath: path.basename(req.file.path),
       },
-
-      (user, next) => {
-        GalleryApp.create(
-          {
-            title,
-            author: user,
-            projectId,
-            appInventorInstance,
-            aiaPath: req.file.path,
-          },
-          (err, project) => next(err, project, user),
-        );
+      { transaction: t },
+    ).then(
+      (project) => {
+        newProject = project;
+        return user.addProject(project, { transaction: t });
       },
-
-      (project, user, next) => {
-        User.findByIdAndUpdate(user._id, { $push: { projects: project._id } })
-          .populate({
-            path: 'author',
-            populate: {
-              path: 'projects',
-            },
-          })
-          .exec((err, project) => next(err, project));
-      },
-    ],
-    (err, project) => {
-      if (err) res.send(err);
-      else res.send({ project });
-    },
-  );
+      { transaction: t },
+    )))
+    .then(() => Project.findByPk(newProject.id)
+      .then((project) => {
+        const filepath = req.file.path;
+        const readStream = fs.createReadStream(`${filepath}`);
+        const writeStream = fs.createWriteStream(`${filepath}.asc`);
+        readStream.pipe(new Base64Encode()).pipe(writeStream);
+        res.send({ project });
+      })
+      .catch(err => res.send({ err })))
+    .catch((err) => {
+      res.send({ err });
+    });
 };
 
 exports.edit_project = (req, res) => {
   const {
-    title, id, description, tutorialUrl, credits, isDraft, tags,
+    title, id, description, tutorialUrl, credits, isDraft, tagIds,
   } = req.body;
 
-  async.waterfall(
-    [
-      (next) => {
-        Tag.find({ name: { $in: JSON.parse(tags) } }, (err, tags) => {
-          next(err, tags);
-        });
+  if (req.file) {
+    const imagePath = `api/uploads/${path.basename(req.file.path)}`;
+
+    Project.update(
+      {
+        title,
+        description,
+        tutorialUrl,
+        credits,
+        imagePath,
+        isDraft,
+        lastModifiedDate: Date.now(),
       },
-
-      (tags, next) => {
-        if (req.file) {
-          const imagePath = req.file.path;
-
-          GalleryApp.findByIdAndUpdate(
-            id,
+      {
+        where: {
+          id,
+        },
+      },
+    )
+      .then(() => {
+        Project.findByPk(id, {
+          include: [
             {
-              title,
-              description,
-              tutorialUrl,
-              credits,
-              lastModifiedDate: Date.now(),
-              imagePath,
-              isDraft,
-              tags,
+              all: true,
+              include: {
+                all: true,
+              },
             },
-            { new: true },
-          )
-            .populate({
-              path: 'author',
-              populate: {
-                path: 'projects',
+          ],
+        })
+          .then((project) => {
+            Tag.findAll({
+              where: {
+                tagId: {
+                  [Op.or]: JSON.parse(tagIds),
+                },
               },
             })
-            .populate({
-              path: 'tags',
-              populate: {
-                path: 'projects',
-              },
-            })
-            .exec((err, project) => {
-              next(err, project);
-            });
-        } else {
-          GalleryApp.findByIdAndUpdate(
-            id,
+              .then((tags) => {
+                project.setTags(tags).then(() => {
+                  project.reload().then(() => res.send({ project }));
+                });
+              })
+              .catch(err => res.send({ err }));
+          })
+          .catch(err => res.send({ err }));
+      })
+      .catch(err => res.send({ err }));
+  } else {
+    Project.update(
+      {
+        title,
+        description,
+        tutorialUrl,
+        credits,
+        isDraft,
+        lastModifiedDate: Date.now(),
+      },
+      {
+        where: {
+          id,
+        },
+      },
+    )
+      .then(() => {
+        Project.findByPk(id, {
+          include: [
             {
-              title,
-              description,
-              tutorialUrl,
-              credits,
-              lastModifiedDate: Date.now(),
-              isDraft,
-              tags,
+              all: true,
+              include: {
+                all: true,
+              },
             },
-            { new: true },
-          )
-            .populate({
-              path: 'author',
-              populate: {
-                path: 'projects',
+          ],
+        })
+          .then((project) => {
+            Tag.findAll({
+              where: {
+                tagId: {
+                  [Op.or]: JSON.parse(tagIds),
+                },
               },
             })
-            .populate({
-              path: 'tags',
-              populate: {
-                path: 'projects',
-              },
-            })
-            .exec((err, project) => {
-              next(err, project);
-            });
-        }
+              .then((tags) => {
+                project.setTags(tags).then(() => {
+                  project.reload().then(() => res.send({ project }));
+                });
+              })
+              .catch(err => res.send({ err }));
+          })
+          .catch(err => res.send({ err }));
+      })
+      .catch(err => res.send({ err }));
+  }
+};
+
+exports.add_tag = (req, res) => {
+  const { tagId, projectId } = req.body;
+
+  Project.findByPk(projectId, {
+    include: [
+      {
+        all: true,
+        include: {
+          all: true,
+        },
       },
     ],
-    (err, project) => {
-      if (err) res.send(err);
-      else res.send({ project });
+  })
+    .then((project) => {
+      Tag.findByPk(tagId).then((tag) => {
+        project.addTag(tag).then(() => {
+          project.reload().then(() => res.send({ project }));
+        });
+      });
+    })
+    .catch(err => res.send({ err }));
+};
+
+exports.remove_tag = (req, res) => {
+  const { projectId, tagId } = req.body;
+
+  ProjectTags.findOne({
+    where: {
+      projectId,
+      tagId,
     },
-  );
+  })
+    .then((projectTagAssociation) => {
+      projectTagAssociation.destroy().then(() => {
+        Project.findByPk(projectId, {
+          include: [
+            {
+              all: true,
+              include: {
+                all: true,
+              },
+            },
+          ],
+        }).then(project => res.send({ project }));
+      });
+    })
+    .catch(err => res.send({ err }));
+};
+
+exports.add_download = (req, res) => {
+  const { id } = req.params;
+
+  Project.findByPk(id, {
+    include: [
+      {
+        all: true,
+        include: {
+          all: true,
+        },
+      },
+    ],
+  })
+    .then(project => project.increment('numDownloads'))
+    .then(project => project.reload().then(() => res.send({ project })))
+    .catch(err => res.send({ err }));
+};
+
+exports.add_favorite = (req, res) => {
+  const { userId, projectId } = req.body;
+
+  Project.findByPk(projectId, {
+    include: [
+      {
+        all: true,
+        include: {
+          all: true,
+        },
+      },
+    ],
+  })
+    .then((project) => {
+      User.findByPk(userId).then((user) => {
+        user.addFavoriteProject(project).then(() => {
+          project.reload().then(() => res.send({ project }));
+        });
+      });
+    })
+    .catch(err => res.send({ err }));
+};
+
+exports.remove_favorite = (req, res) => {
+  const { userId, projectId } = req.body;
+
+  UserFavoriteProjects.findOne({
+    where: {
+      userId,
+      projectId,
+    },
+  })
+    .then((favoriteProjectAssociation) => {
+      favoriteProjectAssociation.destroy().then(() => {
+        Project.findByPk(projectId, {
+          include: [
+            {
+              all: true,
+              include: {
+                all: true,
+              },
+            },
+          ],
+        }).then(project => res.send({ project }));
+      });
+    })
+    .catch(err => res.send({ err }));
 };
