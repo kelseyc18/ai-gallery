@@ -124,11 +124,11 @@ class ProjectDetail extends Component {
     }
   };
 
-  renderTagsButtons = (tagName, tagExists) => {
+  renderTagsButtons = (tagName, tagSelected) => {
     const { inEditMode } = this.props;
-    return tagExists ? (
+    return tagSelected ? (
       <button
-        className={css(styles.tagsButton, styles.tagExists)}
+        className={css(styles.tagsButton, styles.tagSelected)}
         key={tagName}
         type="button"
         value={tagName}
@@ -324,9 +324,9 @@ class ProjectDetail extends Component {
     );
 
     const tagButtons = [];
-    const tagExists = inEditMode ? (currentTags.map(tag => tag.tagName)) : (Tags.map(tag => tag.tagName));
+    const tagSelected = inEditMode ? (currentTags.map(tag => tag.tagName)) : (Tags.map(tag => tag.tagName));
     allTags.forEach((tag) => {
-      tagButtons.push(this.renderTagsButtons(tag.tagName, tagExists.indexOf(tag.tagName) > -1));
+      tagButtons.push(this.renderTagsButtons(tag.tagName, tagSelected.indexOf(tag.tagName) > -1));
     });
     const tagsContainer = (
       <div className={css(styles.tagsContainer)}>{tagButtons}</div>
@@ -597,7 +597,7 @@ const styles = StyleSheet.create({
     whiteSpace: 'nowrap',
   },
 
-  tagExists: {
+  tagSelected: {
     backgroundColor: '#84ad2d',
     color: 'white',
   },
