@@ -157,7 +157,7 @@ exports.edit_project = (req, res) => {
             Tag.findAll({
               where: {
                 tagId: {
-                  [Op.or]: JSON.parse(tagIds),
+                  [Op.in]: JSON.parse(tagIds),
                 },
               },
             })
@@ -202,7 +202,7 @@ exports.edit_project = (req, res) => {
             Tag.findAll({
               where: {
                 tagId: {
-                  [Op.or]: JSON.parse(tagIds),
+                  [Op.in]: JSON.parse(tagIds),
                 },
               },
             })

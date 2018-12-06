@@ -17,8 +17,6 @@ import {
   editProject,
   cancelEditProject,
   updateProjectDetails,
-  addTag,
-  removeTag,
   incrementDownloadCount,
   addFavorite,
   removeFavorite,
@@ -110,7 +108,7 @@ class ProjectDetail extends Component {
   };
 
   handleTagsChange = (event) => {
-    const { project, addTag, removeTag, allTags } = this.props;
+    const { project, allTags } = this.props;
     const { currentTags } = this.state;
     const tag = allTags.filter(tag => tag.tagName === event.target.value)[0];
 
@@ -126,20 +124,13 @@ class ProjectDetail extends Component {
 
   renderTagsButtons = (tagName, tagSelected) => {
     const { inEditMode } = this.props;
-    return tagSelected ? (
+    return (
       <button
-        className={css(styles.tagsButton, styles.tagSelected)}
-        key={tagName}
-        type="button"
-        value={tagName}
-        onClick={this.handleTagsChange}
-        disabled={!inEditMode}
-      >
-        {tagName}
-      </button>
-    ) : (
-      <button
-        className={css(styles.tagsButton, styles.tagDoesNotExist)}
+        className={css(
+          styles.tagsButton,
+          tagSelected && styles.tagSelected,
+          !tagSelected && styles.tagDoesNotExist,
+        )}
         key={tagName}
         type="button"
         value={tagName}
@@ -152,7 +143,9 @@ class ProjectDetail extends Component {
   };
 
   handleStarClicked = (isFavorited) => {
-    const { project, loggedInUser, addFavorite, removeFavorite } = this.props;
+    const {
+      project, loggedInUser, addFavorite, removeFavorite,
+    } = this.props;
 
     if (!isFavorited) {
       addFavorite(project.id, loggedInUser);
@@ -176,7 +169,7 @@ class ProjectDetail extends Component {
       isDraft,
       currentTags: Tags,
     });
-  }
+  };
 
   renderLeftContainer = () => {
     const {
@@ -264,7 +257,9 @@ class ProjectDetail extends Component {
           type="button"
           className={css(styles.openAppButton)}
           onClick={() => {
-            window.open(`http://ai2.appinventor.mit.edu/?locale=en&repo=http://localhost:3000/api/exports/${aiaPath}.asc`);
+            window.open(
+              `http://ai2.appinventor.mit.edu/?locale=en&repo=http://localhost:3000/api/exports/${aiaPath}.asc`,
+            );
             incrementDownloadCount(id);
           }}
         >
@@ -290,7 +285,9 @@ class ProjectDetail extends Component {
   };
 
   renderDescriptionContainer = () => {
-    const { project, inEditMode, loggedInUser, addTag, removeTag, allTags } = this.props;
+    const {
+      project, inEditMode, loggedInUser, allTags,
+    } = this.props;
     const { FavoritedUsers, ProjectTags, Tags } = project;
     const {
       title, tutorialUrl, description, credits, isDraft, currentTags,
@@ -318,19 +315,23 @@ class ProjectDetail extends Component {
       <div className={css(styles.iconsContainer)}>
         <div className={css(styles.iconContainer)}>
           <span>{project.FavoritedUsers.length}</span>
-          <Icon icon={ICONS.FAVORITE} color={starColor} onClick={() => this.handleStarClicked(favorited)} />
+          <Icon
+            icon={ICONS.FAVORITE}
+            color={starColor}
+            onClick={() => this.handleStarClicked(favorited)}
+          />
         </div>
       </div>
     );
 
     const tagButtons = [];
-    const tagSelected = inEditMode ? (currentTags.map(tag => tag.tagName)) : (Tags.map(tag => tag.tagName));
+    const tagSelected = inEditMode
+      ? currentTags.map(tag => tag.tagName)
+      : Tags.map(tag => tag.tagName);
     allTags.forEach((tag) => {
       tagButtons.push(this.renderTagsButtons(tag.tagName, tagSelected.indexOf(tag.tagName) > -1));
     });
-    const tagsContainer = (
-      <div className={css(styles.tagsContainer)}>{tagButtons}</div>
-    );
+    const tagsContainer = <div className={css(styles.tagsContainer)}>{tagButtons}</div>;
 
     const tutorialInputId = 'tutorial-input';
     const creditsInputId = 'credits-input';
@@ -505,8 +506,6 @@ ProjectDetail.propTypes = {
       tagName: PropTypes.string.isRequired,
     }),
   ),
-  addTag: PropTypes.func.isRequired,
-  removeTag: PropTypes.func.isRequired,
   incrementDownloadCount: PropTypes.func.isRequired,
   addFavorite: PropTypes.func.isRequired,
   removeFavorite: PropTypes.func.isRequired,
@@ -591,8 +590,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     margin: 5,
     fontSize: 12,
-    padding: 5,
-    borderRadius: 10,
+    borderRadius: 5,
     border: 'none',
     whiteSpace: 'nowrap',
   },
@@ -796,8 +794,6 @@ const mapDispatchToProps = dispatch => bindActionCreators(
     editProject,
     cancelEditProject,
     updateProjectDetails,
-    addTag,
-    removeTag,
     incrementDownloadCount,
     addFavorite,
     removeFavorite,

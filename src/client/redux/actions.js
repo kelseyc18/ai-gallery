@@ -64,30 +64,6 @@ function postProjectDetails(
     .then(res => res.project);
 }
 
-function postAddTag(projectId, tagId) {
-  return fetch('/api/project/add_tag', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ projectId, tagId }),
-  })
-    .then(res => res.json())
-    .then(res => res.project);
-}
-
-function postRemoveTag(projectId, tagId) {
-  return fetch('/api/project/remove_tag', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ projectId, tagId }),
-  })
-    .then(res => res.json())
-    .then(res => res.project);
-}
-
 function postAddDownload(id) {
   return fetch(`/api/project/download/${id}`, {
     method: 'POST',
@@ -234,23 +210,6 @@ export function loginAsUser(userId) {
   return {
     type: LOGIN_AS_USER,
     userId,
-  };
-}
-
-export function addTag(projectId, tagId) {
-  console.log('actions.addTag()');
-  return (dispatch) => {
-    postAddTag(projectId, tagId).then((project) => {
-      dispatch(updateSelectedProjectAction(project));
-    });
-  };
-}
-
-export function removeTag(projectId, tagId) {
-  return (dispatch) => {
-    postRemoveTag(projectId, tagId).then((project) => {
-      dispatch(updateSelectedProjectAction(project));
-    });
   };
 }
 
