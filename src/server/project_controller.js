@@ -5,7 +5,7 @@ const db = require('./db');
 
 const { Op } = db.Sequelize;
 const {
-  sequelize, User, Project, UserFavoriteProjects,
+  sequelize, User, Project, Tag, UserFavoriteProjects, ProjectTags,
 } = db;
 
 const LIMIT = 12;
@@ -59,6 +59,29 @@ exports.project_by_id = (req, res) => {
     .catch(err => res.send({ err }));
 };
 
+exports.all_tags = (req, res) => {
+  Tag.findAll({
+    raw: true,
+    attributes: ['tagId', 'tagName'],
+  })
+    .then((allTags) => {
+      res.send({ allTags });
+    })
+    .catch(err => res.send({ err }));
+};
+
+exports.create_tag = (req, res) => {
+  const { tagId, tagName } = req.body;
+  Tag.create({
+    tagId,
+    tagName,
+  })
+    .then((tag) => {
+      res.send({ tag });
+    })
+    .catch(err => res.send({ err }));
+};
+
 exports.create_project = (req, res) => {
   const {
     title, authorId, projectId, appInventorInstance,
@@ -97,7 +120,7 @@ exports.create_project = (req, res) => {
 
 exports.edit_project = (req, res) => {
   const {
-    title, id, description, tutorialUrl, credits, isDraft,
+    title, id, description, tutorialUrl, credits, isDraft, tagIds,
   } = req.body;
 
   if (req.file) {
@@ -130,7 +153,21 @@ exports.edit_project = (req, res) => {
             },
           ],
         })
-          .then(project => res.send({ project }))
+          .then((project) => {
+            Tag.findAll({
+              where: {
+                tagId: {
+                  [Op.in]: JSON.parse(tagIds),
+                },
+              },
+            })
+              .then((tags) => {
+                project.setTags(tags).then(() => {
+                  project.reload().then(() => res.send({ project }));
+                });
+              })
+              .catch(err => res.send({ err }));
+          })
           .catch(err => res.send({ err }));
       })
       .catch(err => res.send({ err }));
@@ -161,11 +198,74 @@ exports.edit_project = (req, res) => {
             },
           ],
         })
-          .then(project => res.send({ project }))
+          .then((project) => {
+            Tag.findAll({
+              where: {
+                tagId: {
+                  [Op.in]: JSON.parse(tagIds),
+                },
+              },
+            })
+              .then((tags) => {
+                project.setTags(tags).then(() => {
+                  project.reload().then(() => res.send({ project }));
+                });
+              })
+              .catch(err => res.send({ err }));
+          })
           .catch(err => res.send({ err }));
       })
       .catch(err => res.send({ err }));
   }
+};
+
+exports.add_tag = (req, res) => {
+  const { tagId, projectId } = req.body;
+
+  Project.findByPk(projectId, {
+    include: [
+      {
+        all: true,
+        include: {
+          all: true,
+        },
+      },
+    ],
+  })
+    .then((project) => {
+      Tag.findByPk(tagId).then((tag) => {
+        project.addTag(tag).then(() => {
+          project.reload().then(() => res.send({ project }));
+        });
+      });
+    })
+    .catch(err => res.send({ err }));
+};
+
+exports.remove_tag = (req, res) => {
+  const { projectId, tagId } = req.body;
+
+  ProjectTags.findOne({
+    where: {
+      projectId,
+      tagId,
+    },
+  })
+    .then((projectTagAssociation) => {
+      projectTagAssociation.destroy().then(() => {
+        Project.findByPk(projectId, {
+          include: [
+            {
+              all: true,
+              include: {
+                all: true,
+              },
+            },
+          ],
+        }).then(project => res.send({ project }));
+      });
+    })
+    .catch(err => res.send({ err }));
 };
 
 exports.add_download = (req, res) => {

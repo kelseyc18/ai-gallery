@@ -2,6 +2,7 @@
 export const UPDATE_PROJECTS = 'UPDATE_PROJECTS';
 export const APPEND_PROJECTS = 'APPEND_PROJECTS';
 export const UPDATE_SELECTED_PROJECT = 'UPDATE_SELECTED_PROJECT';
+export const SELECT_ALL_TAGS = 'SELECT_ALL_TAGS';
 export const UPDATE_PROJECT_DETAILS = 'UPDATE_PROJECT_DETAILS';
 export const EDIT_PROJECT = 'EDIT_PROJECT';
 export const CANCEL_EDIT_PROJECT = 'CANCEL_EDIT_PROJECT';
@@ -22,13 +23,28 @@ function fetchProjectById(id) {
     .then(res => res.project);
 }
 
+function fetchAllTags() {
+  return fetch('/api/project/alltags')
+    .then(res => res.json())
+    .then(res => res.allTags);
+}
+
 function fetchUserByUsername(username) {
   return fetch(`/api/user/${username}`)
     .then(res => res.json())
     .then(res => res.user);
 }
 
-function postProjectDetails(title, id, description, tutorialUrl, credits, newImage, isDraft) {
+function postProjectDetails(
+  title,
+  id,
+  description,
+  tutorialUrl,
+  credits,
+  newImage,
+  isDraft,
+  tagIds,
+) {
   const formData = new FormData();
 
   if (title) formData.append('title', title);
@@ -38,6 +54,7 @@ function postProjectDetails(title, id, description, tutorialUrl, credits, newIma
   if (credits) formData.append('credits', credits);
   if (newImage) formData.append('newImage', newImage);
   formData.append('isDraft', isDraft);
+  if (tagIds) formData.append('tagIds', JSON.stringify(tagIds));
 
   return fetch('/api/project/edit', {
     method: 'POST',
@@ -104,6 +121,13 @@ function updateSelectedProjectAction(project) {
   };
 }
 
+function selectAllTagsAction(allTags) {
+  return {
+    type: SELECT_ALL_TAGS,
+    allTags,
+  };
+}
+
 function updateProjectDetailsAction(project) {
   return {
     type: UPDATE_PROJECT_DETAILS,
@@ -146,6 +170,10 @@ export function getProjectById(id) {
   };
 }
 
+export function getAllTags() {
+  return dispatch => fetchAllTags().then(allTags => dispatch(selectAllTagsAction(allTags)));
+}
+
 export function getUserByUsername(username) {
   return (dispatch) => {
     fetchUserByUsername(username).then(user => dispatch(selectProfileAction(user)));
@@ -160,13 +188,21 @@ export function updateProjectDetails(
   credits,
   newImage,
   isDraft,
+  tagIds,
 ) {
   return (dispatch) => {
-    postProjectDetails(title, id, description, tutorialUrl, credits, newImage, isDraft).then(
-      (project) => {
-        dispatch(updateProjectDetailsAction(project));
-      },
-    );
+    postProjectDetails(
+      title,
+      id,
+      description,
+      tutorialUrl,
+      credits,
+      newImage,
+      isDraft,
+      tagIds,
+    ).then((project) => {
+      dispatch(updateProjectDetailsAction(project));
+    });
   };
 }
 
