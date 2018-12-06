@@ -1,5 +1,5 @@
 const keyczar = require('keyczarjs');
-// const base64 = require('base-64');
+const base64 = require('base-64');
 const fs = require('fs');
 
 const db = require('./db');
@@ -63,10 +63,9 @@ exports.user_detail = (req, res) => {
 
 exports.user_info = (req, res) => {
   console.log(req.params.cookie);
+  const cookie = req.params.cookie.replace(/_/g, '/').replace(/-/g, '+');
   const encrypted = keyset.encrypt('blackjack');
   console.log(encrypted);
-  const decrypted = keyset.decrypt(encrypted);
-  // console.log(base64.decode(req.params.cookie));
-  // const decrypted = keyset.decrypt();
+  const decrypted = keyset.decryptBinary(base64.decode(cookie));
   res.send(decrypted);
 };
