@@ -53,4 +53,4 @@ app.post('/api/project/edit', upload.single('newImage'), ProjectController.edit_
 app.post('/api/project/add_favorite', ProjectController.add_favorite);
 app.post('/api/project/remove_favorite', ProjectController.remove_favorite);
 app.post('/api/project/download/:id', ProjectController.add_download);
-app.listen(8080, () => console.log('Listening on port 8080!'));
+app.listen(8090, () => console.log('Listening on port 8090!'));

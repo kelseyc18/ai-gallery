@@ -103,7 +103,9 @@ class ProjectDetail extends Component {
   };
 
   handleStarClicked = (isFavorited) => {
-    const { project, loggedInUser, addFavorite, removeFavorite } = this.props;
+    const {
+      project, loggedInUser, addFavorite, removeFavorite,
+    } = this.props;
 
     if (!isFavorited) {
       addFavorite(project.id, loggedInUser);
@@ -267,7 +269,13 @@ class ProjectDetail extends Component {
       <div className={css(styles.iconsContainer)}>
         <div className={css(styles.iconContainer)}>
           <span>{project.FavoritedUsers.length}</span>
-          <Icon icon={ICONS.FAVORITE} color={starColor} onClick={() => this.handleStarClicked(favorited)} />
+          <span className={css(styles.favoriteIcon)}>
+            <Icon
+              icon={ICONS.FAVORITE}
+              color={starColor}
+              onClick={() => this.handleStarClicked(favorited)}
+            />
+          </span>
         </div>
       </div>
     );
@@ -674,6 +682,10 @@ const styles = StyleSheet.create({
   detailTitle: {
     fontSize: 15,
     marginBottom: 5,
+  },
+
+  favoriteIcon: {
+    cursor: 'pointer',
   },
 });
 
