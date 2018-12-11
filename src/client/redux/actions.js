@@ -23,9 +23,13 @@ function fetchProjectById(id) {
 }
 
 function fetchUserByUsername(username) {
+  console.log(`about to fetch /api/user/${username}`);
   return fetch(`/api/user/${username}`)
     .then(res => res.json())
-    .then(res => res.user);
+    .then((res) => {
+      console.log(res);
+      return res.user;
+    });
 }
 
 function postProjectDetails(title, id, description, tutorialUrl, credits, newImage, isDraft) {
@@ -112,6 +116,7 @@ function updateProjectDetailsAction(project) {
 }
 
 function selectProfileAction(user) {
+  console.log('new user', user);
   return {
     type: SELECT_PROFILE,
     user,
@@ -147,8 +152,25 @@ export function getProjectById(id) {
 }
 
 export function getUserByUsername(username) {
+  console.log('getUserByUsername', username);
   return (dispatch) => {
-    fetchUserByUsername(username).then(user => dispatch(selectProfileAction(user)));
+    console.log('dispatching');
+    fetchUserByUsername(username).then((user) => {
+      console.log(user);
+      dispatch(selectProfileAction(user));
+    });
+  };
+}
+
+export function getUserProjects(username) {
+  return (dispatch) => {
+    fetchUserByUsername(username).then(user => dispatch(updateProjectsAction(user.projects, user.projects.length, '')));
+  };
+}
+
+export function getUserFavoriteProjects(username) {
+  return (dispatch) => {
+    fetchUserByUsername(username).then(user => dispatch(updateProjectsAction(user.FavoriteProjects, user.FavoriteProjects.length, '')));
   };
 }
 

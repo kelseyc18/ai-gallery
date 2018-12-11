@@ -75,7 +75,6 @@ GalleryContainer.propTypes = {
 const styles = StyleSheet.create({
   outerContainer: {
     margin: 'auto',
-    marginTop: 80,
   },
 
   galleryContainer: {

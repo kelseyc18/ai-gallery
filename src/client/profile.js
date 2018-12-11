@@ -12,8 +12,20 @@ import bobaImage from './boba.png';
 
 class Profile extends Component {
   componentDidMount() {
-    const username = this.props.match.params.username; // eslint-disable-line
-    this.props.getUserByUsername(username); // eslint-disable-line
+    const { match, getUserByUsername } = this.props;
+    getUserByUsername(match.params.username);
+  }
+
+  componentDidUpdate(prevProps) {
+    console.log(prevProps);
+    console.log(this.props);
+    
+    const { match } = this.props;
+    const { username } = match.params;
+
+    if (username !== prevProps.match.params.username) {
+      getUserByUsername(username);
+    }
   }
 
   render() {
@@ -86,6 +98,12 @@ Profile.propTypes = {
     imagePath: PropTypes.string,
     bio: PropTypes.string,
   }),
+  match: PropTypes.shape({
+    params: PropTypes.shape({
+      username: PropTypes.string.isRequired,
+    }),
+  }),
+  getUserByUsername: PropTypes.func.isRequired,
 };
 
 const styles = StyleSheet.create({
