@@ -17,9 +17,6 @@ class Profile extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    console.log(prevProps);
-    console.log(this.props);
-    
     const { match } = this.props;
     const { username } = match.params;
 

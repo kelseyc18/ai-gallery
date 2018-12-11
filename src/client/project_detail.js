@@ -182,7 +182,7 @@ class ProjectDetail extends Component {
       incrementDownloadCount,
     } = this.props;
     const {
-      imagePath, author, aiaPath, id, Tags,
+      imagePath, author, aiaPath, id,
     } = project;
     const {
       title, description, tutorialUrl, credits, newImage, isDraft, currentTags,
@@ -288,7 +288,7 @@ class ProjectDetail extends Component {
     const {
       project, inEditMode, loggedInUser, allTags,
     } = this.props;
-    const { FavoritedUsers, ProjectTags, Tags } = project;
+    const { FavoritedUsers, Tags } = project;
     const {
       title, tutorialUrl, description, credits, isDraft, currentTags,
     } = this.state;
@@ -315,11 +315,13 @@ class ProjectDetail extends Component {
       <div className={css(styles.iconsContainer)}>
         <div className={css(styles.iconContainer)}>
           <span>{project.FavoritedUsers.length}</span>
-          <Icon
-            icon={ICONS.FAVORITE}
-            color={starColor}
-            onClick={() => this.handleStarClicked(favorited)}
-          />
+          <span className={css(styles.favoriteIcon)}>
+            <Icon
+              icon={ICONS.FAVORITE}
+              color={starColor}
+              onClick={() => this.handleStarClicked(favorited)}
+            />
+          </span>
         </div>
       </div>
     );
