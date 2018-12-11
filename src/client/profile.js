@@ -12,8 +12,17 @@ import bobaImage from './boba.png';
 
 class Profile extends Component {
   componentDidMount() {
-    const username = this.props.match.params.username; // eslint-disable-line
-    this.props.getUserByUsername(username); // eslint-disable-line
+    const { match, getUserByUsername } = this.props;
+    getUserByUsername(match.params.username);
+  }
+
+  componentDidUpdate(prevProps) {
+    const { match } = this.props;
+    const { username } = match.params;
+
+    if (username !== prevProps.match.params.username) {
+      getUserByUsername(username);
+    }
   }
 
   render() {
@@ -24,7 +33,7 @@ class Profile extends Component {
     }
 
     const {
-      username, name, projects, imagePath, bio,
+      username, name, projects, imagePath, bio, FavoriteProjects,
     } = user;
 
     return (
@@ -39,12 +48,36 @@ class Profile extends Component {
             <p className={css(styles.bio)}>{bio || `This is ${name}'s bio!`}</p>
           </div>
         </div>
-        <p className={css(styles.header)}>{`Apps created by ${username}`}</p>
-        <div className={css(styles.projectContainer)}>
-          {projects.map(project => (
-            <GalleryApp project={project} key={project.id} />
-          ))}
-        </div>
+        {projects.length > 0 && (
+          <div className={css(styles.profileProjectSection)}>
+            <div className={css(styles.header)}>
+              <span>{`Shared Apps (${projects.length})`}</span>
+              <Link to={`/profile/${username}/projects`} className={css(styles.viewAllLink)}>
+                View All
+              </Link>
+            </div>
+            <div className={css(styles.projectContainer)}>
+              {projects.map(project => (
+                <GalleryApp project={project} key={project.id} />
+              ))}
+            </div>
+          </div>
+        )}
+        {FavoriteProjects.length > 0 && (
+          <div className={css(styles.profileProjectSection)}>
+            <div className={css(styles.header)}>
+              <span>{`Favorite Projects (${FavoriteProjects.length})`}</span>
+              <Link to={`/profile/${username}/favorites`} className={css(styles.viewAllLink)}>
+                View All
+              </Link>
+            </div>
+            <div className={css(styles.projectContainer)}>
+              {FavoriteProjects.slice(0, 5).map(project => (
+                <GalleryApp project={project} key={project.id} />
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     );
   }
@@ -62,6 +95,12 @@ Profile.propTypes = {
     imagePath: PropTypes.string,
     bio: PropTypes.string,
   }),
+  match: PropTypes.shape({
+    params: PropTypes.shape({
+      username: PropTypes.string.isRequired,
+    }),
+  }),
+  getUserByUsername: PropTypes.func.isRequired,
 };
 
 const styles = StyleSheet.create({
@@ -107,18 +146,40 @@ const styles = StyleSheet.create({
     marginTop: 5,
   },
 
+  profileProjectSection: {
+    marginTop: 20,
+  },
+
   projectContainer: {
     display: 'flex',
     flexDirection: 'row',
     flexWrap: 'wrap',
-    marginTop: 10,
-    width: '100%',
+    backgroundColor: '#fef1e6',
+    borderBottomLeftRadius: 10,
+    borderBottomRightRadius: 10,
+    border: '#F88D34 1.5px solid',
+    borderTop: 0,
+    padding: 10,
   },
 
   header: {
+    backgroundColor: '#F88D34',
     fontWeight: 'bold',
     fontSize: 18,
-    marginTop: 30,
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'baseline',
+    borderTopLeftRadius: 10,
+    borderTopRightRadius: 10,
+    padding: 10,
+  },
+
+  viewAllLink: {
+    fontSize: 14,
+    color: '#128ba8',
+    ':hover': {
+      textDecoration: 'underline',
+    },
   },
 });
 

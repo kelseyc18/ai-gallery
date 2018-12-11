@@ -12,6 +12,7 @@ import Icon from './icon';
 import ICONS from './icon_constants';
 import GalleryContainer from './gallery_container';
 import ProjectDetail from './project_detail';
+import ProjectShowcase from './project_showcase';
 import Profile from './profile';
 import './app.css';
 import logo from './logo.png';
@@ -103,6 +104,8 @@ class App extends Component {
             <Route exact path="/" component={GalleryContainer} />
             <Route path="/project/:projectId" component={ProjectDetail} />
             <Redirect exact path="/project" to="/" />
+            <Route path="/profile/:username/favorites" component={ProjectShowcase} />
+            <Route path="/profile/:username/projects" component={ProjectShowcase} />
             <Route path="/profile/:username" component={Profile} />
             <Redirect exact path="/profile" to="/" />
           </Switch>
@@ -152,6 +155,7 @@ const styles = StyleSheet.create({
 
   contentContainer: {
     margin: 'auto',
+    marginTop: 80,
   },
 
   searchContainer: {
