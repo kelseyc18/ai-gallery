@@ -13,6 +13,7 @@ import bobaImage from './boba.png';
 import './app.css';
 import {
   getProjectById,
+  getAllTags,
   editProject,
   cancelEditProject,
   updateProjectDetails,
@@ -29,6 +30,7 @@ class ProjectDetail extends Component {
     credits: undefined,
     newImage: undefined,
     isDraft: undefined,
+    currentTags: undefined,
   };
 
   constructor(props) {
@@ -41,6 +43,7 @@ class ProjectDetail extends Component {
   componentDidMount() {
     const projectId = this.props.match.params.projectId; // eslint-disable-line
     this.props.getProjectById(projectId); // eslint-disable-line
+    this.props.getAllTags(); // eslint-disable-line
   }
 
   componentDidUpdate(prevProps) {
@@ -49,6 +52,7 @@ class ProjectDetail extends Component {
     if (prevProps.project && match.params.projectId !== prevProps.project.id.toString()) {
       const projectId = match.params.projectId; // eslint-disable-line
       this.props.getProjectById(projectId); // eslint-disable-line
+      this.props.getAllTags(); // eslint-disable-line
     }
   }
 
@@ -62,6 +66,7 @@ class ProjectDetail extends Component {
         credits: props.project.credits,
         imagePath: props.project.imagePath,
         isDraft: props.project.isDraft,
+        currentTags: props.project.Tags,
       };
     }
     return null;
@@ -102,6 +107,41 @@ class ProjectDetail extends Component {
     this.setState({ isDraft: event.target.checked });
   };
 
+  handleTagsChange = (event) => {
+    const { project, allTags } = this.props;
+    const { currentTags } = this.state;
+    const tag = allTags.filter(tag => tag.tagName === event.target.value)[0];
+
+    if (currentTags.filter(item => item.tagName === tag.tagName).length > 0) {
+      // currentTags includes the selected tag, so we remove it
+      const newTags = currentTags.filter(item => item.tagName !== tag.tagName);
+      this.setState({ currentTags: newTags });
+    } else {
+      const newTags = currentTags.concat([tag]);
+      this.setState({ currentTags: newTags });
+    }
+  };
+
+  renderTagsButtons = (tagName, tagSelected) => {
+    const { inEditMode } = this.props;
+    return (
+      <button
+        className={css(
+          styles.tagsButton,
+          tagSelected && styles.tagSelected,
+          !tagSelected && styles.tagDoesNotExist,
+        )}
+        key={tagName}
+        type="button"
+        value={tagName}
+        onClick={this.handleTagsChange}
+        disabled={!inEditMode}
+      >
+        {tagName}
+      </button>
+    );
+  };
+
   handleStarClicked = (isFavorited) => {
     const {
       project, loggedInUser, addFavorite, removeFavorite,
@@ -117,7 +157,7 @@ class ProjectDetail extends Component {
   resetState = () => {
     const { project } = this.props;
     const {
-      title, tutorialUrl, description, credits, isDraft,
+      title, tutorialUrl, description, credits, isDraft, Tags,
     } = project;
 
     this.setState({
@@ -127,8 +167,9 @@ class ProjectDetail extends Component {
       credits,
       newImage: undefined,
       isDraft,
+      currentTags: Tags,
     });
-  }
+  };
 
   renderLeftContainer = () => {
     const {
@@ -141,10 +182,10 @@ class ProjectDetail extends Component {
       incrementDownloadCount,
     } = this.props;
     const {
-      imagePath, author, aiaPath, id,
+      imagePath, author, aiaPath, id, Tags,
     } = project;
     const {
-      title, description, tutorialUrl, credits, newImage, isDraft,
+      title, description, tutorialUrl, credits, newImage, isDraft, currentTags,
     } = this.state;
 
     const loggedInAsAuthor = loggedInUser === author.id;
@@ -187,6 +228,7 @@ class ProjectDetail extends Component {
                 credits,
                 newImage,
                 isDraft,
+                currentTags.map(tag => tag.tagId),
               );
             }}
           >
@@ -215,7 +257,9 @@ class ProjectDetail extends Component {
           type="button"
           className={css(styles.openAppButton)}
           onClick={() => {
-            window.open(`http://ai2.appinventor.mit.edu/?locale=en&repo=http://localhost:3000/api/exports/${aiaPath}.asc`);
+            window.open(
+              `http://ai2.appinventor.mit.edu/?locale=en&repo=http://localhost:3000/api/exports/${aiaPath}.asc`,
+            );
             incrementDownloadCount(id);
           }}
         >
@@ -241,10 +285,12 @@ class ProjectDetail extends Component {
   };
 
   renderDescriptionContainer = () => {
-    const { project, inEditMode, loggedInUser } = this.props;
-    const { FavoritedUsers } = project;
     const {
-      title, tutorialUrl, description, credits, isDraft,
+      project, inEditMode, loggedInUser, allTags,
+    } = this.props;
+    const { FavoritedUsers, ProjectTags, Tags } = project;
+    const {
+      title, tutorialUrl, description, credits, isDraft, currentTags,
     } = this.state;
     const profileImage = project.author.imagePath;
 
@@ -269,16 +315,23 @@ class ProjectDetail extends Component {
       <div className={css(styles.iconsContainer)}>
         <div className={css(styles.iconContainer)}>
           <span>{project.FavoritedUsers.length}</span>
-          <span className={css(styles.favoriteIcon)}>
-            <Icon
-              icon={ICONS.FAVORITE}
-              color={starColor}
-              onClick={() => this.handleStarClicked(favorited)}
-            />
-          </span>
+          <Icon
+            icon={ICONS.FAVORITE}
+            color={starColor}
+            onClick={() => this.handleStarClicked(favorited)}
+          />
         </div>
       </div>
     );
+
+    const tagButtons = [];
+    const tagSelected = inEditMode
+      ? currentTags.map(tag => tag.tagName)
+      : Tags.map(tag => tag.tagName);
+    allTags.forEach((tag) => {
+      tagButtons.push(this.renderTagsButtons(tag.tagName, tagSelected.indexOf(tag.tagName) > -1));
+    });
+    const tagsContainer = <div className={css(styles.tagsContainer)}>{tagButtons}</div>;
 
     const tutorialInputId = 'tutorial-input';
     const creditsInputId = 'credits-input';
@@ -312,6 +365,7 @@ class ProjectDetail extends Component {
               placeholder="Description"
             />
           </div>
+          {tagsContainer}
           <div className={css(styles.tutorial)}>
             <label htmlFor={tutorialInputId}>
               <p className={css(styles.editTitle)}>Tutorial / Video:</p>
@@ -372,6 +426,7 @@ class ProjectDetail extends Component {
         <div className={css(styles.description)}>
           {!!project.description && project.description}
         </div>
+        {tagsContainer}
         <div className={css(styles.tutorial)}>
           {!!project.tutorialUrl && (
             <div>
@@ -432,12 +487,25 @@ ProjectDetail.propTypes = {
     tutorialUrl: PropTypes.string,
     imagePath: PropTypes.string,
     isDraft: PropTypes.bool.isRequired,
+    tags: PropTypes.arrayOf(
+      PropTypes.shape({
+        tagId: PropTypes.number.isRequired,
+        tagName: PropTypes.string.isRequired,
+      }),
+    ),
   }),
   getProjectById: PropTypes.func.isRequired,
+  getAllTags: PropTypes.func.isRequired,
   editProject: PropTypes.func.isRequired,
   cancelEditProject: PropTypes.func.isRequired,
   inEditMode: PropTypes.bool.isRequired,
   updateProjectDetails: PropTypes.func.isRequired,
+  allTags: PropTypes.arrayOf(
+    PropTypes.shape({
+      tagId: PropTypes.number.isRequired,
+      tagName: PropTypes.string.isRequired,
+    }),
+  ),
   incrementDownloadCount: PropTypes.func.isRequired,
   addFavorite: PropTypes.func.isRequired,
   removeFavorite: PropTypes.func.isRequired,
@@ -491,7 +559,7 @@ const styles = StyleSheet.create({
 
   rightContainer: {
     display: 'grid',
-    gridTemplateColumns: '80% 20%',
+    gridTemplateColumns: '85% 15%',
     width: 'max-content',
     flexGrow: 1,
   },
@@ -508,6 +576,33 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     margin: 10,
     flexGrow: 1,
+  },
+
+  tagsContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    marginBottom: 50,
+  },
+
+  tagsButton: {
+    display: 'inline-block',
+    textAlign: 'center',
+    justifyContent: 'center',
+    margin: 5,
+    fontSize: 12,
+    borderRadius: 5,
+    border: 'none',
+    whiteSpace: 'nowrap',
+  },
+
+  tagSelected: {
+    backgroundColor: '#84ad2d',
+    color: 'white',
+  },
+
+  tagDoesNotExist: {
+    backgroundColor: '#eeeeee',
+    color: 'black',
   },
 
   draft: {
@@ -607,7 +702,7 @@ const styles = StyleSheet.create({
 
   description: {
     marginTop: 5,
-    marginBottom: 20,
+    marginBottom: 10,
     fontSize: 12,
   },
 
@@ -692,12 +787,14 @@ const styles = StyleSheet.create({
 const mapStateToProps = state => ({
   project: state.selectedProject,
   inEditMode: state.inEditMode,
+  allTags: state.allTags,
   loggedInUser: state.loggedInUser,
 });
 
 const mapDispatchToProps = dispatch => bindActionCreators(
   {
     getProjectById,
+    getAllTags,
     editProject,
     cancelEditProject,
     updateProjectDetails,
