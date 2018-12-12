@@ -17,7 +17,7 @@ class Profile extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { match } = this.props;
+    const { match, getUserByUsername } = this.props;
     const { username } = match.params;
 
     if (username !== prevProps.match.params.username) {

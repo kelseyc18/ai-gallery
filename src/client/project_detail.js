@@ -108,7 +108,7 @@ class ProjectDetail extends Component {
   };
 
   handleTagsChange = (event) => {
-    const { project, allTags } = this.props;
+    const { allTags } = this.props;
     const { currentTags } = this.state;
     const tag = allTags.filter(tag => tag.tagName === event.target.value)[0];
 

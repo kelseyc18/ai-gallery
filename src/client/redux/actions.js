@@ -30,11 +30,9 @@ function fetchAllTags() {
 }
 
 function fetchUserByUsername(username) {
-  console.log(`about to fetch /api/user/${username}`);
   return fetch(`/api/user/${username}`)
     .then(res => res.json())
     .then((res) => {
-      console.log(res);
       return res.user;
     });
 }
