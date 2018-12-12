@@ -32,9 +32,7 @@ function fetchAllTags() {
 function fetchUserByUsername(username) {
   return fetch(`/api/user/${username}`)
     .then(res => res.json())
-    .then((res) => {
-      return res.user;
-    });
+    .then(res => res.user);
 }
 
 function postProjectDetails(
