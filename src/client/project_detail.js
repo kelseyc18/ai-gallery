@@ -624,7 +624,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     margin: 5,
     fontSize: 12,
-    borderRadius: 5,
+    borderRadius: 15,
     border: 'none',
     whiteSpace: 'nowrap',
   },

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { StyleSheet, css } from 'aphrodite';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { getProjects } from './redux/actions';
+import { getProjects, getAllTags } from './redux/actions';
 
 import GalleryApp from './gallery_app';
 import ExploreProjectsDropdown from './explore_projects_dropdown';
@@ -12,28 +12,73 @@ import './app.css';
 const queryString = require('query-string');
 
 class GalleryContainer extends Component {
+  state = {
+    currentTags: [],
+  };
+
   componentDidMount() {
     const {
-      getProjects, location, sortBy, loggedInUser,
+      getProjects, location, sortBy, loggedInUser, getAllTags,
     } = this.props;
     const query = queryString.parse(location.search).q;
     getProjects(0, query, sortBy, loggedInUser ? loggedInUser.id : undefined);
+    getAllTags();
   }
 
   componentDidUpdate(prevProps) {
     const {
-      location, getProjects, sortBy, loggedInUser,
+      location, getProjects, sortBy, loggedInUser, getAllTags,
     } = this.props;
     if (location.search !== prevProps.location.search) {
       const query = queryString.parse(location.search).q;
       getProjects(0, query, sortBy, loggedInUser ? loggedInUser.id : undefined);
+      getAllTags();
     }
   }
 
+  handleTagsChange = (event) => {
+    const { allTags } = this.props;
+    const { currentTags } = this.state;
+    const tag = allTags.filter(tag => tag.tagName === event.target.value)[0];
+
+    if (currentTags.filter(item => item.tagName === tag.tagName).length > 0) {
+      // currentTags includes the selected tag, so we remove it
+      const newTags = currentTags.filter(item => item.tagName !== tag.tagName);
+      this.setState({ currentTags: newTags });
+    } else {
+      const newTags = currentTags.concat([tag]);
+      this.setState({ currentTags: newTags });
+    }
+  };
+
+  renderTagsButtons = (tagName, tagSelected) => (
+    <button
+      className={css(
+        styles.tagsButton,
+        tagSelected && styles.tagSelected,
+        !tagSelected && styles.tagDoesNotExist,
+      )}
+      key={tagName}
+      type="button"
+      value={tagName}
+      onClick={this.handleTagsChange}
+    >
+      {tagName}
+    </button>
+  );
+
   render() {
     const {
-      projects, getProjects, projectsTotal, searchQuery, sortBy,
+      projects, getProjects, projectsTotal, searchQuery, sortBy, allTags,
     } = this.props;
+    const { currentTags } = this.state;
+
+    const tagButtons = [];
+    const tagSelected = currentTags.map(tag => tag.tagName);
+    allTags.forEach((tag) => {
+      tagButtons.push(this.renderTagsButtons(tag.tagName, tagSelected.indexOf(tag.tagName) > -1));
+    });
+    const tagsContainer = <div className={css(styles.tagsContainer)}>{tagButtons}</div>;
 
     const bannerText = searchQuery ? 'Search' : 'Explore';
 
@@ -48,6 +93,7 @@ class GalleryContainer extends Component {
               <ExploreProjectsDropdown />
             </div>
           )}
+          {tagsContainer}
           <div className={css(styles.galleryContainer)}>
             {projects.map(project => (
               <GalleryApp project={project} key={project.id} />
@@ -86,6 +132,13 @@ GalleryContainer.propTypes = {
   loggedInUser: PropTypes.shape({
     id: PropTypes.number.isRequired,
   }),
+  getAllTags: PropTypes.func.isRequired,
+  allTags: PropTypes.arrayOf(
+    PropTypes.shape({
+      tagId: PropTypes.number.isRequired,
+      tagName: PropTypes.string.isRequired,
+    }),
+  ),
 };
 
 const styles = StyleSheet.create({
@@ -131,6 +184,34 @@ const styles = StyleSheet.create({
   button: {
     margin: 'auto',
   },
+
+  tagsContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    paddingTop: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  tagsButton: {
+    textAlign: 'center',
+    justifyContent: 'center',
+    margin: 5,
+    fontSize: 14,
+    borderRadius: 15,
+    border: 'none',
+    whiteSpace: 'nowrap',
+  },
+
+  tagSelected: {
+    backgroundColor: '#84ad2d',
+    color: 'white',
+  },
+
+  tagDoesNotExist: {
+    backgroundColor: '#bbbbbb',
+    color: 'white',
+  },
 });
 
 const mapStateToProps = state => ({
@@ -139,11 +220,13 @@ const mapStateToProps = state => ({
   searchQuery: state.searchQuery,
   sortBy: state.sortBy,
   loggedInUser: state.loggedInUser,
+  allTags: state.allTags,
 });
 
 const mapDispatchToProps = dispatch => bindActionCreators(
   {
     getProjects,
+    getAllTags,
   },
   dispatch,
 );
