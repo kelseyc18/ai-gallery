@@ -38,16 +38,12 @@ class GalleryContainer extends Component {
 
   handleTagsChange = (event) => {
     const { allTags } = this.props;
-    const { currentTags } = this.state;
-    const tag = allTags.filter(tag => tag.tagName === event.target.value)[0];
 
-    if (currentTags.filter(item => item.tagName === tag.tagName).length > 0) {
-      // currentTags includes the selected tag, so we remove it
-      const newTags = currentTags.filter(item => item.tagName !== tag.tagName);
-      this.setState({ currentTags: newTags });
+    if (event.target.value === 'All') {
+      this.setState({ currentTags: [{ tagId: 0, tagName: 'All' }] });
     } else {
-      const newTags = currentTags.concat([tag]);
-      this.setState({ currentTags: newTags });
+      const tag = allTags.filter(tag => tag.tagName === event.target.value)[0];
+      this.setState({ currentTags: [tag] });
     }
   };
 
@@ -75,6 +71,12 @@ class GalleryContainer extends Component {
 
     const tagButtons = [];
     const tagSelected = currentTags.map(tag => tag.tagName);
+    console.log(tagSelected);
+    console.log(currentTags);
+    // check if "All" is selected, don't render under allTags is done loading
+    if (allTags.length > 0) {
+      tagButtons.push(this.renderTagsButtons('All', tagSelected.indexOf('All') > -1));
+    }
     allTags.forEach((tag) => {
       tagButtons.push(this.renderTagsButtons(tag.tagName, tagSelected.indexOf(tag.tagName) > -1));
     });
