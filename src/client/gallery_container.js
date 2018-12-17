@@ -13,7 +13,7 @@ const queryString = require('query-string');
 
 class GalleryContainer extends Component {
   state = {
-    currentTags: [],
+    currentTags: [{ tagId: 0, tagName: 'All' }],
   };
 
   componentDidMount() {
@@ -73,7 +73,7 @@ class GalleryContainer extends Component {
     const tagSelected = currentTags.map(tag => tag.tagName);
     console.log(tagSelected);
     console.log(currentTags);
-    // check if "All" is selected, don't render under allTags is done loading
+    // check if "All" is selected, don't render until allTags is done loading
     if (allTags.length > 0) {
       tagButtons.push(this.renderTagsButtons('All', tagSelected.indexOf('All') > -1));
     }
