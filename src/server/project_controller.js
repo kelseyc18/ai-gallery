@@ -89,21 +89,22 @@ exports.create_project = (req, res) => {
 
   let newProject;
   sequelize
-    .transaction(t => User.findByPk(authorId, { transaction: t }).then(user => Project.create(
-      {
-        title,
-        projectId,
-        appInventorInstance,
-        aiaPath: path.basename(req.file.path),
-      },
-      { transaction: t },
-    ).then(
-      (project) => {
-        newProject = project;
-        return user.addProject(project, { transaction: t });
-      },
-      { transaction: t },
-    )))
+    .transaction(t => User.findOne({ where: { authorId, appInventorInstance } }, { transaction: t })
+      .then(user => Project.create(
+        {
+          title,
+          projectId,
+          appInventorInstance,
+          aiaPath: path.basename(req.file.path),
+        },
+        { transaction: t },
+      ).then(
+        (project) => {
+          newProject = project;
+          return user.addProject(project, { transaction: t });
+        },
+        { transaction: t },
+      )))
     .then(() => Project.findByPk(newProject.id)
       .then((project) => {
         const filepath = req.file.path;

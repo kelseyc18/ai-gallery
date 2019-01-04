@@ -5,13 +5,26 @@ exports.new_user = (req, res) => {
     authorId, name, username, appInventorInstance,
   } = req.body;
 
-  db.User.create({
-    name,
-    username,
-    authorId,
-    appInventorInstance,
+  db.User.findAll({
+    where: {
+      authorId,
+      appInventorInstance,
+    },
   })
-    .then(user => res.send({ user }))
+    .then((users) => {
+      if (users.length > 0) {
+        res.send({ user: users[0] });
+      } else {
+        db.User.create({
+          name,
+          username,
+          authorId,
+          appInventorInstance,
+        })
+          .then(user => res.send({ user }))
+          .catch(err => res.send({ err }));
+      }
+    })
     .catch(err => res.send({ err }));
 };
 
