@@ -18,7 +18,8 @@ const initialState = {
   inEditMode: false,
   selectedProfile: null,
   allTags: [],
-  loggedInUser: 1,
+  loggedInUser: undefined,
+  cookie: undefined,
 };
 
 export default function (state = initialState, action) {
@@ -98,7 +99,7 @@ export default function (state = initialState, action) {
     case LOGIN_AS_USER: {
       return {
         ...state,
-        loggedInUser: action.userId,
+        loggedInUser: action.user,
       };
     }
     default:

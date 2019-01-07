@@ -147,10 +147,12 @@ class ProjectDetail extends Component {
       project, loggedInUser, addFavorite, removeFavorite,
     } = this.props;
 
-    if (!isFavorited) {
-      addFavorite(project.id, loggedInUser);
-    } else {
-      removeFavorite(project.id, loggedInUser);
+    if (loggedInUser) {
+      if (!isFavorited) {
+        addFavorite(project.id, loggedInUser.id);
+      } else {
+        removeFavorite(project.id, loggedInUser.id);
+      }
     }
   };
 
@@ -188,7 +190,7 @@ class ProjectDetail extends Component {
       title, description, tutorialUrl, credits, newImage, isDraft, currentTags,
     } = this.state;
 
-    const loggedInAsAuthor = loggedInUser === author.id;
+    const loggedInAsAuthor = loggedInUser && loggedInUser.id === author.id;
 
     return inEditMode ? (
       <form>
@@ -302,10 +304,12 @@ class ProjectDetail extends Component {
     );
 
     let favorited = false;
-    for (let i = 0; i < FavoritedUsers.length; i += 1) {
-      if (FavoritedUsers[i].id === loggedInUser) {
-        favorited = true;
-        break;
+    if (loggedInUser) {
+      for (let i = 0; i < FavoritedUsers.length; i += 1) {
+        if (FavoritedUsers[i].id === loggedInUser.id) {
+          favorited = true;
+          break;
+        }
       }
     }
 
@@ -511,7 +515,9 @@ ProjectDetail.propTypes = {
   incrementDownloadCount: PropTypes.func.isRequired,
   addFavorite: PropTypes.func.isRequired,
   removeFavorite: PropTypes.func.isRequired,
-  loggedInUser: PropTypes.number.isRequired,
+  loggedInUser: PropTypes.shape({
+    id: PropTypes.number.isRequired,
+  }),
 };
 
 const styles = StyleSheet.create({
