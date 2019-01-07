@@ -109,7 +109,7 @@ class App extends Component {
                   ))}
                 </select>
               </label>
-              <p className={styles.loginMessage}>
+              <p className={css(styles.loginMessage)}>
                 {!!loggedInUser && `You are logged in as ${loggedInUser.username}.`}
                 {!loggedInUser && 'You are not logged in.'}
               </p>
