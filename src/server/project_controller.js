@@ -19,6 +19,7 @@ exports.all_projects = (req, res) => {
       title: {
         [Op.like]: `%${searchQuery}%`,
       },
+      isDeleted: false,
     },
     offset,
     limit: LIMIT,
@@ -45,7 +46,11 @@ exports.all_projects = (req, res) => {
 };
 
 exports.project_by_id = (req, res) => {
-  Project.findByPk(req.params.id, {
+  Project.findOne({
+    where: {
+      id: req.params.id,
+      isDeleted: false,
+    },
     include: [
       {
         all: true,
