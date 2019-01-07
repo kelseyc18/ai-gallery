@@ -1,8 +1,11 @@
 const keyczar = require('keyczarjs');
 const base64 = require('base-64');
 const fs = require('fs');
+const protobuf = require('protobufjs');
 
 const db = require('./db');
+
+const { User } = db;
 
 // TODO: Currently, this only works if the authkey zip file has been
 // unzipped.
@@ -19,7 +22,7 @@ exports.new_user = (req, res) => {
     authorId, name, username, appInventorInstance,
   } = req.body;
 
-  db.User.findAll({
+  User.findAll({
     where: {
       authorId,
       appInventorInstance,
@@ -29,7 +32,7 @@ exports.new_user = (req, res) => {
       if (users.length > 0) {
         res.send({ user: users[0] });
       } else {
-        db.User.create({
+        User.create({
           name,
           username,
           authorId,
@@ -43,7 +46,7 @@ exports.new_user = (req, res) => {
 };
 
 exports.user_detail = (req, res) => {
-  db.User.findOne({
+  User.findOne({
     where: {
       username: req.params.username,
     },
@@ -61,11 +64,26 @@ exports.user_detail = (req, res) => {
     .catch(err => res.send({ err }));
 };
 
-exports.user_info = (req, res) => {
-  console.log(req.params.cookie);
+exports.user_from_cookie = (req, res) => {
   const cookie = req.params.cookie.replace(/_/g, '/').replace(/-/g, '+');
-  const encrypted = keyset.encrypt('blackjack');
-  console.log(encrypted);
   const decrypted = keyset.decryptBinary(base64.decode(cookie));
-  res.send(decrypted);
+  protobuf.load(`${__dirname}/cookie.proto`, (err, root) => {
+    if (err) throw err;
+
+    const CookieMessage = root.lookupType('cookieauth.cookie');
+    const buffer = Buffer.from(decrypted, 'binary');
+    const userInfo = CookieMessage.decode(buffer);
+    const { uuid } = userInfo;
+
+    User.findOne({ where: { authorId: uuid } })
+      .then(user => res.send({ user, userInfo }))
+      .catch(err => res.send({ err }));
+  });
+};
+
+exports.user_from_uuid = (req, res) => {
+  console.log(req.params);
+  User.findOne({ where: { authorId: req.params.uuid } })
+    .then(user => res.send({ user }))
+    .catch(err => res.send({ err }));
 };

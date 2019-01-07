@@ -6,8 +6,9 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
 import { StyleSheet, css } from 'aphrodite';
-import { loginAsUser } from './redux/actions';
+import Cookie from 'cookie';
 
+import { loginAsUserWithUUID, loginAsUserWithCookie } from './redux/actions';
 import Icon from './icon';
 import ICONS from './icon_constants';
 import GalleryContainer from './gallery_container';
@@ -39,8 +40,16 @@ class App extends Component {
   };
 
   componentDidMount() {
-    console.log(document.cookie);
+    const { loginAsUserWithCookie } = this.props;
+    const currentCookie = Cookie.parse(document.cookie).AppInventor;
+    if (currentCookie) loginAsUserWithCookie(currentCookie);
   }
+
+  // componentDidUpdate() {
+  //   const { loginAsUserWithCookie, cookie } = this.props;
+  //   const currentCookie = Cookie.parse(document.cookie).AppInventor;
+  //   if (currentCookie !== cookie) loginAsUserWithCookie(currentCookie);
+  // }
 
   handleQueryInput = (event) => {
     this.setState({ searchQuery: event.target.value });
@@ -59,12 +68,13 @@ class App extends Component {
   };
 
   handleUserLogin = (event) => {
-    const { loginAsUser } = this.props;
-    loginAsUser(Number(event.target.value));
+    const { loginAsUserWithUUID } = this.props;
+    loginAsUserWithUUID(Number(event.target.value));
   };
 
   render() {
     const { searchQuery } = this.state;
+    const { loggedInUser } = this.props;
 
     const USER_DROPDOWN_ID = 'user-dropdown-id';
 
@@ -90,7 +100,7 @@ class App extends Component {
             <div className={css(styles.userAuthentication)}>
               {/* eslint-disable-next-line */}
               <label htmlFor={USER_DROPDOWN_ID}>
-                {'Logged in as: '}
+                {'Log in as: '}
                 <select id={USER_DROPDOWN_ID} onChange={this.handleUserLogin}>
                   {USERS.map(user => (
                     <option value={user.id} key={user.id}>
@@ -99,6 +109,10 @@ class App extends Component {
                   ))}
                 </select>
               </label>
+              <p className={styles.loginMessage}>
+                {!!loggedInUser && `You are logged in as ${loggedInUser.username}.`}
+                {!loggedInUser && 'You are not logged in.'}
+              </p>
             </div>
           </div>
         </div>
@@ -126,7 +140,12 @@ App.propTypes = {
   location: PropTypes.shape({
     search: PropTypes.string.isRequired,
   }),
-  loginAsUser: PropTypes.func.isRequired,
+  cookie: PropTypes.string,
+  loggedInUser: PropTypes.shape({
+    username: PropTypes.string,
+  }),
+  loginAsUserWithUUID: PropTypes.func.isRequired,
+  loginAsUserWithCookie: PropTypes.func.isRequired,
 };
 
 const styles = StyleSheet.create({
@@ -169,18 +188,28 @@ const styles = StyleSheet.create({
   userAuthentication: {
     marginLeft: 'auto',
   },
+
+  loginMessage: {
+    fontSize: 10,
+  },
+});
+
+const mapStateToProps = state => ({
+  cookie: state.cookie,
+  loggedInUser: state.loggedInUser,
 });
 
 const mapDispatchToProps = dispatch => bindActionCreators(
   {
-    loginAsUser,
+    loginAsUserWithUUID,
+    loginAsUserWithCookie,
   },
   dispatch,
 );
 
 export default withRouter(
   connect(
-    null,
+    mapStateToProps,
     mapDispatchToProps,
   )(App),
 );

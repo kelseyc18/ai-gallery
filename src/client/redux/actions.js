@@ -35,6 +35,18 @@ function fetchUserByUsername(username) {
     .then(res => res.user);
 }
 
+function fetchUserbyCookie(cookie) {
+  return fetch(`/api/user/cookie/${cookie}`)
+    .then(res => res.json())
+    .then(res => res.user);
+}
+
+function fetchUserByUuid(uuid) {
+  return fetch(`/api/user/uuid/${uuid}`)
+    .then(res => res.json())
+    .then(res => res.user);
+}
+
 function postProjectDetails(
   title,
   id,
@@ -136,7 +148,6 @@ function updateProjectDetailsAction(project) {
 }
 
 function selectProfileAction(user) {
-  console.log('new user', user);
   return {
     type: SELECT_PROFILE,
     user,
@@ -176,11 +187,8 @@ export function getAllTags() {
 }
 
 export function getUserByUsername(username) {
-  console.log('getUserByUsername', username);
   return (dispatch) => {
-    console.log('dispatching');
     fetchUserByUsername(username).then((user) => {
-      console.log(user);
       dispatch(selectProfileAction(user));
     });
   };
@@ -224,10 +232,11 @@ export function updateProjectDetails(
   };
 }
 
-export function loginAsUser(userId) {
+function loginAsUser(user, cookie) {
   return {
     type: LOGIN_AS_USER,
-    userId,
+    user,
+    cookie,
   };
 }
 
@@ -249,6 +258,22 @@ export function removeFavorite(projectId, userId) {
   return (dispatch) => {
     postRemoveFavorite(projectId, userId).then((project) => {
       dispatch(updateSelectedProjectAction(project));
+    });
+  };
+}
+
+export function loginAsUserWithUUID(uuid) {
+  return (dispatch) => {
+    fetchUserByUuid(uuid).then((user) => {
+      dispatch(loginAsUser(user));
+    });
+  };
+}
+
+export function loginAsUserWithCookie(cookie) {
+  return (dispatch) => {
+    fetchUserbyCookie(cookie).then((user) => {
+      dispatch(loginAsUser(user, cookie));
     });
   };
 }
