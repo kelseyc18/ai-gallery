@@ -82,7 +82,6 @@ exports.user_from_cookie = (req, res) => {
 };
 
 exports.user_from_uuid = (req, res) => {
-  console.log(req.params);
   User.findOne({ where: { authorId: req.params.uuid } })
     .then(user => res.send({ user }))
     .catch(err => res.send({ err }));

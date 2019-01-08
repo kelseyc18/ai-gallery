@@ -74,7 +74,7 @@ class App extends Component {
 
   render() {
     const { searchQuery } = this.state;
-    const { loggedInUser } = this.props;
+    const { loggedInUser, isAdmin } = this.props;
 
     const USER_DROPDOWN_ID = 'user-dropdown-id';
 
@@ -110,7 +110,8 @@ class App extends Component {
                 </select>
               </label>
               <p className={css(styles.loginMessage)}>
-                {!!loggedInUser && `You are logged in as ${loggedInUser.username}.`}
+                {!!loggedInUser
+                  && `You are logged in as ${loggedInUser.username}${isAdmin ? ' (admin)' : ''}.`}
                 {!loggedInUser && 'You are not logged in.'}
               </p>
             </div>
@@ -140,12 +141,12 @@ App.propTypes = {
   location: PropTypes.shape({
     search: PropTypes.string.isRequired,
   }),
-  cookie: PropTypes.string,
   loggedInUser: PropTypes.shape({
     username: PropTypes.string,
   }),
   loginAsUserWithUUID: PropTypes.func.isRequired,
   loginAsUserWithCookie: PropTypes.func.isRequired,
+  isAdmin: PropTypes.bool,
 };
 
 const styles = StyleSheet.create({
@@ -197,6 +198,7 @@ const styles = StyleSheet.create({
 const mapStateToProps = state => ({
   cookie: state.cookie,
   loggedInUser: state.loggedInUser,
+  isAdmin: state.isAdmin,
 });
 
 const mapDispatchToProps = dispatch => bindActionCreators(

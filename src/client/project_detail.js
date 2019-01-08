@@ -130,6 +130,7 @@ class ProjectDetail extends Component {
           styles.tagsButton,
           tagSelected && styles.tagSelected,
           !tagSelected && styles.tagDoesNotExist,
+          !inEditMode && styles.tagReadOnly,
         )}
         key={tagName}
         type="button"
@@ -331,11 +332,17 @@ class ProjectDetail extends Component {
     );
 
     const tagButtons = [];
-    const tagSelected = inEditMode
-      ? currentTags.map(tag => tag.tagName)
-      : Tags.map(tag => tag.tagName);
+    const tagSelected = currentTags.map(tag => tag.tagName);
     allTags.forEach((tag) => {
-      tagButtons.push(this.renderTagsButtons(tag.tagName, tagSelected.indexOf(tag.tagName) > -1));
+      if (!inEditMode) {
+        if (tagSelected.indexOf(tag.tagName) > -1) {
+          // Tag is selected (read only mode)
+          tagButtons.push(this.renderTagsButtons(tag.tagName, true));
+        }
+      } else {
+        // Edit mode
+        tagButtons.push(this.renderTagsButtons(tag.tagName, tagSelected.indexOf(tag.tagName) > -1));
+      }
     });
     const tagsContainer = <div className={css(styles.tagsContainer)}>{tagButtons}</div>;
 
@@ -611,6 +618,14 @@ const styles = StyleSheet.create({
   tagDoesNotExist: {
     backgroundColor: '#eeeeee',
     color: 'black',
+  },
+
+  tagReadOnly: {
+    opacity: 0.9,
+    ':hover': {
+      cursor: 'initial',
+      opacity: 0.9,
+    },
   },
 
   draft: {
