@@ -65,25 +65,15 @@ exports.project_by_id = (req, res) => {
 };
 
 exports.all_tags = (req, res) => {
-  Tag.findAll({
-    raw: true,
-    attributes: ['tagId', 'tagName'],
-  })
-    .then((allTags) => {
-      res.send({ allTags });
-    })
+  Tag.findAll()
+    .then(allTags => res.send({ allTags }))
     .catch(err => res.send({ err }));
 };
 
 exports.create_tag = (req, res) => {
-  const { tagId, tagName } = req.body;
-  Tag.create({
-    tagId,
-    tagName,
-  })
-    .then((tag) => {
-      res.send({ tag });
-    })
+  const { tagName } = req.body;
+  Tag.create({ tagName })
+    .then(tag => res.send({ tag }))
     .catch(err => res.send({ err }));
 };
 
@@ -162,7 +152,7 @@ exports.edit_project = (req, res) => {
           .then((project) => {
             Tag.findAll({
               where: {
-                tagId: {
+                id: {
                   [Op.in]: JSON.parse(tagIds),
                 },
               },
@@ -207,7 +197,7 @@ exports.edit_project = (req, res) => {
           .then((project) => {
             Tag.findAll({
               where: {
-                tagId: {
+                id: {
                   [Op.in]: JSON.parse(tagIds),
                 },
               },
@@ -223,55 +213,6 @@ exports.edit_project = (req, res) => {
       })
       .catch(err => res.send({ err }));
   }
-};
-
-exports.add_tag = (req, res) => {
-  const { tagId, projectId } = req.body;
-
-  Project.findByPk(projectId, {
-    include: [
-      {
-        all: true,
-        include: {
-          all: true,
-        },
-      },
-    ],
-  })
-    .then((project) => {
-      Tag.findByPk(tagId).then((tag) => {
-        project.addTag(tag).then(() => {
-          project.reload().then(() => res.send({ project }));
-        });
-      });
-    })
-    .catch(err => res.send({ err }));
-};
-
-exports.remove_tag = (req, res) => {
-  const { projectId, tagId } = req.body;
-
-  ProjectTags.findOne({
-    where: {
-      projectId,
-      tagId,
-    },
-  })
-    .then((projectTagAssociation) => {
-      projectTagAssociation.destroy().then(() => {
-        Project.findByPk(projectId, {
-          include: [
-            {
-              all: true,
-              include: {
-                all: true,
-              },
-            },
-          ],
-        }).then(project => res.send({ project }));
-      });
-    })
-    .catch(err => res.send({ err }));
 };
 
 exports.add_download = (req, res) => {

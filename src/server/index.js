@@ -54,8 +54,6 @@ app.get('/api/project/:id', ProjectController.project_by_id);
 app.post('/api/project/create', upload.single('aia'), ProjectController.create_project);
 app.post('/api/project/edit', upload.single('newImage'), ProjectController.edit_project);
 app.post('/api/project/createtag', ProjectController.create_tag);
-app.post('/api/project/add_tag', ProjectController.add_tag);
-app.post('/api/project/remove_tag', ProjectController.remove_tag);
 app.post('/api/project/add_favorite', ProjectController.add_favorite);
 app.post('/api/project/remove_favorite', ProjectController.remove_favorite);
 app.post('/api/project/download/:id', ProjectController.add_download);
