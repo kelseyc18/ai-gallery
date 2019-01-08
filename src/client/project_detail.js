@@ -231,7 +231,7 @@ class ProjectDetail extends Component {
                 credits,
                 newImage,
                 isDraft,
-                currentTags.map(tag => tag.tagId),
+                currentTags.map(tag => tag.id),
               );
             }}
           >
@@ -291,7 +291,7 @@ class ProjectDetail extends Component {
     const {
       project, inEditMode, loggedInUser, allTags,
     } = this.props;
-    const { FavoritedUsers, Tags } = project;
+    const { FavoritedUsers } = project;
     const {
       title, tutorialUrl, description, credits, isDraft, currentTags,
     } = this.state;
@@ -502,7 +502,7 @@ ProjectDetail.propTypes = {
     isDraft: PropTypes.bool.isRequired,
     tags: PropTypes.arrayOf(
       PropTypes.shape({
-        tagId: PropTypes.number.isRequired,
+        id: PropTypes.number.isRequired,
         tagName: PropTypes.string.isRequired,
       }),
     ),
@@ -515,7 +515,7 @@ ProjectDetail.propTypes = {
   updateProjectDetails: PropTypes.func.isRequired,
   allTags: PropTypes.arrayOf(
     PropTypes.shape({
-      tagId: PropTypes.number.isRequired,
+      id: PropTypes.number.isRequired,
       tagName: PropTypes.string.isRequired,
     }),
   ),

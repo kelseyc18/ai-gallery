@@ -28,6 +28,8 @@ const users = [
   },
 ];
 
+const tags = ['Games', 'Entertainment', 'Arts and Music', 'Education', 'Lifestyle'];
+
 users.forEach((user) => {
   db.User.create(user).then((user) => {
     console.log(
@@ -35,5 +37,11 @@ users.forEach((user) => {
         plain: true,
       }),
     );
+  });
+});
+
+tags.forEach((tagName) => {
+  db.Tag.create({ tagName }).then((tag) => {
+    console.log(tag.get({ plain: true }));
   });
 });
