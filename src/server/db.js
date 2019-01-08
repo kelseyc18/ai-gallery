@@ -19,6 +19,7 @@ db.sequelize = sequelize;
 db.User = require('../models/user')(sequelize, Sequelize);
 db.Project = require('../models/project')(sequelize, Sequelize);
 db.Tag = require('../models/tag')(sequelize, Sequelize);
+db.FeaturedLabel = require('../models/featured_label')(sequelize, Sequelize);
 
 // Relations
 

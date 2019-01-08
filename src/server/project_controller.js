@@ -5,7 +5,7 @@ const db = require('./db');
 
 const { Op } = db.Sequelize;
 const {
-  sequelize, User, Project, Tag, UserFavoriteProjects, ProjectTags,
+  sequelize, User, Project, Tag, UserFavoriteProjects,
 } = db;
 
 const LIMIT = 12;

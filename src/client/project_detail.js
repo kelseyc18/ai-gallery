@@ -183,6 +183,7 @@ class ProjectDetail extends Component {
       updateProjectDetails,
       loggedInUser,
       incrementDownloadCount,
+      isAdmin,
     } = this.props;
     const {
       imagePath, author, aiaPath, id,
@@ -268,7 +269,7 @@ class ProjectDetail extends Component {
         >
           Open App
         </button>
-        {loggedInAsAuthor && (
+        {(loggedInAsAuthor || isAdmin) && (
           <button
             type="button"
             className={css(styles.projectDetailButton)}
@@ -525,6 +526,7 @@ ProjectDetail.propTypes = {
   loggedInUser: PropTypes.shape({
     id: PropTypes.number.isRequired,
   }),
+  isAdmin: PropTypes.bool,
 };
 
 const styles = StyleSheet.create({
@@ -812,6 +814,7 @@ const mapStateToProps = state => ({
   inEditMode: state.inEditMode,
   allTags: state.allTags,
   loggedInUser: state.loggedInUser,
+  isAdmin: state.isAdmin,
 });
 
 const mapDispatchToProps = dispatch => bindActionCreators(
