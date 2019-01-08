@@ -281,3 +281,7 @@ exports.remove_favorite = (req, res) => {
     })
     .catch(err => res.send({ err }));
 };
+
+exports.add_featured_label = (req, res) => {
+  const { projectId, ageDivision, dateAwarded, category, description } = req.body;
+};

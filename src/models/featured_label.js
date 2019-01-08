@@ -9,6 +9,9 @@ module.exports = (sequelize, Sequelize) => {
     category: {
       type: Sequelize.STRING,
     },
+    description: {
+      type: Sequelize.STRING,
+    },
   });
   return FeaturedLabel;
 };
