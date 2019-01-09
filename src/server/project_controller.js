@@ -197,13 +197,13 @@ exports.update_or_create_project = (req, res) => {
 };
 
 exports.remove_project = (req, res) => {
-  const { id } = req.body;
+  const { projectId } = req.body;
 
   Project.update({
     isDeleted: true,
   }, {
     where: {
-      id,
+      id: projectId,
     },
   }).spread(count => res.send({ count }))
     .catch(err => res.send({ err }));
