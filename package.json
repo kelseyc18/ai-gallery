@@ -14,6 +14,7 @@
   "license": "ISC",
   "dependencies": {
     "aphrodite": "^2.2.3",
+    "async": "^2.6.1",
     "base-64": "^0.1.0",
     "base64-stream": "^1.0.0",
     "body-parser": "^1.18.3",

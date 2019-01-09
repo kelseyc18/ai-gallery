@@ -29,6 +29,11 @@ function fetchAllTags() {
     .then(res => res.allTags);
 }
 
+function fetchFeaturedProjects(offset) {
+  return fetch(`/api/project/featured?offset=${offset || 0}`)
+    .then(res => res.json());
+}
+
 function fetchUserByUsername(username) {
   return fetch(`/api/user/${username}`)
     .then(res => res.json())
@@ -194,6 +199,16 @@ export function getProjectById(id) {
 
 export function getAllTags() {
   return dispatch => fetchAllTags().then(allTags => dispatch(selectAllTagsAction(allTags)));
+}
+
+export function getFeaturedProjects(offset) {
+  return dispatch => fetchFeaturedProjects(offset).then((res) => {
+    if (res.offset === 0) {
+      dispatch(updateProjectsAction(res.projects, res.total));
+    } else {
+      dispatch(appendProjectsAction(res.projects, res.total));
+    }
+  });
 }
 
 export function getUserByUsername(username) {

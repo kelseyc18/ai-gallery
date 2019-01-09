@@ -4,18 +4,19 @@ import { StyleSheet, css } from 'aphrodite';
 
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { getUserProjects, getUserFavoriteProjects } from './redux/actions';
+import { getFeaturedProjects } from './redux/actions';
 
 import GalleryApp from './gallery_app';
 import './app.css';
 
 class FeaturedProjectGallery extends Component {
   componentDidMount() {
-    // Get featured projects
+    const { getFeaturedProjects } = this.props;
+    getFeaturedProjects();
   }
 
   render() {
-    const projects = [];
+    const { projects, projectsTotal } = this.props;
 
     return (
       <React.Fragment>
@@ -26,13 +27,32 @@ class FeaturedProjectGallery extends Component {
           {projects.map(project => (
             <GalleryApp project={project} key={project.id} />
           ))}
+          {projects.length < projectsTotal ? (
+            <div className={css(styles.footer)}>
+              <button
+                className={css(styles.button)}
+                onClick={() => getFeaturedProjects(projects.length)}
+                type="button"
+              >
+                Load more projects
+              </button>
+            </div>
+          ) : null}
         </div>
       </React.Fragment>
     );
   }
 }
 
-FeaturedProjectGallery.propTypes = {};
+FeaturedProjectGallery.propTypes = {
+  getFeaturedProjects: PropTypes.func.isRequired,
+  projects: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.number.isRequired,
+    }),
+  ).isRequired,
+  projectsTotal: PropTypes.number,
+};
 
 const styles = StyleSheet.create({
   galleryContainer: {
@@ -63,12 +83,12 @@ const styles = StyleSheet.create({
 
 const mapStateToProps = state => ({
   projects: state.projects,
+  projectsTotal: state.projectsTotal,
 });
 
 const mapDispatchToProps = dispatch => bindActionCreators(
   {
-    getUserProjects,
-    getUserFavoriteProjects,
+    getFeaturedProjects,
   },
   dispatch,
 );

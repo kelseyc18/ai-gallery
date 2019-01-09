@@ -25,14 +25,9 @@ exports.all_projects = (req, res) => {
     limit: LIMIT,
     order: [['creationDate', 'DESC']],
     distinct: true,
-    include: [
-      {
-        all: true,
-        include: {
-          all: true,
-        },
-      },
-    ],
+    include: {
+      all: true,
+    },
   })
     .then((result) => {
       res.send({
@@ -272,5 +267,40 @@ exports.set_featured_label = (req, res) => {
         project.reload().then(project => res.send({ project }));
       });
     }
+  }).catch(err => res.send({ err }));
+};
+
+exports.get_featured_projects = (req, res) => {
+  const offset = parseInt(req.query.offset, 10) || 0;
+
+  FeaturedLabel.findAndCountAll({
+    where: {
+      projectId: {
+        [Op.ne]: null,
+      },
+    },
+    offset,
+    limit: LIMIT,
+    order: [['dateAwarded', 'DESC']],
+  }).then((result) => {
+    const projectIds = result.rows.map(label => label.projectId);
+
+    Project.findAll({
+      where: {
+        id: {
+          [Op.in]: projectIds,
+        },
+      },
+      include: {
+        all: true,
+      },
+    }).then((projects) => {
+      res.send({
+        projects,
+        total: result.count,
+        offset,
+        limit: LIMIT,
+      });
+    });
   }).catch(err => res.send({ err }));
 };
