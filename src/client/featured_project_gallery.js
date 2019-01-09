@@ -72,8 +72,6 @@ const styles = StyleSheet.create({
     height: 100,
     color: 'white',
     fontWeight: 'bold',
-    paddingTop: 10,
-    paddingBottom: 10,
   },
 
   bannerText: {

@@ -30,13 +30,13 @@ class GalleryContainer extends Component {
       projects, getProjects, projectsTotal, searchQuery,
     } = this.props;
 
+    const bannerText = searchQuery ? 'Search' : 'Explore';
+
     return (
       <div className={css(styles.outerContainer)}>
-        {!!searchQuery && (
-          <div className={css(styles.searchBanner)}>
-            <div>Search</div>
-          </div>
-        )}
+        <div className={css(styles.searchBanner)}>
+          <div>{bannerText}</div>
+        </div>
         <div className={css(styles.galleryContainer)}>
           {projects.map(project => (
             <GalleryApp project={project} key={project.id} />

@@ -104,34 +104,32 @@ class App extends Component {
               Explore
             </button>
           </Link>
+          <div className={css(styles.searchContainer)}>
+            <Icon icon={ICONS.SEARCH} color="#58585a" />
+            <input
+              value={searchQuery}
+              onChange={this.handleQueryInput}
+              onKeyPress={this.handleKeyPress}
+              placeholder="Search"
+            />
+          </div>
           <div className={css(styles.leftAligned)}>
-            <div className={css(styles.searchContainer)}>
-              <Icon icon={ICONS.SEARCH} color="#58585a" />
-              <input
-                value={searchQuery}
-                onChange={this.handleQueryInput}
-                onKeyPress={this.handleKeyPress}
-                placeholder="Search"
-              />
-            </div>
-            <div>
-              {/* eslint-disable-next-line */}
-              <label htmlFor={USER_DROPDOWN_ID}>
-                {'Log in as: '}
-                <select id={USER_DROPDOWN_ID} onChange={this.handleUserLogin}>
-                  {USERS.map(user => (
-                    <option value={user.id} key={user.id}>
-                      {user.username}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <p className={css(styles.loginMessage)}>
-                {!!loggedInUser
-                  && `You are logged in as ${loggedInUser.username}${isAdmin ? ' (admin)' : ''}.`}
-                {!loggedInUser && 'You are not logged in.'}
-              </p>
-            </div>
+            {/* eslint-disable-next-line */}
+            <label htmlFor={USER_DROPDOWN_ID}>
+              {'Log in as: '}
+              <select id={USER_DROPDOWN_ID} onChange={this.handleUserLogin}>
+                {USERS.map(user => (
+                  <option value={user.id} key={user.id}>
+                    {user.username}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <p className={css(styles.loginMessage)}>
+              {!!loggedInUser
+                && `You are logged in as ${loggedInUser.username}${isAdmin ? ' (admin)' : ''}.`}
+              {!loggedInUser && 'You are not logged in.'}
+            </p>
           </div>
         </div>
       </div>
@@ -227,8 +225,6 @@ const styles = StyleSheet.create({
   },
 
   leftAligned: {
-    display: 'flex',
-    flexDirection: 'row',
     marginLeft: 'auto',
   },
 
