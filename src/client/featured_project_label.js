@@ -9,8 +9,9 @@ export default function FeaturedProjectLabel(props) {
     dateAwarded, ageDivision, category, description,
   } = label;
 
-  const dateAwardedDate = new Date(dateAwarded);
-  const dateAwardedString = dateFormat(dateAwardedDate, 'mmmm yyyy');
+  const date = new Date(dateAwarded);
+  date.setTime(date.getTime() + date.getTimezoneOffset() * 60 * 1000);
+  const dateAwardedString = dateFormat(date, 'mmmm yyyy');
 
   return (
     <div className={css(styles.container)}>
@@ -34,6 +35,7 @@ const styles = StyleSheet.create({
     background: '#c1e673',
     width: '100%',
     marginTop: 10,
+    marginBottom: 10,
   },
 
   title: {

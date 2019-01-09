@@ -5,7 +5,7 @@ const db = require('./db');
 
 const { Op } = db.Sequelize;
 const {
-  sequelize, User, Project, Tag, UserFavoriteProjects, FeaturedLabel
+  sequelize, User, Project, Tag, UserFavoriteProjects, FeaturedLabel,
 } = db;
 
 const LIMIT = 12;
@@ -237,7 +237,16 @@ exports.remove_favorite = (req, res) => {
 exports.set_featured_label = (req, res) => {
   const { projectId, featuredLabel } = req.body;
 
-  Project.findByPk(projectId).then((project) => {
+  Project.findByPk(projectId, {
+    include: [
+      {
+        all: true,
+        include: {
+          all: true,
+        },
+      },
+    ],
+  }).then((project) => {
     if (featuredLabel) {
       const {
         ageDivision, dateAwarded, category, description,

@@ -106,6 +106,18 @@ function postRemoveFavorite(projectId, userId) {
     .then(res => res.project);
 }
 
+function postUpdateFeaturedProject(projectId, featuredLabel) {
+  return fetch('/api/project/set_featured_label', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ projectId, featuredLabel }),
+  })
+    .then(res => res.json())
+    .then(res => res.project);
+}
+
 function updateProjectsAction(projects, total, searchQuery) {
   return {
     type: UPDATE_PROJECTS,
@@ -274,6 +286,14 @@ export function loginAsUserWithCookie(cookie) {
   return (dispatch) => {
     fetchUserbyCookie(cookie).then(({ user, userInfo }) => {
       dispatch(loginAsUser(user, cookie, userInfo.isAdmin, userInfo.isReadOnly));
+    });
+  };
+}
+
+export function updateFeaturedProject(projectId, featuredLabel) {
+  return (dispatch) => {
+    postUpdateFeaturedProject(projectId, featuredLabel).then((project) => {
+      dispatch(updateSelectedProjectAction(project));
     });
   };
 }

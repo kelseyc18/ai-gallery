@@ -394,6 +394,7 @@ class ProjectDetail extends Component {
               placeholder="Description"
             />
           </div>
+          {!!featuredLabel && <FeaturedProjectLabel label={featuredLabel} />}
           {tagsContainer}
           <div className={css(styles.tutorial)}>
             <label htmlFor={tutorialInputId}>
@@ -418,8 +419,7 @@ class ProjectDetail extends Component {
             />
           </div>
           {datesContainer}
-          {!!featuredLabel && <FeaturedProjectLabel label={featuredLabel} />}
-          {!!isAdmin && <AdminProjectControls />}
+          {!!isAdmin && <AdminProjectControls project={project} />}
         </div>
       </div>
     ) : (
@@ -446,6 +446,7 @@ class ProjectDetail extends Component {
         <div className={css(styles.description)}>
           {!!project.description && project.description}
         </div>
+        {!!featuredLabel && <FeaturedProjectLabel label={featuredLabel} />}
         {tagsContainer}
         <div className={css(styles.tutorial)}>
           {!!project.tutorialUrl && (
@@ -467,8 +468,7 @@ class ProjectDetail extends Component {
         </div>
         <div className={css(styles.filler)} />
         {datesContainer}
-        {!!featuredLabel && <FeaturedProjectLabel label={featuredLabel} />}
-        {!!isAdmin && <AdminProjectControls />}
+        {!!isAdmin && <AdminProjectControls project={project} />}
       </div>
     );
   };
