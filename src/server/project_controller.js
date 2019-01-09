@@ -352,8 +352,8 @@ exports.get_featured_projects = (req, res) => {
   }).catch(err => res.send({ err }));
 };
 
-exports.project_from_instance_id = (req, res) => {
-  const { projectId, appInventorInstance } = req.body;
+exports.get_gallery_id = (req, res) => {
+  const { projectId, appInventorInstance } = req.query;
 
   Project.findAndCountAll({
     where: {
@@ -362,6 +362,9 @@ exports.project_from_instance_id = (req, res) => {
       isDeleted: false,
     },
   }).then((result) => {
-    res.send(result);
+    if (result.count > 0) {
+      return res.send(result.rows[0].id.toString());
+    }
+    return res.send('0');
   }).catch(err => res.send({ err }));
 };
