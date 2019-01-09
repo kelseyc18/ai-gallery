@@ -5,7 +5,7 @@ const db = require('./db');
 
 const { Op } = db.Sequelize;
 const {
-  sequelize, User, Project, Tag, UserFavoriteProjects,
+  sequelize, User, Project, Tag, UserFavoriteProjects, FeaturedLabel
 } = db;
 
 const LIMIT = 12;
@@ -119,100 +119,52 @@ exports.edit_project = (req, res) => {
     title, id, description, tutorialUrl, credits, isDraft, tagIds,
   } = req.body;
 
-  if (req.file) {
-    const imagePath = `api/uploads/${path.basename(req.file.path)}`;
+  const imagePath = req.file ? `api/uploads/${path.basename(req.file.path)}` : null;
 
-    Project.update(
-      {
-        title,
-        description,
-        tutorialUrl,
-        credits,
-        imagePath,
-        isDraft,
-        lastModifiedDate: Date.now(),
+  Project.update(
+    {
+      title,
+      description,
+      tutorialUrl,
+      credits,
+      isDraft,
+      imagePath,
+      lastModifiedDate: Date.now(),
+    },
+    {
+      where: {
+        id,
       },
-      {
-        where: {
-          id,
-        },
-      },
-    )
-      .then(() => {
-        Project.findByPk(id, {
-          include: [
-            {
+    },
+  )
+    .then(() => {
+      Project.findByPk(id, {
+        include: [
+          {
+            all: true,
+            include: {
               all: true,
-              include: {
-                all: true,
+            },
+          },
+        ],
+      })
+        .then((project) => {
+          Tag.findAll({
+            where: {
+              id: {
+                [Op.in]: JSON.parse(tagIds),
               },
             },
-          ],
-        })
-          .then((project) => {
-            Tag.findAll({
-              where: {
-                id: {
-                  [Op.in]: JSON.parse(tagIds),
-                },
-              },
-            })
-              .then((tags) => {
-                project.setTags(tags).then(() => {
-                  project.reload().then(() => res.send({ project }));
-                });
-              })
-              .catch(err => res.send({ err }));
           })
-          .catch(err => res.send({ err }));
-      })
-      .catch(err => res.send({ err }));
-  } else {
-    Project.update(
-      {
-        title,
-        description,
-        tutorialUrl,
-        credits,
-        isDraft,
-        lastModifiedDate: Date.now(),
-      },
-      {
-        where: {
-          id,
-        },
-      },
-    )
-      .then(() => {
-        Project.findByPk(id, {
-          include: [
-            {
-              all: true,
-              include: {
-                all: true,
-              },
-            },
-          ],
-        })
-          .then((project) => {
-            Tag.findAll({
-              where: {
-                id: {
-                  [Op.in]: JSON.parse(tagIds),
-                },
-              },
-            })
-              .then((tags) => {
-                project.setTags(tags).then(() => {
-                  project.reload().then(() => res.send({ project }));
+            .then((tags) => {
+              project.setTags(tags).then(() => {
+                project.reload().then((project) => {
+                  res.send({ project });
                 });
-              })
-              .catch(err => res.send({ err }));
-          })
-          .catch(err => res.send({ err }));
-      })
-      .catch(err => res.send({ err }));
-  }
+              });
+            });
+        });
+    }).catch(err => res.send({ err }));
 };
 
 exports.add_download = (req, res) => {
@@ -282,6 +234,34 @@ exports.remove_favorite = (req, res) => {
     .catch(err => res.send({ err }));
 };
 
-exports.add_featured_label = (req, res) => {
-  const { projectId, ageDivision, dateAwarded, category, description } = req.body;
+exports.set_featured_label = (req, res) => {
+  const { projectId, featuredLabel } = req.body;
+
+  Project.findByPk(projectId).then((project) => {
+    if (featuredLabel) {
+      const {
+        ageDivision, dateAwarded, category, description,
+      } = featuredLabel;
+
+      FeaturedLabel.findOrCreate({
+        where: {
+          ageDivision,
+          dateAwarded,
+          category,
+        },
+      }).spread((label) => {
+        label.update({ description }).then(() => {
+          label.reload().then((label) => {
+            project.setFeaturedLabel(label).then(() => {
+              project.reload().then(project => res.send({ project }));
+            });
+          });
+        });
+      });
+    } else {
+      project.setFeaturedLabel(null).then(() => {
+        project.reload().then(project => res.send({ project }));
+      });
+    }
+  }).catch(err => res.send({ err }));
 };

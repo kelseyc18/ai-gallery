@@ -62,6 +62,6 @@ db.User.belongsToMany(db.Project, {
 db.Project.hasMany(db.Project, { foreignKey: 'root_project_id', as: 'RootProject' });
 db.Project.hasMany(db.Project, { foreignKey: 'parent_project_id', as: 'ParentProject' });
 
-db.Project.hasOne(db.FeaturedLabel, { foreignKey: 'featuredLabelId' });
+db.Project.hasOne(db.FeaturedLabel, { foreignKey: 'projectId' });
 
 module.exports = db;

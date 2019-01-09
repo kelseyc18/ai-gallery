@@ -11,6 +11,7 @@
     "react/require-default-props": "off",
     "no-underscore-dangle": "off",
     "no-use-before-define": "off",
-    "no-shadow": "off"
+    "no-shadow": "off",
+    "jsx-a11y/label-has-for": "off"
   }
 }

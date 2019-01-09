@@ -6,6 +6,8 @@ import { bindActionCreators } from 'redux';
 import { StyleSheet, css } from 'aphrodite';
 
 import ProjectDetailSidebar from './project_detail_sidebar';
+import AdminProjectControls from './admin_project_controls';
+import FeaturedProjectLabel from './featured_project_label';
 import Icon from './icon';
 import ICONS from './icon_constants';
 import puppyImage from './puppy.png';
@@ -290,9 +292,9 @@ class ProjectDetail extends Component {
 
   renderDescriptionContainer = () => {
     const {
-      project, inEditMode, loggedInUser, allTags,
+      project, inEditMode, loggedInUser, allTags, isAdmin,
     } = this.props;
-    const { FavoritedUsers } = project;
+    const { FavoritedUsers, featuredLabel } = project;
     const {
       title, tutorialUrl, description, credits, isDraft, currentTags,
     } = this.state;
@@ -354,13 +356,26 @@ class ProjectDetail extends Component {
     return inEditMode ? (
       <div className={css(styles.rightContainer)}>
         <div className={css(styles.descriptionContainer)}>
-          <div className={css(styles.titleContainer)}>
-            <input
-              className={css(styles.appTitleEdit)}
-              value={title}
-              onChange={this.handleTitleChange}
-              placeholder="Title"
-            />
+          <div className={css(styles.titleAndDraftCheckbox)}>
+            <div className={css(styles.titleContainer)}>
+              <input
+                className={css(styles.appTitleEdit)}
+                value={title}
+                onChange={this.handleTitleChange}
+                placeholder="Title"
+              />
+            </div>
+            <div className={css(styles.draftCheckbox)}>
+              <label htmlFor={draftCheckboxId}>
+                <input
+                  type="checkbox"
+                  onChange={this.handleIsDraftChange}
+                  checked={isDraft}
+                  id={draftCheckboxId}
+                />
+                Draft
+              </label>
+            </div>
           </div>
           <div className={css(styles.userInfo)}>
             <img
@@ -403,17 +418,8 @@ class ProjectDetail extends Component {
             />
           </div>
           {datesContainer}
-        </div>
-        <div className={css(styles.draftCheckbox)}>
-          <label htmlFor={draftCheckboxId}>
-            <input
-              type="checkbox"
-              onChange={this.handleIsDraftChange}
-              checked={isDraft}
-              id={draftCheckboxId}
-            />
-            Draft
-          </label>
+          {!!featuredLabel && <FeaturedProjectLabel label={featuredLabel} />}
+          {!!isAdmin && <AdminProjectControls />}
         </div>
       </div>
     ) : (
@@ -461,6 +467,8 @@ class ProjectDetail extends Component {
         </div>
         <div className={css(styles.filler)} />
         {datesContainer}
+        {!!featuredLabel && <FeaturedProjectLabel label={featuredLabel} />}
+        {!!isAdmin && <AdminProjectControls />}
       </div>
     );
   };
@@ -576,7 +584,6 @@ const styles = StyleSheet.create({
 
   rightContainer: {
     display: 'grid',
-    gridTemplateColumns: '85% 15%',
     width: 'max-content',
     flexGrow: 1,
   },
@@ -640,7 +647,8 @@ const styles = StyleSheet.create({
   },
 
   draftCheckbox: {
-    margin: 10,
+    alignSelf: 'center',
+    marginLeft: 10,
   },
 
   credits: {
@@ -655,6 +663,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 5,
     marginTop: 'auto',
+  },
+
+  titleAndDraftCheckbox: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
 
   appTitle: {

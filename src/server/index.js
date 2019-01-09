@@ -18,7 +18,7 @@ const storage = multer.diskStorage({
       null,
       req.path === '/api/project/create'
         ? `${req.body.title}_${Date.now()}`
-        : `_${Date.now()}_${file.originalname}`,
+        : `${Date.now()}_${file.originalname}`,
     );
   },
 });
@@ -57,6 +57,6 @@ app.post('/api/project/createtag', ProjectController.create_tag);
 app.post('/api/project/add_favorite', ProjectController.add_favorite);
 app.post('/api/project/remove_favorite', ProjectController.remove_favorite);
 app.post('/api/project/download/:id', ProjectController.add_download);
-app.post('/api/project/add_featured_label', ProjectController.add_featured_label);
+app.post('/api/project/set_featured_label', ProjectController.set_featured_label);
 
 app.listen(8090, () => console.log('Listening on port 8090!'));
