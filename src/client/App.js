@@ -14,6 +14,7 @@ import ICONS from './icon_constants';
 import GalleryContainer from './gallery_container';
 import ProjectDetail from './project_detail';
 import ProjectShowcase from './project_showcase';
+import FeaturedProjectGallery from './featured_project_gallery';
 import Profile from './profile';
 import './app.css';
 import logo from './logo.png';
@@ -61,7 +62,7 @@ class App extends Component {
 
     if (event.key === 'Enter') {
       history.push({
-        pathname: '/',
+        pathname: '/explore',
         search: `?q=${searchQuery}`,
       });
     }
@@ -72,22 +73,38 @@ class App extends Component {
     loginAsUserWithUUID(Number(event.target.value));
   };
 
+  handleClickCreate = () => {
+    window.open('http://ai2.appinventor.mit.edu', '_blank');
+  };
+
   render() {
     const { searchQuery } = this.state;
     const { loggedInUser, isAdmin } = this.props;
 
     const USER_DROPDOWN_ID = 'user-dropdown-id';
 
-    return (
-      <div>
-        <div className={css(styles.headerContainer)}>
-          <div className={css(styles.header)}>
-            <Link to="/">
-              <img className={css(styles.logo)} src={logo} alt="logo" />
-            </Link>
-            <Link to="/">
-              <h1 className={css(styles.headerTitle)}>Project Gallery</h1>
-            </Link>
+    const header = (
+      <div className={css(styles.headerContainer)}>
+        <div className={css(styles.header)}>
+          <Link to="/">
+            <img className={css(styles.logo)} src={logo} alt="logo" />
+          </Link>
+          <Link to="/">
+            <h1 className={css(styles.headerTitle)}>Project Gallery</h1>
+          </Link>
+          <button
+            type="button"
+            className={css(styles.headerButton)}
+            onClick={this.handleClickCreate}
+          >
+            Create
+          </button>
+          <Link to="/explore">
+            <button type="button" className={css(styles.headerButton)}>
+              Explore
+            </button>
+          </Link>
+          <div className={css(styles.leftAligned)}>
             <div className={css(styles.searchContainer)}>
               <Icon icon={ICONS.SEARCH} color="#58585a" />
               <input
@@ -97,7 +114,7 @@ class App extends Component {
                 placeholder="Search"
               />
             </div>
-            <div className={css(styles.userAuthentication)}>
+            <div>
               {/* eslint-disable-next-line */}
               <label htmlFor={USER_DROPDOWN_ID}>
                 {'Log in as: '}
@@ -117,10 +134,17 @@ class App extends Component {
             </div>
           </div>
         </div>
+      </div>
+    );
+
+    return (
+      <div>
+        {header}
 
         <div className={css(styles.contentContainer)}>
           <Switch>
-            <Route exact path="/" component={GalleryContainer} />
+            <Route exact path="/" component={FeaturedProjectGallery} />
+            <Route path="/explore" component={GalleryContainer} />
             <Route path="/project/:projectId" component={ProjectDetail} />
             <Redirect exact path="/project" to="/" />
             <Route path="/profile/:username/favorites" component={ProjectShowcase} />
@@ -162,20 +186,34 @@ const styles = StyleSheet.create({
   header: {
     display: 'flex',
     alignItems: 'center',
-    padding: '20px',
+    padding: 20,
     margin: 'auto',
-    maxWidth: 850,
     maxHeight: 20,
   },
 
   headerTitle: {
     marginLeft: 20,
+    marginRight: 20,
     fontSize: 24,
   },
 
   logo: {
     height: 48,
     width: 'auto',
+  },
+
+  headerButton: {
+    height: 60,
+    paddingLeft: 10,
+    paddingRight: 10,
+    border: 'none',
+    fontWeight: 'bold',
+    fontSize: 18,
+    color: '#58585A',
+    ':hover': {
+      backgroundColor: '#f0f0f0',
+      color: '#222222',
+    },
   },
 
   contentContainer: {
@@ -185,9 +223,12 @@ const styles = StyleSheet.create({
 
   searchContainer: {
     marginLeft: 20,
+    marginRight: 20,
   },
 
-  userAuthentication: {
+  leftAligned: {
+    display: 'flex',
+    flexDirection: 'row',
     marginLeft: 'auto',
   },
 

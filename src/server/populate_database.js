@@ -60,7 +60,7 @@ const projects = [
   },
 ];
 
-const tags = ['Games', 'Entertainment', 'Arts and Music', 'Education', 'Lifestyle'];
+const tags = ['Games', 'Tutorials', 'Arts and Music', 'Education', 'Lifestyle'];
 
 function populateUsers() {
   users.forEach((user) => {
