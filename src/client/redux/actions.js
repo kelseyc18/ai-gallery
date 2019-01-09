@@ -29,6 +29,11 @@ function fetchAllTags() {
     .then(res => res.allTags);
 }
 
+function fetchFeaturedProjects(offset) {
+  return fetch(`/api/project/featured?offset=${offset || 0}`)
+    .then(res => res.json());
+}
+
 function fetchUserByUsername(username) {
   return fetch(`/api/user/${username}`)
     .then(res => res.json())
@@ -36,9 +41,7 @@ function fetchUserByUsername(username) {
 }
 
 function fetchUserbyCookie(cookie) {
-  return fetch(`/api/user/cookie/${cookie}`)
-    .then(res => res.json())
-    .then(res => res.user);
+  return fetch(`/api/user/cookie/${cookie}`).then(res => res.json());
 }
 
 function fetchUserByUuid(uuid) {
@@ -103,6 +106,18 @@ function postRemoveFavorite(projectId, userId) {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({ projectId, userId }),
+  })
+    .then(res => res.json())
+    .then(res => res.project);
+}
+
+function postUpdateFeaturedProject(projectId, featuredLabel) {
+  return fetch('/api/project/set_featured_label', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ projectId, featuredLabel }),
   })
     .then(res => res.json())
     .then(res => res.project);
@@ -186,6 +201,16 @@ export function getAllTags() {
   return dispatch => fetchAllTags().then(allTags => dispatch(selectAllTagsAction(allTags)));
 }
 
+export function getFeaturedProjects(offset) {
+  return dispatch => fetchFeaturedProjects(offset).then((res) => {
+    if (res.offset === 0) {
+      dispatch(updateProjectsAction(res.projects, res.total));
+    } else {
+      dispatch(appendProjectsAction(res.projects, res.total));
+    }
+  });
+}
+
 export function getUserByUsername(username) {
   return (dispatch) => {
     fetchUserByUsername(username).then((user) => {
@@ -232,11 +257,13 @@ export function updateProjectDetails(
   };
 }
 
-function loginAsUser(user, cookie) {
+function loginAsUser(user, cookie, isAdmin, isReadOnly) {
   return {
     type: LOGIN_AS_USER,
     user,
     cookie,
+    isAdmin,
+    isReadOnly,
   };
 }
 
@@ -272,8 +299,16 @@ export function loginAsUserWithUUID(uuid) {
 
 export function loginAsUserWithCookie(cookie) {
   return (dispatch) => {
-    fetchUserbyCookie(cookie).then((user) => {
-      dispatch(loginAsUser(user, cookie));
+    fetchUserbyCookie(cookie).then(({ user, userInfo }) => {
+      dispatch(loginAsUser(user, cookie, userInfo.isAdmin, userInfo.isReadOnly));
+    });
+  };
+}
+
+export function updateFeaturedProject(projectId, featuredLabel) {
+  return (dispatch) => {
+    postUpdateFeaturedProject(projectId, featuredLabel).then((project) => {
+      dispatch(updateSelectedProjectAction(project));
     });
   };
 }

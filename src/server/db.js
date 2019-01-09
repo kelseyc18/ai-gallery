@@ -19,6 +19,7 @@ db.sequelize = sequelize;
 db.User = require('../models/user')(sequelize, Sequelize);
 db.Project = require('../models/project')(sequelize, Sequelize);
 db.Tag = require('../models/tag')(sequelize, Sequelize);
+db.FeaturedLabel = require('../models/featured_label')(sequelize, Sequelize);
 
 // Relations
 
@@ -60,5 +61,7 @@ db.User.belongsToMany(db.Project, {
 // `root_project_id` will be added on Project / Target model
 db.Project.hasMany(db.Project, { foreignKey: 'root_project_id', as: 'RootProject' });
 db.Project.hasMany(db.Project, { foreignKey: 'parent_project_id', as: 'ParentProject' });
+
+db.Project.hasOne(db.FeaturedLabel, { foreignKey: 'projectId' });
 
 module.exports = db;

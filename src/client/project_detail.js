@@ -6,6 +6,8 @@ import { bindActionCreators } from 'redux';
 import { StyleSheet, css } from 'aphrodite';
 
 import ProjectDetailSidebar from './project_detail_sidebar';
+import AdminProjectControls from './admin_project_controls';
+import FeaturedProjectLabel from './featured_project_label';
 import Icon from './icon';
 import ICONS from './icon_constants';
 import puppyImage from './puppy.png';
@@ -130,6 +132,7 @@ class ProjectDetail extends Component {
           styles.tagsButton,
           tagSelected && styles.tagSelected,
           !tagSelected && styles.tagDoesNotExist,
+          !inEditMode && styles.tagReadOnly,
         )}
         key={tagName}
         type="button"
@@ -182,6 +185,7 @@ class ProjectDetail extends Component {
       updateProjectDetails,
       loggedInUser,
       incrementDownloadCount,
+      isAdmin,
     } = this.props;
     const {
       imagePath, author, aiaPath, id,
@@ -230,7 +234,7 @@ class ProjectDetail extends Component {
                 credits,
                 newImage,
                 isDraft,
-                currentTags.map(tag => tag.tagId),
+                currentTags.map(tag => tag.id),
               );
             }}
           >
@@ -267,7 +271,7 @@ class ProjectDetail extends Component {
         >
           Open App
         </button>
-        {loggedInAsAuthor && (
+        {(loggedInAsAuthor || isAdmin) && (
           <button
             type="button"
             className={css(styles.projectDetailButton)}
@@ -288,9 +292,9 @@ class ProjectDetail extends Component {
 
   renderDescriptionContainer = () => {
     const {
-      project, inEditMode, loggedInUser, allTags,
+      project, inEditMode, loggedInUser, allTags, isAdmin,
     } = this.props;
-    const { FavoritedUsers, Tags } = project;
+    const { FavoritedUsers, featuredLabel } = project;
     const {
       title, tutorialUrl, description, credits, isDraft, currentTags,
     } = this.state;
@@ -331,11 +335,17 @@ class ProjectDetail extends Component {
     );
 
     const tagButtons = [];
-    const tagSelected = inEditMode
-      ? currentTags.map(tag => tag.tagName)
-      : Tags.map(tag => tag.tagName);
+    const tagSelected = currentTags.map(tag => tag.tagName);
     allTags.forEach((tag) => {
-      tagButtons.push(this.renderTagsButtons(tag.tagName, tagSelected.indexOf(tag.tagName) > -1));
+      if (!inEditMode) {
+        if (tagSelected.indexOf(tag.tagName) > -1) {
+          // Tag is selected (read only mode)
+          tagButtons.push(this.renderTagsButtons(tag.tagName, true));
+        }
+      } else {
+        // Edit mode
+        tagButtons.push(this.renderTagsButtons(tag.tagName, tagSelected.indexOf(tag.tagName) > -1));
+      }
     });
     const tagsContainer = <div className={css(styles.tagsContainer)}>{tagButtons}</div>;
 
@@ -346,13 +356,26 @@ class ProjectDetail extends Component {
     return inEditMode ? (
       <div className={css(styles.rightContainer)}>
         <div className={css(styles.descriptionContainer)}>
-          <div className={css(styles.titleContainer)}>
-            <input
-              className={css(styles.appTitleEdit)}
-              value={title}
-              onChange={this.handleTitleChange}
-              placeholder="Title"
-            />
+          <div className={css(styles.titleAndDraftCheckbox)}>
+            <div className={css(styles.titleContainer)}>
+              <input
+                className={css(styles.appTitleEdit)}
+                value={title}
+                onChange={this.handleTitleChange}
+                placeholder="Title"
+              />
+            </div>
+            <div className={css(styles.draftCheckbox)}>
+              <label htmlFor={draftCheckboxId}>
+                <input
+                  type="checkbox"
+                  onChange={this.handleIsDraftChange}
+                  checked={isDraft}
+                  id={draftCheckboxId}
+                />
+                Draft
+              </label>
+            </div>
           </div>
           <div className={css(styles.userInfo)}>
             <img
@@ -371,6 +394,7 @@ class ProjectDetail extends Component {
               placeholder="Description"
             />
           </div>
+          {!!featuredLabel && <FeaturedProjectLabel label={featuredLabel} />}
           {tagsContainer}
           <div className={css(styles.tutorial)}>
             <label htmlFor={tutorialInputId}>
@@ -395,17 +419,7 @@ class ProjectDetail extends Component {
             />
           </div>
           {datesContainer}
-        </div>
-        <div className={css(styles.draftCheckbox)}>
-          <label htmlFor={draftCheckboxId}>
-            <input
-              type="checkbox"
-              onChange={this.handleIsDraftChange}
-              checked={isDraft}
-              id={draftCheckboxId}
-            />
-            Draft
-          </label>
+          {!!isAdmin && <AdminProjectControls project={project} />}
         </div>
       </div>
     ) : (
@@ -432,6 +446,7 @@ class ProjectDetail extends Component {
         <div className={css(styles.description)}>
           {!!project.description && project.description}
         </div>
+        {!!featuredLabel && <FeaturedProjectLabel label={featuredLabel} />}
         {tagsContainer}
         <div className={css(styles.tutorial)}>
           {!!project.tutorialUrl && (
@@ -453,6 +468,7 @@ class ProjectDetail extends Component {
         </div>
         <div className={css(styles.filler)} />
         {datesContainer}
+        {!!isAdmin && <AdminProjectControls project={project} />}
       </div>
     );
   };
@@ -495,7 +511,7 @@ ProjectDetail.propTypes = {
     isDraft: PropTypes.bool.isRequired,
     tags: PropTypes.arrayOf(
       PropTypes.shape({
-        tagId: PropTypes.number.isRequired,
+        id: PropTypes.number.isRequired,
         tagName: PropTypes.string.isRequired,
       }),
     ),
@@ -508,7 +524,7 @@ ProjectDetail.propTypes = {
   updateProjectDetails: PropTypes.func.isRequired,
   allTags: PropTypes.arrayOf(
     PropTypes.shape({
-      tagId: PropTypes.number.isRequired,
+      id: PropTypes.number.isRequired,
       tagName: PropTypes.string.isRequired,
     }),
   ),
@@ -518,6 +534,7 @@ ProjectDetail.propTypes = {
   loggedInUser: PropTypes.shape({
     id: PropTypes.number.isRequired,
   }),
+  isAdmin: PropTypes.bool,
 };
 
 const styles = StyleSheet.create({
@@ -567,7 +584,6 @@ const styles = StyleSheet.create({
 
   rightContainer: {
     display: 'grid',
-    gridTemplateColumns: '85% 15%',
     width: 'max-content',
     flexGrow: 1,
   },
@@ -613,6 +629,14 @@ const styles = StyleSheet.create({
     color: 'black',
   },
 
+  tagReadOnly: {
+    opacity: 0.9,
+    ':hover': {
+      cursor: 'initial',
+      opacity: 0.9,
+    },
+  },
+
   draft: {
     border: '#F88D34 1px solid',
     color: '#F88D34',
@@ -623,7 +647,8 @@ const styles = StyleSheet.create({
   },
 
   draftCheckbox: {
-    margin: 10,
+    alignSelf: 'center',
+    marginLeft: 10,
   },
 
   credits: {
@@ -638,6 +663,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 5,
     marginTop: 'auto',
+  },
+
+  titleAndDraftCheckbox: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
 
   appTitle: {
@@ -797,6 +828,7 @@ const mapStateToProps = state => ({
   inEditMode: state.inEditMode,
   allTags: state.allTags,
   loggedInUser: state.loggedInUser,
+  isAdmin: state.isAdmin,
 });
 
 const mapDispatchToProps = dispatch => bindActionCreators(

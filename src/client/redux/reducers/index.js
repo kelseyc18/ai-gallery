@@ -20,6 +20,8 @@ const initialState = {
   allTags: [],
   loggedInUser: undefined,
   cookie: undefined,
+  isAdmin: false,
+  isReadOnly: false,
 };
 
 export default function (state = initialState, action) {
@@ -100,6 +102,8 @@ export default function (state = initialState, action) {
       return {
         ...state,
         loggedInUser: action.user,
+        isAdmin: action.isAdmin,
+        isReadOnly: action.isReadOnly,
       };
     }
     default:
