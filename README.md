@@ -27,6 +27,14 @@ yarn start (or npm start)
     "prettier.eslintIntegration": true
     ```
 5. Follow the instructions below to setup Login Authentication.
+6. If the database has not been populated, run the following two commands:
+```
+node src/server/populate_database.js setup
+```
+and
+```
+node src/server/populate_database.js projects
+```
 
 ## Login Authentication
 
