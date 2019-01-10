@@ -162,6 +162,53 @@ exports.edit_project = (req, res) => {
     }).catch(err => res.send({ err }));
 };
 
+exports.update_or_create_project = (req, res) => {
+  const {
+    title, authorId, projectId, appInventorInstance,
+  } = req.body;
+
+  const filepath = req.file.path;
+  const readStream = fs.createReadStream(`${filepath}`);
+  const writeStream = fs.createWriteStream(`${filepath}.asc`);
+  readStream.pipe(new Base64Encode()).pipe(writeStream);
+
+  // TODO: Use transaction
+  Project.findOrCreate({
+    where: {
+      projectId,
+      appInventorInstance,
+      isDeleted: false,
+    },
+  }).spread((project) => {
+    project.update({
+      title,
+      aiaPath: path.basename(req.file.path),
+      lastModifiedDate: Date.now(),
+    }).then(() => {
+      User.findOne({
+        where: { authorId, appInventorInstance },
+      }).then((user) => {
+        user.addProject(project).then(() => {
+          project.reload().then(project => res.send({ project }));
+        });
+      });
+    });
+  });
+};
+
+exports.remove_project = (req, res) => {
+  const { projectId } = req.body;
+
+  Project.update({
+    isDeleted: true,
+  }, {
+    where: {
+      id: projectId,
+    },
+  }).spread(count => res.send({ count }))
+    .catch(err => res.send({ err }));
+};
+
 exports.add_download = (req, res) => {
   const { id } = req.params;
 
@@ -302,5 +349,22 @@ exports.get_featured_projects = (req, res) => {
         limit: LIMIT,
       });
     });
+  }).catch(err => res.send({ err }));
+};
+
+exports.get_gallery_id = (req, res) => {
+  const { projectId, appInventorInstance } = req.query;
+
+  Project.findAndCountAll({
+    where: {
+      projectId,
+      appInventorInstance,
+      isDeleted: false,
+    },
+  }).then((result) => {
+    if (result.count > 0) {
+      return res.send(result.rows[0].id.toString());
+    }
+    return res.send('0');
   }).catch(err => res.send({ err }));
 };

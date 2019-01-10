@@ -16,7 +16,7 @@ const storage = multer.diskStorage({
   filename: (req, file, cb) => {
     cb(
       null,
-      req.path === '/api/project/create'
+      req.path === '/api/project/create' || req.path === '/api/project/create_or_update'
         ? `${req.body.title}_${Date.now()}`
         : `${Date.now()}_${file.originalname}`,
     );
@@ -51,13 +51,20 @@ app.get('/api/user/:username', UserController.user_detail);
 app.get('/api/projects', ProjectController.all_projects);
 app.get('/api/project/alltags', ProjectController.all_tags);
 app.get('/api/project/featured', ProjectController.get_featured_projects);
+app.get('/api/project/gallery_id', ProjectController.get_gallery_id);
 app.get('/api/project/:id', ProjectController.project_by_id);
 app.post('/api/project/create', upload.single('aia'), ProjectController.create_project);
+app.post(
+  '/api/project/update_or_create',
+  upload.single('aia'),
+  ProjectController.update_or_create_project,
+);
 app.post('/api/project/edit', upload.single('newImage'), ProjectController.edit_project);
 app.post('/api/project/createtag', ProjectController.create_tag);
 app.post('/api/project/add_favorite', ProjectController.add_favorite);
 app.post('/api/project/remove_favorite', ProjectController.remove_favorite);
 app.post('/api/project/download/:id', ProjectController.add_download);
 app.post('/api/project/set_featured_label', ProjectController.set_featured_label);
+app.post('/api/project/remove', ProjectController.remove_project);
 
 app.listen(8090, () => console.log('Listening on port 8090!'));

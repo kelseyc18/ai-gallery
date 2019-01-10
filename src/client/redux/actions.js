@@ -123,6 +123,18 @@ function postUpdateFeaturedProject(projectId, featuredLabel) {
     .then(res => res.project);
 }
 
+function postRemoveProject(projectId) {
+  return fetch('/api/project/remove', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ projectId }),
+  })
+    .then(res => res.json())
+    .then(res => res.count);
+}
+
 function updateProjectsAction(projects, total, searchQuery) {
   return {
     type: UPDATE_PROJECTS,
@@ -309,6 +321,14 @@ export function updateFeaturedProject(projectId, featuredLabel) {
   return (dispatch) => {
     postUpdateFeaturedProject(projectId, featuredLabel).then((project) => {
       dispatch(updateSelectedProjectAction(project));
+    });
+  };
+}
+
+export function removeProject(projectId) {
+  return (dispatch) => {
+    postRemoveProject(projectId).then((count) => {
+      if (count > 0) dispatch(updateSelectedProjectAction(null));
     });
   };
 }

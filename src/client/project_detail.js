@@ -22,6 +22,7 @@ import {
   incrementDownloadCount,
   addFavorite,
   removeFavorite,
+  removeProject,
 } from './redux/actions';
 
 class ProjectDetail extends Component {
@@ -186,6 +187,7 @@ class ProjectDetail extends Component {
       loggedInUser,
       incrementDownloadCount,
       isAdmin,
+      removeProject,
     } = this.props;
     const {
       imagePath, author, aiaPath, id,
@@ -239,6 +241,13 @@ class ProjectDetail extends Component {
             }}
           >
             Save
+          </button>
+          <button
+            type="button"
+            className={css(styles.projectDetailButton, styles.removeButton)}
+            onClick={() => removeProject(id)}
+          >
+            Remove
           </button>
           <button
             type="button"
@@ -488,7 +497,7 @@ class ProjectDetail extends Component {
         </div>
       </div>
     ) : (
-      <div>That project does not exist.</div>
+      <div className={css(styles.projectDoesNotExist)}>That project could not be found.</div>
     );
   }
 }
@@ -531,6 +540,7 @@ ProjectDetail.propTypes = {
   incrementDownloadCount: PropTypes.func.isRequired,
   addFavorite: PropTypes.func.isRequired,
   removeFavorite: PropTypes.func.isRequired,
+  removeProject: PropTypes.func.isRequired,
   loggedInUser: PropTypes.shape({
     id: PropTypes.number.isRequired,
   }),
@@ -739,6 +749,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#58585a',
   },
 
+  removeButton: {
+    backgroundColor: '#e64e4e',
+  },
+
   description: {
     marginTop: 5,
     marginBottom: 10,
@@ -821,6 +835,11 @@ const styles = StyleSheet.create({
   favoriteIcon: {
     cursor: 'pointer',
   },
+
+  projectDoesNotExist: {
+    textAlign: 'center',
+    marginTop: 100,
+  },
 });
 
 const mapStateToProps = state => ({
@@ -841,6 +860,7 @@ const mapDispatchToProps = dispatch => bindActionCreators(
     incrementDownloadCount,
     addFavorite,
     removeFavorite,
+    removeProject,
   },
   dispatch,
 );
