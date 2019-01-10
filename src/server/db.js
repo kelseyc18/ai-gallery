@@ -58,6 +58,20 @@ db.User.belongsToMany(db.Project, {
   foreignKey: 'userId',
 });
 
+const UserFollowers = sequelize.define('userFollowers', {});
+db.UserFollowers = UserFollowers;
+
+db.User.belongsToMany(db.User, {
+  as: 'Followers',
+  through: UserFollowers,
+  foreignKey: 'followerId',
+});
+db.User.belongsToMany(db.User, {
+  as: 'Followees',
+  through: UserFollowers,
+  foreignKey: 'followeeId',
+});
+
 // `root_project_id` will be added on Project / Target model
 db.Project.hasMany(db.Project, { foreignKey: 'root_project_id', as: 'RootProject' });
 db.Project.hasMany(db.Project, { foreignKey: 'parent_project_id', as: 'ParentProject' });
