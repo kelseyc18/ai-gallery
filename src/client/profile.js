@@ -7,7 +7,8 @@ import { bindActionCreators } from 'redux';
 import { StyleSheet, css } from 'aphrodite';
 
 import GalleryApp from './gallery_app';
-import { getUserByUsername } from './redux/actions';
+import UserPreview from './user_preview';
+import { getUserByUsername, addUserFollowing, removeUserFollowing } from './redux/actions';
 import bobaImage from './boba.png';
 
 class Profile extends Component {
@@ -25,16 +26,42 @@ class Profile extends Component {
     }
   }
 
+  isFollowing() {
+    const { user, loggedInUser } = this.props;
+
+    if (loggedInUser) {
+      return user.Followers.filter(follower => follower.id === loggedInUser.id).length > 0;
+    }
+    return false;
+  }
+
   render() {
-    const { user } = this.props;
+    const {
+      user, loggedInUser, removeUserFollowing, addUserFollowing,
+    } = this.props;
 
     if (!user) {
-      return <p>That user does not exist.</p>;
+      return (
+        <div className={css(styles.userDoesNotExist)}>
+          The profile for that user cannot be found.
+        </div>
+      );
     }
 
     const {
-      username, name, projects, imagePath, bio, FavoriteProjects,
+      id,
+      username,
+      name,
+      projects,
+      imagePath,
+      bio,
+      FavoriteProjects,
+      Followees,
+      Followers,
     } = user;
+
+    const isLoggedInUserProfile = loggedInUser && id === loggedInUser.id;
+    const isFollowing = this.isFollowing();
 
     return (
       <div className={css(styles.galleryContainer)}>
@@ -47,16 +74,32 @@ class Profile extends Component {
             <p>{name}</p>
             <p className={css(styles.bio)}>{bio || `This is ${name}'s bio!`}</p>
           </div>
+          {!isLoggedInUserProfile && (
+            <button
+              type="button"
+              className={css(styles.followButton)}
+              disabled={!loggedInUser}
+              onClick={() => {
+                if (isFollowing) {
+                  removeUserFollowing(loggedInUser.id, id);
+                } else {
+                  addUserFollowing(loggedInUser.id, id);
+                }
+              }}
+            >
+              {isFollowing ? 'Unfollow' : 'Follow'}
+            </button>
+          )}
         </div>
         {projects.length > 0 && (
-          <div className={css(styles.profileProjectSection)}>
+          <div className={css(styles.profileSection)}>
             <div className={css(styles.header)}>
               <span>{`Shared Apps (${projects.length})`}</span>
               <Link to={`/profile/${username}/projects`} className={css(styles.viewAllLink)}>
                 View All
               </Link>
             </div>
-            <div className={css(styles.projectContainer)}>
+            <div className={css(styles.sectionBody)}>
               {projects.map(project => (
                 <GalleryApp project={project} key={project.id} />
               ))}
@@ -64,16 +107,46 @@ class Profile extends Component {
           </div>
         )}
         {FavoriteProjects.length > 0 && (
-          <div className={css(styles.profileProjectSection)}>
+          <div className={css(styles.profileSection)}>
             <div className={css(styles.header)}>
               <span>{`Favorite Projects (${FavoriteProjects.length})`}</span>
               <Link to={`/profile/${username}/favorites`} className={css(styles.viewAllLink)}>
                 View All
               </Link>
             </div>
-            <div className={css(styles.projectContainer)}>
+            <div className={css(styles.sectionBody)}>
               {FavoriteProjects.slice(0, 5).map(project => (
                 <GalleryApp project={project} key={project.id} />
+              ))}
+            </div>
+          </div>
+        )}
+        {Followees.length > 0 && (
+          <div className={css(styles.profileSection)}>
+            <div className={css(styles.header)}>
+              <span>{`Following (${Followees.length})`}</span>
+              <Link to={`/profile/${username}/following`} className={css(styles.viewAllLink)}>
+                View All
+              </Link>
+            </div>
+            <div className={css(styles.sectionBody)}>
+              {Followees.map(followee => (
+                <UserPreview user={followee} key={followee.id} />
+              ))}
+            </div>
+          </div>
+        )}
+        {Followers.length > 0 && (
+          <div className={css(styles.profileSection)}>
+            <div className={css(styles.header)}>
+              <span>{`Followers (${Followers.length})`}</span>
+              <Link to={`/profile/${username}/followers`} className={css(styles.viewAllLink)}>
+                View All
+              </Link>
+            </div>
+            <div className={css(styles.sectionBody)}>
+              {Followers.map(follower => (
+                <UserPreview user={follower} key={follower.id} />
               ))}
             </div>
           </div>
@@ -85,6 +158,7 @@ class Profile extends Component {
 
 Profile.propTypes = {
   user: PropTypes.shape({
+    id: PropTypes.number.isRequired,
     username: PropTypes.string.isRequired,
     name: PropTypes.string,
     projects: PropTypes.arrayOf(
@@ -94,6 +168,16 @@ Profile.propTypes = {
     ).isRequired,
     imagePath: PropTypes.string,
     bio: PropTypes.string,
+    Followees: PropTypes.arrayOf(
+      PropTypes.shape({
+        username: PropTypes.string.isRequired,
+      }),
+    ),
+    Followers: PropTypes.arrayOf(
+      PropTypes.shape({
+        username: PropTypes.string.isRequired,
+      }),
+    ),
   }),
   match: PropTypes.shape({
     params: PropTypes.shape({
@@ -101,6 +185,11 @@ Profile.propTypes = {
     }),
   }),
   getUserByUsername: PropTypes.func.isRequired,
+  addUserFollowing: PropTypes.func.isRequired,
+  removeUserFollowing: PropTypes.func.isRequired,
+  loggedInUser: PropTypes.shape({
+    id: PropTypes.number.isRequired,
+  }),
 };
 
 const styles = StyleSheet.create({
@@ -108,6 +197,7 @@ const styles = StyleSheet.create({
     display: 'flex',
     margin: 'auto',
     marginTop: 100,
+    marginBottom: 20,
     maxWidth: 850,
     paddingLeft: 20,
     flexDirection: 'column',
@@ -118,19 +208,20 @@ const styles = StyleSheet.create({
     background: 'white',
     width: '100%',
     borderRadius: 10,
+    marginBottom: 10,
+    padding: 10,
   },
 
   profileImage: {
     height: 72,
     width: 72,
     borderRadius: 5,
-    margin: 10,
   },
 
   profileTextContainer: {
     display: 'flex',
     flexDirection: 'column',
-    margin: 10,
+    marginLeft: 10,
   },
 
   username: {
@@ -146,11 +237,12 @@ const styles = StyleSheet.create({
     marginTop: 5,
   },
 
-  profileProjectSection: {
-    marginTop: 20,
+  profileSection: {
+    marginTop: 10,
+    marginBottom: 10,
   },
 
-  projectContainer: {
+  sectionBody: {
     display: 'flex',
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -181,15 +273,28 @@ const styles = StyleSheet.create({
       textDecoration: 'underline',
     },
   },
+
+  userDoesNotExist: {
+    textAlign: 'center',
+    marginTop: 100,
+  },
+
+  followButton: {
+    height: 30,
+    marginLeft: 'auto',
+  },
 });
 
 const mapStateToProps = state => ({
   user: state.selectedProfile,
+  loggedInUser: state.loggedInUser,
 });
 
 const mapDispatchToProps = dispatch => bindActionCreators(
   {
     getUserByUsername,
+    addUserFollowing,
+    removeUserFollowing,
   },
   dispatch,
 );

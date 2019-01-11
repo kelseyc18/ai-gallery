@@ -135,6 +135,30 @@ function postRemoveProject(projectId) {
     .then(res => res.count);
 }
 
+function postAddFollowing(followerId, followeeId) {
+  return fetch('/api/user/add_following', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ followerId, followeeId }),
+  })
+    .then(res => res.json())
+    .then(res => res.followee);
+}
+
+function postRemoveFollowing(followerId, followeeId) {
+  return fetch('/api/user/remove_following', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ followerId, followeeId }),
+  })
+    .then(res => res.json())
+    .then(res => res.followee);
+}
+
 function updateProjectsAction(projects, total, searchQuery) {
   return {
     type: UPDATE_PROJECTS,
@@ -329,6 +353,22 @@ export function removeProject(projectId) {
   return (dispatch) => {
     postRemoveProject(projectId).then((count) => {
       if (count > 0) dispatch(updateSelectedProjectAction(null));
+    });
+  };
+}
+
+export function addUserFollowing(followerId, followeeId) {
+  return (dispatch) => {
+    postAddFollowing(followerId, followeeId).then((followee) => {
+      dispatch(selectProfileAction(followee));
+    });
+  };
+}
+
+export function removeUserFollowing(followerId, followeeId) {
+  return (dispatch) => {
+    postRemoveFollowing(followerId, followeeId).then((followee) => {
+      dispatch(selectProfileAction(followee));
     });
   };
 }

@@ -59,8 +59,7 @@ const styles = StyleSheet.create({
     display: 'flex',
     margin: 'auto',
     maxWidth: 850,
-    paddingTop: 20,
-    paddingLeft: 20,
+    padding: 20,
   },
 
   searchBanner: {

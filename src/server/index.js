@@ -42,10 +42,12 @@ app.use((req, _, next) => {
 });
 
 // USER ROUTES
-app.post('/api/user/create', UserController.new_user);
 app.get('/api/user/cookie/:cookie', UserController.user_from_cookie);
 app.get('/api/user/uuid/:uuid', UserController.user_from_uuid);
 app.get('/api/user/:username', UserController.user_detail);
+app.post('/api/user/create', UserController.new_user);
+app.post('/api/user/add_following', UserController.add_following);
+app.post('/api/user/remove_following', UserController.remove_following);
 
 // PROJECT ROUTES
 app.get('/api/projects', ProjectController.all_projects);

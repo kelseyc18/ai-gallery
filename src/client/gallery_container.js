@@ -82,9 +82,7 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     maxWidth: 850,
     margin: 'auto',
-    paddingTop: 20,
-    paddingLeft: 20,
-    paddingRight: 20,
+    padding: 20,
   },
 
   searchBanner: {
