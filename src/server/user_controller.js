@@ -5,7 +5,7 @@ const protobuf = require('protobufjs');
 
 const db = require('./db');
 
-const { User } = db;
+const { User, UserFollowers } = db;
 
 // TODO: Currently, this only works if the authkey zip file has been
 // unzipped.
@@ -106,6 +106,31 @@ exports.add_following = (req, res) => {
             })
             .then(follower => res.send({ follower }));
         });
+      });
+    })
+    .catch(err => res.send({ err }));
+};
+
+exports.remove_following = (req, res) => {
+  const { followerId, followeeId } = req.body;
+
+  UserFollowers.findOne({
+    where: {
+      followerId,
+      followeeId,
+    },
+    include: [
+      {
+        all: true,
+        include: {
+          all: true,
+        },
+      },
+    ],
+  })
+    .then((followingAssociation) => {
+      followingAssociation.destroy().then(() => {
+        User.findByPk(followerId).then(follower => res.send({ follower }));
       });
     })
     .catch(err => res.send({ err }));

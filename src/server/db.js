@@ -64,12 +64,12 @@ db.UserFollowers = UserFollowers;
 db.User.belongsToMany(db.User, {
   as: 'Followers',
   through: UserFollowers,
-  foreignKey: 'followerId',
+  foreignKey: 'followeeId',
 });
 db.User.belongsToMany(db.User, {
   as: 'Followees',
   through: UserFollowers,
-  foreignKey: 'followeeId',
+  foreignKey: 'followerId',
 });
 
 // `root_project_id` will be added on Project / Target model
