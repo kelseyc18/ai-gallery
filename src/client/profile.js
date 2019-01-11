@@ -7,6 +7,7 @@ import { bindActionCreators } from 'redux';
 import { StyleSheet, css } from 'aphrodite';
 
 import GalleryApp from './gallery_app';
+import UserPreview from './user_preview';
 import { getUserByUsername } from './redux/actions';
 import bobaImage from './boba.png';
 
@@ -29,11 +30,22 @@ class Profile extends Component {
     const { user } = this.props;
 
     if (!user) {
-      return <p>That user does not exist.</p>;
+      return (
+        <div className={css(styles.userDoesNotExist)}>
+          The profile for that user cannot be found.
+        </div>
+      );
     }
 
     const {
-      username, name, projects, imagePath, bio, FavoriteProjects,
+      username,
+      name,
+      projects,
+      imagePath,
+      bio,
+      FavoriteProjects,
+      Followees,
+      Followers,
     } = user;
 
     return (
@@ -49,14 +61,14 @@ class Profile extends Component {
           </div>
         </div>
         {projects.length > 0 && (
-          <div className={css(styles.profileProjectSection)}>
+          <div className={css(styles.profileSection)}>
             <div className={css(styles.header)}>
               <span>{`Shared Apps (${projects.length})`}</span>
               <Link to={`/profile/${username}/projects`} className={css(styles.viewAllLink)}>
                 View All
               </Link>
             </div>
-            <div className={css(styles.projectContainer)}>
+            <div className={css(styles.sectionBody)}>
               {projects.map(project => (
                 <GalleryApp project={project} key={project.id} />
               ))}
@@ -64,16 +76,46 @@ class Profile extends Component {
           </div>
         )}
         {FavoriteProjects.length > 0 && (
-          <div className={css(styles.profileProjectSection)}>
+          <div className={css(styles.profileSection)}>
             <div className={css(styles.header)}>
               <span>{`Favorite Projects (${FavoriteProjects.length})`}</span>
               <Link to={`/profile/${username}/favorites`} className={css(styles.viewAllLink)}>
                 View All
               </Link>
             </div>
-            <div className={css(styles.projectContainer)}>
+            <div className={css(styles.sectionBody)}>
               {FavoriteProjects.slice(0, 5).map(project => (
                 <GalleryApp project={project} key={project.id} />
+              ))}
+            </div>
+          </div>
+        )}
+        {Followees.length > 0 && (
+          <div className={css(styles.profileSection)}>
+            <div className={css(styles.header)}>
+              <span>{`Following (${Followees.length})`}</span>
+              <Link to={`/profile/${username}/following`} className={css(styles.viewAllLink)}>
+                View All
+              </Link>
+            </div>
+            <div className={css(styles.sectionBody)}>
+              {Followees.map(followee => (
+                <UserPreview user={followee} key={followee.id} />
+              ))}
+            </div>
+          </div>
+        )}
+        {Followers.length > 0 && (
+          <div className={css(styles.profileSection)}>
+            <div className={css(styles.header)}>
+              <span>{`Followers (${Followers.length})`}</span>
+              <Link to={`/profile/${username}/followers`} className={css(styles.viewAllLink)}>
+                View All
+              </Link>
+            </div>
+            <div className={css(styles.sectionBody)}>
+              {Followers.map(follower => (
+                <UserPreview user={follower} key={follower.id} />
               ))}
             </div>
           </div>
@@ -94,6 +136,16 @@ Profile.propTypes = {
     ).isRequired,
     imagePath: PropTypes.string,
     bio: PropTypes.string,
+    Followees: PropTypes.arrayOf(
+      PropTypes.shape({
+        username: PropTypes.string.isRequired,
+      }),
+    ),
+    Followers: PropTypes.arrayOf(
+      PropTypes.shape({
+        username: PropTypes.string.isRequired,
+      }),
+    ),
   }),
   match: PropTypes.shape({
     params: PropTypes.shape({
@@ -108,6 +160,7 @@ const styles = StyleSheet.create({
     display: 'flex',
     margin: 'auto',
     marginTop: 100,
+    marginBottom: 20,
     maxWidth: 850,
     paddingLeft: 20,
     flexDirection: 'column',
@@ -118,6 +171,7 @@ const styles = StyleSheet.create({
     background: 'white',
     width: '100%',
     borderRadius: 10,
+    marginBottom: 10,
   },
 
   profileImage: {
@@ -146,11 +200,12 @@ const styles = StyleSheet.create({
     marginTop: 5,
   },
 
-  profileProjectSection: {
-    marginTop: 20,
+  profileSection: {
+    marginTop: 10,
+    marginBottom: 10,
   },
 
-  projectContainer: {
+  sectionBody: {
     display: 'flex',
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -180,6 +235,11 @@ const styles = StyleSheet.create({
     ':hover': {
       textDecoration: 'underline',
     },
+  },
+
+  userDoesNotExist: {
+    textAlign: 'center',
+    marginTop: 100,
   },
 });
 
