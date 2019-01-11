@@ -33,6 +33,8 @@ const styles = StyleSheet.create({
     display: 'flex',
     flexDirection: 'column',
     margin: 10,
+    marginLeft: 20,
+    marginRight: 20,
   },
 
   profileImage: {

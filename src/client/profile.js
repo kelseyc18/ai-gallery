@@ -8,7 +8,7 @@ import { StyleSheet, css } from 'aphrodite';
 
 import GalleryApp from './gallery_app';
 import UserPreview from './user_preview';
-import { getUserByUsername } from './redux/actions';
+import { getUserByUsername, addUserFollowing, removeUserFollowing } from './redux/actions';
 import bobaImage from './boba.png';
 
 class Profile extends Component {
@@ -26,8 +26,19 @@ class Profile extends Component {
     }
   }
 
+  isFollowing() {
+    const { user, loggedInUser } = this.props;
+
+    if (loggedInUser) {
+      return user.Followers.filter(follower => follower.id === loggedInUser.id).length > 0;
+    }
+    return false;
+  }
+
   render() {
-    const { user } = this.props;
+    const {
+      user, loggedInUser, removeUserFollowing, addUserFollowing,
+    } = this.props;
 
     if (!user) {
       return (
@@ -38,6 +49,7 @@ class Profile extends Component {
     }
 
     const {
+      id,
       username,
       name,
       projects,
@@ -47,6 +59,9 @@ class Profile extends Component {
       Followees,
       Followers,
     } = user;
+
+    const isLoggedInUserProfile = loggedInUser && id === loggedInUser.id;
+    const isFollowing = this.isFollowing();
 
     return (
       <div className={css(styles.galleryContainer)}>
@@ -59,6 +74,22 @@ class Profile extends Component {
             <p>{name}</p>
             <p className={css(styles.bio)}>{bio || `This is ${name}'s bio!`}</p>
           </div>
+          {!isLoggedInUserProfile && (
+            <button
+              type="button"
+              className={css(styles.followButton)}
+              disabled={!loggedInUser}
+              onClick={() => {
+                if (isFollowing) {
+                  removeUserFollowing(loggedInUser.id, id);
+                } else {
+                  addUserFollowing(loggedInUser.id, id);
+                }
+              }}
+            >
+              {isFollowing ? 'Unfollow' : 'Follow'}
+            </button>
+          )}
         </div>
         {projects.length > 0 && (
           <div className={css(styles.profileSection)}>
@@ -127,6 +158,7 @@ class Profile extends Component {
 
 Profile.propTypes = {
   user: PropTypes.shape({
+    id: PropTypes.number.isRequired,
     username: PropTypes.string.isRequired,
     name: PropTypes.string,
     projects: PropTypes.arrayOf(
@@ -153,6 +185,11 @@ Profile.propTypes = {
     }),
   }),
   getUserByUsername: PropTypes.func.isRequired,
+  addUserFollowing: PropTypes.func.isRequired,
+  removeUserFollowing: PropTypes.func.isRequired,
+  loggedInUser: PropTypes.shape({
+    id: PropTypes.number.isRequired,
+  }),
 };
 
 const styles = StyleSheet.create({
@@ -172,19 +209,19 @@ const styles = StyleSheet.create({
     width: '100%',
     borderRadius: 10,
     marginBottom: 10,
+    padding: 10,
   },
 
   profileImage: {
     height: 72,
     width: 72,
     borderRadius: 5,
-    margin: 10,
   },
 
   profileTextContainer: {
     display: 'flex',
     flexDirection: 'column',
-    margin: 10,
+    marginLeft: 10,
   },
 
   username: {
@@ -241,15 +278,23 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 100,
   },
+
+  followButton: {
+    height: 30,
+    marginLeft: 'auto',
+  },
 });
 
 const mapStateToProps = state => ({
   user: state.selectedProfile,
+  loggedInUser: state.loggedInUser,
 });
 
 const mapDispatchToProps = dispatch => bindActionCreators(
   {
     getUserByUsername,
+    addUserFollowing,
+    removeUserFollowing,
   },
   dispatch,
 );

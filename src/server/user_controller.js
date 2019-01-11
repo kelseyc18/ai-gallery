@@ -93,7 +93,7 @@ exports.add_following = (req, res) => {
     .then((follower) => {
       User.findByPk(followeeId).then((followee) => {
         follower.addFollowees(followee).then(() => {
-          follower
+          followee
             .reload({
               include: [
                 {
@@ -104,7 +104,7 @@ exports.add_following = (req, res) => {
                 },
               ],
             })
-            .then(follower => res.send({ follower }));
+            .then(followee => res.send({ followee }));
         });
       });
     })
@@ -119,18 +119,19 @@ exports.remove_following = (req, res) => {
       followerId,
       followeeId,
     },
-    include: [
-      {
-        all: true,
-        include: {
-          all: true,
-        },
-      },
-    ],
   })
     .then((followingAssociation) => {
       followingAssociation.destroy().then(() => {
-        User.findByPk(followerId).then(follower => res.send({ follower }));
+        User.findByPk(followeeId, {
+          include: [
+            {
+              all: true,
+              include: {
+                all: true,
+              },
+            },
+          ],
+        }).then(followee => res.send({ followee }));
       });
     })
     .catch(err => res.send({ err }));
