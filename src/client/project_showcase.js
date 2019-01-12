@@ -23,7 +23,9 @@ class ProjectShowcase extends Component {
   render() {
     const { match, projects } = this.props;
     const { username } = match.params;
-    const bannerText = match.path.endsWith('/favorites') ? `Favorites (${projects.length})` : `Shared Projects (${projects.length})`;
+    const bannerText = match.path.endsWith('/favorites')
+      ? `Favorites (${projects.length})`
+      : `Shared Projects (${projects.length})`;
     return (
       <React.Fragment>
         <div className={css(styles.searchBanner)}>

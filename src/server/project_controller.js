@@ -5,13 +5,13 @@ const db = require('./db');
 
 const { Op } = db.Sequelize;
 const {
-  sequelize, User, Project, Tag, UserFavoriteProjects, FeaturedLabel,
+  sequelize, User, Project, Tag, UserFavoriteProjects, FeaturedLabel, UserFollowers,
 } = db;
 
 const LIMIT = 12;
 
-exports.all_projects = (req, res) => {
-  const searchQuery = req.query.q || '';
+function getRecentProjects(req, res) {
+  const searchQuery = req.query.q ? decodeURIComponent(req.query.q) : '';
   const offset = parseInt(req.query.offset, 10) || 0;
 
   Project.findAndCountAll({
@@ -35,9 +35,111 @@ exports.all_projects = (req, res) => {
         total: result.count,
         offset,
         limit: LIMIT,
+        sortBy: 'recent',
       });
     })
     .catch(err => res.send({ err }));
+}
+
+function getPopularProjects(req, res) {
+  const searchQuery = req.query.q ? decodeURIComponent(req.query.q) : '';
+  const offset = parseInt(req.query.offset, 10) || 0;
+
+  UserFavoriteProjects.findAll({
+    attributes: [
+      'projectId',
+      [sequelize.fn('COUNT', sequelize.col('projectId')), 'count'],
+    ],
+    group: ['projectId'],
+    order: [[sequelize.literal('count'), 'DESC']],
+  }).then((result) => {
+    const projectIds = result.map(row => row.projectId);
+
+    Project.findAndCountAll({
+      where: {
+        id: {
+          [Op.in]: projectIds,
+        },
+        title: {
+          [Op.like]: `%${searchQuery}%`,
+        },
+        isDeleted: false,
+      },
+      include: {
+        all: true,
+      },
+      offset,
+      distinct: true,
+      limit: LIMIT,
+      order: [['creationDate', 'DESC']],
+    }).then((result) => {
+      res.send({
+        projects: result.rows,
+        total: result.count,
+        offset,
+        limit: LIMIT,
+        sortBy: 'popular',
+      });
+    });
+  })
+    .catch(err => res.send({ err }));
+}
+
+function getFollowingProjects(req, res) {
+  const searchQuery = req.query.q ? decodeURIComponent(req.query.q) : '';
+  const offset = parseInt(req.query.offset, 10) || 0;
+  const { followerId } = req.query;
+
+  UserFollowers.findAll({
+    where: {
+      followerId,
+    },
+  }).then((result) => {
+    const followeeIds = result.map(row => row.followeeId);
+
+    Project.findAndCountAll({
+      where: {
+        author_id: {
+          [Op.in]: followeeIds,
+        },
+        title: {
+          [Op.like]: `%${searchQuery}%`,
+        },
+        isDeleted: false,
+      },
+      include: {
+        all: true,
+      },
+      distinct: true,
+      offset,
+      limit: LIMIT,
+      order: [['creationDate', 'DESC']],
+    }).then((result) => {
+      res.send({
+        projects: result.rows,
+        total: result.count,
+        offset,
+        limit: LIMIT,
+        sortBy: 'following',
+      });
+    });
+  })
+    .catch(err => res.send({ err }));
+}
+
+exports.all_projects = (req, res) => {
+  const sortBy = req.query.sortBy || 'recent';
+
+  switch (sortBy.toLowerCase()) {
+    case 'recent':
+      return getRecentProjects(req, res);
+    case 'popular':
+      return getPopularProjects(req, res);
+    case 'following':
+      return getFollowingProjects(req, res);
+    default:
+      return getRecentProjects(req, res);
+  }
 };
 
 exports.project_by_id = (req, res) => {

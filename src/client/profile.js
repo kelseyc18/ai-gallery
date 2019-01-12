@@ -101,7 +101,7 @@ class Profile extends Component {
             </div>
             <div className={css(styles.sectionBody)}>
               {projects.map(project => (
-                <GalleryApp project={project} key={project.id} />
+                <GalleryApp project={project} key={project.id} className={css(styles.galleryApp)} />
               ))}
             </div>
           </div>

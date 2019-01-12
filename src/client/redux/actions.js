@@ -10,11 +10,18 @@ export const SELECT_PROFILE = 'SELECT_PROFILE';
 export const LOGIN_AS_USER = 'LOGIN_AS_USER';
 
 // Action Creators
-function fetchProjects(offset, searchQuery) {
+function fetchProjects(offset, searchQuery, sortBy, followerId) {
+  let url = `/api/projects?offset=${offset}`;
   if (searchQuery) {
-    return fetch(`/api/projects?offset=${offset}&q=${encodeURIComponent(searchQuery)}`).then(res => res.json());
+    url += `&q=${encodeURIComponent(searchQuery)}`;
   }
-  return fetch(`/api/projects?offset=${offset}`).then(res => res.json());
+  if (sortBy) {
+    url += `&sortBy=${sortBy}`;
+  }
+  if (followerId) {
+    url += `&followerId=${followerId}`;
+  }
+  return fetch(url).then(res => res.json());
 }
 
 function fetchProjectById(id) {
@@ -30,8 +37,7 @@ function fetchAllTags() {
 }
 
 function fetchFeaturedProjects(offset) {
-  return fetch(`/api/project/featured?offset=${offset || 0}`)
-    .then(res => res.json());
+  return fetch(`/api/project/featured?offset=${offset || 0}`).then(res => res.json());
 }
 
 function fetchUserByUsername(username) {
@@ -159,12 +165,13 @@ function postRemoveFollowing(followerId, followeeId) {
     .then(res => res.followee);
 }
 
-function updateProjectsAction(projects, total, searchQuery) {
+function updateProjectsAction(projects, total, searchQuery, sortBy) {
   return {
     type: UPDATE_PROJECTS,
     projects,
     total,
     searchQuery,
+    sortBy,
   };
 }
 
@@ -217,10 +224,10 @@ export function cancelEditProject() {
   };
 }
 
-export function getProjects(offset, searchQuery) {
-  return dispatch => fetchProjects(offset, searchQuery).then((res) => {
+export function getProjects(offset, searchQuery, sortBy, followerId) {
+  return dispatch => fetchProjects(offset, searchQuery, sortBy, followerId).then((res) => {
     if (res.offset === 0) {
-      dispatch(updateProjectsAction(res.projects, res.total, searchQuery));
+      dispatch(updateProjectsAction(res.projects, res.total, searchQuery, res.sortBy));
     } else {
       dispatch(appendProjectsAction(res.projects, res.total, searchQuery));
     }

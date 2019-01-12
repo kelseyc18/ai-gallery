@@ -35,10 +35,6 @@ module.exports = (sequelize, Sequelize) => {
       type: Sequelize.INTEGER,
       defaultValue: 0,
     },
-    numFavorites: {
-      type: Sequelize.INTEGER,
-      defaultValue: 0,
-    },
     aiaPath: {
       type: Sequelize.STRING,
     },
