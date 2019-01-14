@@ -229,17 +229,17 @@ export function cancelEditProject() {
 }
 
 export function getProjects(offset, searchQuery, sortBy, followerId, selectedTag) {
-  console.log(selectedTag);
   return (dispatch) => {
-    fetchProjects(offset, searchQuery, sortBy, followerId, selectedTag.id).then((res) => {
-      if (res.offset === 0) {
-        dispatch(updateProjectsAction(
-          res.projects, res.total, searchQuery, res.sortBy, selectedTag,
-        ));
-      } else {
-        dispatch(appendProjectsAction(res.projects, res.total, searchQuery));
-      }
-    });
+    fetchProjects(offset, searchQuery, sortBy, followerId, selectedTag && selectedTag.id)
+      .then((res) => {
+        if (res.offset === 0) {
+          dispatch(updateProjectsAction(
+            res.projects, res.total, searchQuery, res.sortBy, selectedTag,
+          ));
+        } else {
+          dispatch(appendProjectsAction(res.projects, res.total, searchQuery));
+        }
+      });
   };
 }
 

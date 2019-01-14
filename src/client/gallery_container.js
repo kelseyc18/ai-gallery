@@ -246,7 +246,7 @@ const mapStateToProps = state => ({
   projects: state.projects,
   projectsTotal: state.projectsTotal,
   searchQuery: state.searchQuery,
-  sortBy: state.sortBy,
+  sortBy: state.projectsSortBy,
   loggedInUser: state.loggedInUser,
   allTags: state.allTags,
   selectedTag: state.selectedTag,

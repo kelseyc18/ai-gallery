@@ -34,6 +34,7 @@ export default function (state = initialState, action) {
         projects: action.projects,
         projectsTotal: action.total,
         projectsSortBy: action.sortBy,
+        selectedTag: action.selectedTag,
         searchQuery: action.searchQuery,
         selectedProject: null,
         inEditMode: false,
