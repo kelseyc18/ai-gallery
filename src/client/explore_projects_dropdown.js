@@ -20,8 +20,14 @@ class ExploreProjectsDropdown extends Component {
   }
 
   handleDropdownSelectionChange = (event) => {
-    const { getProjects, loggedInUser } = this.props;
-    getProjects(0, undefined, event.target.value, loggedInUser ? loggedInUser.id : undefined);
+    const { getProjects, loggedInUser, selectedTag } = this.props;
+    getProjects(
+      0,
+      undefined,
+      event.target.value,
+      loggedInUser ? loggedInUser.id : undefined,
+      selectedTag,
+    );
     this.setState({ sortBy: event.target.value });
   };
 
@@ -47,6 +53,9 @@ ExploreProjectsDropdown.propTypes = {
   loggedInUser: PropTypes.shape({
     id: PropTypes.number.isRequired,
   }),
+  selectedTag: PropTypes.shape({
+    id: PropTypes.number,
+  }),
 };
 
 const styles = StyleSheet.create({
@@ -56,10 +65,11 @@ const styles = StyleSheet.create({
 });
 
 const mapStateToProps = state => ({
-  sortBy: state.sortBy,
+  sortBy: state.projectsSortBy,
   projects: state.projects,
   searchQuery: state.searchQuery,
   loggedInUser: state.loggedInUser,
+  selectedTag: state.selectedTag,
 });
 
 const mapDispatchToProps = dispatch => bindActionCreators(

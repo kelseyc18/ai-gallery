@@ -10,7 +10,7 @@ export const SELECT_PROFILE = 'SELECT_PROFILE';
 export const LOGIN_AS_USER = 'LOGIN_AS_USER';
 
 // Action Creators
-function fetchProjects(offset, searchQuery, sortBy, followerId) {
+function fetchProjects(offset, searchQuery, sortBy, followerId, selectedTagId) {
   let url = `/api/projects?offset=${offset}`;
   if (searchQuery) {
     url += `&q=${encodeURIComponent(searchQuery)}`;
@@ -20,6 +20,9 @@ function fetchProjects(offset, searchQuery, sortBy, followerId) {
   }
   if (followerId) {
     url += `&followerId=${followerId}`;
+  }
+  if (selectedTagId && selectedTagId > 0) {
+    url += `&selectedTagId=${selectedTagId}`;
   }
   return fetch(url).then(res => res.json());
 }
@@ -165,13 +168,14 @@ function postRemoveFollowing(followerId, followeeId) {
     .then(res => res.followee);
 }
 
-function updateProjectsAction(projects, total, searchQuery, sortBy) {
+function updateProjectsAction(projects, total, searchQuery, sortBy, selectedTag) {
   return {
     type: UPDATE_PROJECTS,
     projects,
     total,
     searchQuery,
     sortBy,
+    selectedTag,
   };
 }
 
@@ -224,14 +228,19 @@ export function cancelEditProject() {
   };
 }
 
-export function getProjects(offset, searchQuery, sortBy, followerId) {
-  return dispatch => fetchProjects(offset, searchQuery, sortBy, followerId).then((res) => {
-    if (res.offset === 0) {
-      dispatch(updateProjectsAction(res.projects, res.total, searchQuery, res.sortBy));
-    } else {
-      dispatch(appendProjectsAction(res.projects, res.total, searchQuery));
-    }
-  });
+export function getProjects(offset, searchQuery, sortBy, followerId, selectedTag) {
+  return (dispatch) => {
+    fetchProjects(offset, searchQuery, sortBy, followerId, selectedTag && selectedTag.id)
+      .then((res) => {
+        if (res.offset === 0) {
+          dispatch(updateProjectsAction(
+            res.projects, res.total, searchQuery, res.sortBy, selectedTag,
+          ));
+        } else {
+          dispatch(appendProjectsAction(res.projects, res.total, searchQuery));
+        }
+      });
+  };
 }
 
 export function getProjectById(id) {
