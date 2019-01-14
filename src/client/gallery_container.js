@@ -11,17 +11,21 @@ import './app.css';
 
 const queryString = require('query-string');
 
+const tagForAll = { id: 0, tagName: 'All' };
+
 class GalleryContainer extends Component {
   state = {
-    currentTags: [{ tagId: 0, tagName: 'All' }],
+    selectedTag: tagForAll,
   };
 
   componentDidMount() {
     const {
       getProjects, location, sortBy, loggedInUser, getAllTags,
     } = this.props;
+    const { selectedTag } = this.state;
     const query = queryString.parse(location.search).q;
-    getProjects(0, query, sortBy, loggedInUser ? loggedInUser.id : undefined);
+
+    getProjects(0, query, sortBy, loggedInUser ? loggedInUser.id : undefined, selectedTag);
     getAllTags();
   }
 
@@ -29,58 +33,77 @@ class GalleryContainer extends Component {
     const {
       location, getProjects, sortBy, loggedInUser, getAllTags,
     } = this.props;
+    const { selectedTag } = this.state;
+
     if (location.search !== prevProps.location.search) {
       const query = queryString.parse(location.search).q;
-      getProjects(0, query, sortBy, loggedInUser ? loggedInUser.id : undefined);
+      getProjects(0, query, sortBy, loggedInUser ? loggedInUser.id : undefined, selectedTag);
       getAllTags();
     }
   }
 
+  static getDerivedStateFromProps(props, state) {
+    if (props.selectedTag && state.selectedTag.id !== props.selectedTag.id) {
+      return {
+        selectedTag: props.selectedTag,
+      };
+    }
+    return null;
+  }
+
   handleTagsChange = (event) => {
-    const { allTags } = this.props;
+    const {
+      location, getProjects, sortBy, loggedInUser, allTags,
+    } = this.props;
+    const query = queryString.parse(location.search).q;
 
     if (event.target.value === 'All') {
-      this.setState({ currentTags: [{ tagId: 0, tagName: 'All' }] });
+      this.setState({ selectedTag: tagForAll });
+      getProjects(0, query, sortBy, loggedInUser ? loggedInUser.id : undefined, tagForAll);
     } else {
       const tag = allTags.filter(tag => tag.tagName === event.target.value)[0];
-      this.setState({ currentTags: [tag] });
+      this.setState({ selectedTag: tag });
+      getProjects(0, query, sortBy, loggedInUser ? loggedInUser.id : undefined, tag);
     }
   };
 
-  renderTagsButtons = (tagName, tagSelected) => (
-    <button
-      className={css(
-        styles.tagsButton,
-        tagSelected && styles.tagSelected,
-        !tagSelected && styles.tagDoesNotExist,
-      )}
-      key={tagName}
-      type="button"
-      value={tagName}
-      onClick={this.handleTagsChange}
-    >
-      {tagName}
-    </button>
-  );
+  renderTagButton = (tagName) => {
+    const { selectedTag } = this.state;
+    const tagSelected = selectedTag.tagName === tagName;
+
+    return (
+      <button
+        className={css(
+          styles.tagsButton,
+          tagSelected && styles.tagSelected,
+          !tagSelected && styles.tagDoesNotExist,
+        )}
+        key={tagName}
+        type="button"
+        value={tagName}
+        onClick={this.handleTagsChange}
+      >
+        {tagName}
+      </button>
+    );
+  };
+
+  renderTagsButtons = () => {
+    const { allTags } = this.props;
+
+    return (
+      <div className={css(styles.tagsContainer)}>
+        {!!allTags.length && this.renderTagButton('All')}
+        {allTags.map(tag => this.renderTagButton(tag.tagName))}
+      </div>
+    );
+  };
 
   render() {
     const {
-      projects, getProjects, projectsTotal, searchQuery, sortBy, allTags,
+      projects, getProjects, projectsTotal, searchQuery, sortBy,
     } = this.props;
-    const { currentTags } = this.state;
-
-    const tagButtons = [];
-    const tagSelected = currentTags.map(tag => tag.tagName);
-    console.log(tagSelected);
-    console.log(currentTags);
-    // check if "All" is selected, don't render until allTags is done loading
-    if (allTags.length > 0) {
-      tagButtons.push(this.renderTagsButtons('All', tagSelected.indexOf('All') > -1));
-    }
-    allTags.forEach((tag) => {
-      tagButtons.push(this.renderTagsButtons(tag.tagName, tagSelected.indexOf(tag.tagName) > -1));
-    });
-    const tagsContainer = <div className={css(styles.tagsContainer)}>{tagButtons}</div>;
+    const { selectedTag } = this.state;
 
     const bannerText = searchQuery ? 'Search' : 'Explore';
 
@@ -95,7 +118,7 @@ class GalleryContainer extends Component {
               <ExploreProjectsDropdown />
             </div>
           )}
-          {tagsContainer}
+          {this.renderTagsButtons()}
           <div className={css(styles.galleryContainer)}>
             {projects.map(project => (
               <GalleryApp project={project} key={project.id} />
@@ -104,7 +127,7 @@ class GalleryContainer extends Component {
               <div className={css(styles.footer)}>
                 <button
                   className={css(styles.button)}
-                  onClick={() => getProjects(projects.length, searchQuery, sortBy)}
+                  onClick={() => getProjects(projects.length, searchQuery, sortBy, selectedTag)}
                   type="button"
                 >
                   Load more projects
@@ -137,7 +160,7 @@ GalleryContainer.propTypes = {
   getAllTags: PropTypes.func.isRequired,
   allTags: PropTypes.arrayOf(
     PropTypes.shape({
-      tagId: PropTypes.number.isRequired,
+      id: PropTypes.number.isRequired,
       tagName: PropTypes.string.isRequired,
     }),
   ),
@@ -203,6 +226,9 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     border: 'none',
     whiteSpace: 'nowrap',
+    paddingLeft: 15,
+    paddingRight: 15,
+    minWidth: 70,
   },
 
   tagSelected: {
@@ -223,6 +249,7 @@ const mapStateToProps = state => ({
   sortBy: state.sortBy,
   loggedInUser: state.loggedInUser,
   allTags: state.allTags,
+  selectedTag: state.selectedTag,
 });
 
 const mapDispatchToProps = dispatch => bindActionCreators(

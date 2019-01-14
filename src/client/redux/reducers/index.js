@@ -15,6 +15,7 @@ const initialState = {
   projectsTotal: 0,
   searchQuery: null,
   projectsSortBy: '',
+  selectedTag: undefined,
   selectedProject: null,
   inEditMode: false,
   selectedProfile: null,

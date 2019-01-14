@@ -5,40 +5,82 @@ const db = require('./db');
 
 const { Op } = db.Sequelize;
 const {
-  sequelize, User, Project, Tag, UserFavoriteProjects, FeaturedLabel, UserFollowers,
+  sequelize, User, Project, Tag, UserFavoriteProjects, FeaturedLabel, UserFollowers, ProjectTags,
 } = db;
 
 const LIMIT = 12;
 
+function getProjectIdsWithTagId(selectedTagId) {
+  return ProjectTags.findAll({
+    where: {
+      tagId: selectedTagId,
+    },
+  }).then(results => results.map(row => row.projectId));
+}
+
 function getRecentProjects(req, res) {
   const searchQuery = req.query.q ? decodeURIComponent(req.query.q) : '';
   const offset = parseInt(req.query.offset, 10) || 0;
+  const { selectedTagId } = req.query;
 
-  Project.findAndCountAll({
-    where: {
-      title: {
-        [Op.like]: `%${searchQuery}%`,
-      },
-      isDeleted: false,
-    },
-    offset,
-    limit: LIMIT,
-    order: [['creationDate', 'DESC']],
-    distinct: true,
-    include: {
-      all: true,
-    },
-  })
-    .then((result) => {
-      res.send({
-        projects: result.rows,
-        total: result.count,
+  if (selectedTagId) {
+    getProjectIdsWithTagId(selectedTagId).then((projectIds) => {
+      Project.findAndCountAll({
+        where: {
+          id: {
+            [Op.in]: projectIds,
+          },
+          title: {
+            [Op.like]: `%${searchQuery}%`,
+          },
+          isDeleted: false,
+        },
         offset,
         limit: LIMIT,
-        sortBy: 'recent',
-      });
+        order: [['creationDate', 'DESC']],
+        distinct: true,
+        include: {
+          all: true,
+        },
+      })
+        .then((result) => {
+          res.send({
+            projects: result.rows,
+            total: result.count,
+            offset,
+            limit: LIMIT,
+            sortBy: 'recent',
+          });
+        })
+        .catch(err => res.send({ err }));
+    });
+  } else {
+    Project.findAndCountAll({
+      where: {
+        title: {
+          [Op.like]: `%${searchQuery}%`,
+        },
+        isDeleted: false,
+      },
+      offset,
+      limit: LIMIT,
+      order: [['creationDate', 'DESC']],
+      distinct: true,
+      include: {
+        all: true,
+      },
     })
-    .catch(err => res.send({ err }));
+      .then((result) => {
+        res.send({
+          projects: result.rows,
+          total: result.count,
+          offset,
+          limit: LIMIT,
+          sortBy: 'recent',
+        });
+      })
+      .catch(err => res.send({ err }));
+  }
 }
 
 function getPopularProjects(req, res) {
