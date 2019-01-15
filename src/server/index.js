@@ -44,6 +44,7 @@ app.use((req, _, next) => {
 // USER ROUTES
 app.get('/api/user/cookie/:cookie', UserController.user_from_cookie);
 app.get('/api/user/uuid/:uuid', UserController.user_from_uuid);
+app.get('/api/user/search', UserController.find_users);
 app.get('/api/user/:username', UserController.user_detail);
 app.post('/api/user/create', UserController.new_user);
 app.post('/api/user/add_following', UserController.add_following);

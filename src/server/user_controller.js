@@ -6,6 +6,9 @@ const protobuf = require('protobufjs');
 const db = require('./db');
 
 const { User, UserFollowers } = db;
+const { Op } = db.sequelize;
+
+const LIMIT = 8;
 
 // TODO: Currently, this only works if the authkey zip file has been
 // unzipped.
@@ -135,4 +138,32 @@ exports.remove_following = (req, res) => {
       });
     })
     .catch(err => res.send({ err }));
+};
+
+exports.find_users = (req, res) => {
+  const searchQuery = req.query.q ? decodeURIComponent(req.query.q) : '';
+  const offset = parseInt(req.query.offset, 10) || 0;
+
+  User.findAndCountAll({
+    where: {
+      [Op.or]: {
+        name: {
+          [Op.like]: `%${searchQuery}%`,
+        },
+        username: {
+          [Op.like]: `%${searchQuery}%`,
+        },
+      },
+    },
+    offset,
+    limit: LIMIT,
+  }).then((result) => {
+    res.send({
+      users: result.rows,
+      total: result.count,
+      offset,
+      limit: LIMIT,
+      searchQuery,
+    });
+  });
 };
