@@ -594,7 +594,6 @@ const styles = StyleSheet.create({
 
   rightContainer: {
     display: 'grid',
-    width: 'max-content',
     flexGrow: 1,
   },
 

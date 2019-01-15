@@ -4,7 +4,7 @@ import { StyleSheet, css } from 'aphrodite';
 import dateFormat from 'dateformat';
 
 export default function FeaturedProjectLabel(props) {
-  const { label } = props;
+  const { label, hasTopMargin } = props;
   const {
     dateAwarded, ageDivision, category, description,
   } = label;
@@ -14,7 +14,7 @@ export default function FeaturedProjectLabel(props) {
   const dateAwardedString = dateFormat(date, 'mmmm yyyy');
 
   return (
-    <div className={css(styles.container)}>
+    <div className={css(styles.container, !!hasTopMargin && styles.topMargin)}>
       <div className={css(styles.title)}>{`Featured App of the Month - ${dateAwardedString}`}</div>
       <div className={css(styles.body)}>
         <p className={css(styles.award)}>{`${category} Award (${ageDivision})`}</p>
@@ -26,25 +26,29 @@ export default function FeaturedProjectLabel(props) {
 
 FeaturedProjectLabel.propTypes = {
   label: PropTypes.shape({
-    dateAwarded: PropTypes.string,
-  }),
+    dateAwarded: PropTypes.string.isRequired,
+  }).isRequired,
+  hasTopMargin: PropTypes.bool,
 };
 
 const styles = StyleSheet.create({
   container: {
     background: '#c1e673',
     width: '100%',
-    marginTop: 10,
     marginBottom: 10,
+  },
+
+  topMargin: {
+    marginTop: 10,
   },
 
   title: {
     fontWeight: 'bold',
-    margin: 10,
+    padding: 10,
   },
 
   body: {
-    margin: 10,
+    padding: 10,
     fontSize: 14,
   },
 

@@ -10,23 +10,40 @@ import GalleryApp from './gallery_app';
 import './app.css';
 
 class FeaturedProjectGallery extends Component {
+  state = {
+    showFeaturedLabels: true,
+  };
+
   componentDidMount() {
     const { getFeaturedProjects } = this.props;
     getFeaturedProjects();
   }
 
+  handleShowDescriptionsClicked = (event) => {
+    this.setState({ showFeaturedLabels: event.target.checked });
+  };
+
   render() {
     const { projects, projectsTotal } = this.props;
+    const { showFeaturedLabels } = this.state;
 
     return (
       <React.Fragment>
-        <div className={css(styles.searchBanner)}>
-          <div className={css(styles.bannerText)}>Featured Projects</div>
-        </div>
+        <div className={css(styles.searchBanner)}>Featured Projects</div>
         <div className={css(styles.galleryContainer)}>
-          {projects.map(project => (
-            <GalleryApp project={project} key={project.id} />
-          ))}
+          <div className={css(styles.toolbar)}>
+            <input
+              type="checkbox"
+              checked={showFeaturedLabels}
+              onChange={this.handleShowDescriptionsClicked}
+            />
+            Show Descriptions
+          </div>
+          <div className={css(styles.projectsContainer, !!showFeaturedLabels && styles.centered)}>
+            {projects.map(project => (
+              <GalleryApp project={project} key={project.id} showFeatured={showFeaturedLabels} />
+            ))}
+          </div>
           {projects.length < projectsTotal ? (
             <div className={css(styles.footer)}>
               <button
@@ -57,9 +74,26 @@ FeaturedProjectGallery.propTypes = {
 const styles = StyleSheet.create({
   galleryContainer: {
     display: 'flex',
+    flexDirection: 'column',
     margin: 'auto',
     maxWidth: 850,
     padding: 20,
+  },
+
+  projectsContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
+
+  centered: {
+    justifyContent: 'center',
+  },
+
+  toolbar: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
   },
 
   searchBanner: {
@@ -71,9 +105,6 @@ const styles = StyleSheet.create({
     height: 100,
     color: 'white',
     fontWeight: 'bold',
-  },
-
-  bannerText: {
     fontSize: 48,
   },
 });

@@ -107,7 +107,9 @@ class GalleryContainer extends Component {
   };
 
   renderUsers = () => {
-    const { users, usersTotal, searchQuery, getUsers } = this.props;
+    const {
+      users, usersTotal, searchQuery, getUsers,
+    } = this.props;
 
     return (
       <React.Fragment>

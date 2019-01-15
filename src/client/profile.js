@@ -206,7 +206,6 @@ const styles = StyleSheet.create({
   profileContainer: {
     display: 'flex',
     background: 'white',
-    width: '100%',
     borderRadius: 10,
     marginBottom: 10,
     padding: 10,

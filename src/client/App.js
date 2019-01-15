@@ -104,6 +104,11 @@ class App extends Component {
               Explore
             </button>
           </Link>
+          <Link to="/featured">
+            <button type="button" className={css(styles.headerButton)}>
+              Featured
+            </button>
+          </Link>
           <div className={css(styles.searchContainer)}>
             <Icon icon={ICONS.SEARCH} color="#58585a" />
             <input
@@ -142,6 +147,7 @@ class App extends Component {
         <div className={css(styles.contentContainer)}>
           <Switch>
             <Route exact path="/" component={FeaturedProjectGallery} />
+            <Route path="/featured" component={FeaturedProjectGallery} />
             <Route path="/explore" component={GalleryContainer} />
             <Route path="/project/:projectId" component={ProjectDetail} />
             <Redirect exact path="/project" to="/" />
