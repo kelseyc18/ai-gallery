@@ -8,6 +8,8 @@ import {
   SELECT_PROFILE,
   APPEND_PROJECTS,
   LOGIN_AS_USER,
+  UPDATE_USERS,
+  APPEND_USERS,
 } from '../actions';
 
 const initialState = {
@@ -15,6 +17,8 @@ const initialState = {
   projectsTotal: 0,
   searchQuery: null,
   projectsSortBy: '',
+  users: [],
+  usersTotal: 0,
   selectedTag: undefined,
   selectedProject: null,
   inEditMode: false,
@@ -25,6 +29,8 @@ const initialState = {
   isAdmin: false,
   isReadOnly: false,
 };
+
+const BreakException = {}; // eslint-disable-line
 
 export default function (state = initialState, action) {
   switch (action.type) {
@@ -41,8 +47,11 @@ export default function (state = initialState, action) {
         selectedProfile: null,
       };
     case APPEND_PROJECTS:
+      if (state.searchQuery !== action.searchQuery) {
+        return state;
+      }
+
       const newProjects = state.projects.slice(); // eslint-disable-line
-      const BreakException = {}; // eslint-disable-line
 
       action.projects.forEach((project) => {
         try {
@@ -73,6 +82,41 @@ export default function (state = initialState, action) {
         selectedProject: action.project,
         inEditMode: false,
         selectedProfile: null,
+        users: [],
+      };
+    case UPDATE_USERS:
+      if (state.searchQuery !== action.searchQuery) {
+        return state;
+      }
+      return {
+        ...state,
+        users: action.users,
+        usersTotal: action.total,
+      };
+    case APPEND_USERS:
+      if (state.searchQuery !== action.searchQuery) {
+        return state;
+      }
+
+      const newUsers = state.users.slice(); // eslint-disable-line
+
+      action.users.forEach((user) => {
+        try {
+          newUsers.forEach((otherUser) => {
+            if (otherUser.id === user.id) {
+              throw BreakException;
+            }
+          });
+          newUsers.push(user);
+        } catch (e) {
+          if (e !== BreakException) throw e;
+        }
+      });
+      console.log(newUsers);
+      return {
+        ...state,
+        users: newUsers,
+        usersTotal: action.total,
       };
     case SELECT_ALL_TAGS:
       return {

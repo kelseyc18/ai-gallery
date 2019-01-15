@@ -3,9 +3,10 @@ import PropTypes from 'prop-types';
 import { StyleSheet, css } from 'aphrodite';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { getProjects, getAllTags } from './redux/actions';
+import { getProjects, getAllTags, getUsers } from './redux/actions';
 
 import GalleryApp from './gallery_app';
+import UserPreview from './user_preview';
 import ExploreProjectsDropdown from './explore_projects_dropdown';
 import './app.css';
 
@@ -20,18 +21,21 @@ class GalleryContainer extends Component {
 
   componentDidMount() {
     const {
-      getProjects, location, sortBy, loggedInUser, getAllTags,
+      getProjects, location, sortBy, loggedInUser, getAllTags, getUsers,
     } = this.props;
     const { selectedTag } = this.state;
     const query = queryString.parse(location.search).q;
 
     getProjects(0, query, sortBy, loggedInUser ? loggedInUser.id : undefined, selectedTag);
     getAllTags();
+    if (query) {
+      getUsers(0, query);
+    }
   }
 
   componentDidUpdate(prevProps) {
     const {
-      location, getProjects, sortBy, loggedInUser, getAllTags,
+      location, getProjects, sortBy, loggedInUser, getAllTags, getUsers,
     } = this.props;
     const { selectedTag } = this.state;
 
@@ -39,6 +43,9 @@ class GalleryContainer extends Component {
       const query = queryString.parse(location.search).q;
       getProjects(0, query, sortBy, loggedInUser ? loggedInUser.id : undefined, selectedTag);
       getAllTags();
+      if (query) {
+        getUsers(0, query);
+      }
     }
   }
 
@@ -99,6 +106,32 @@ class GalleryContainer extends Component {
     );
   };
 
+  renderUsers = () => {
+    const { users, usersTotal, searchQuery, getUsers } = this.props;
+
+    return (
+      <React.Fragment>
+        <div className={css(styles.usersHeader)}>
+          {`${usersTotal} user(s) found`}
+        </div>
+        <div className={css(styles.galleryContainer, styles.usersContainer)}>
+          {users.map(user => <UserPreview user={user} key={user.id} />)}
+          {users.length < usersTotal ? (
+            <div className={css(styles.buttonContainer)}>
+              <button
+                className={css(styles.button)}
+                onClick={() => getUsers(users.length, searchQuery)}
+                type="button"
+              >
+                Load more users
+              </button>
+            </div>
+          ) : null}
+        </div>
+      </React.Fragment>
+    );
+  };
+
   render() {
     const {
       projects, getProjects, projectsTotal, searchQuery, sortBy,
@@ -111,29 +144,38 @@ class GalleryContainer extends Component {
       <div className={css(styles.outerContainer)}>
         <div className={css(styles.searchBanner)}>
           <div>{bannerText}</div>
+          {!!searchQuery && <div className={css(styles.subtitle)}>{`Results for "${searchQuery}"`}</div>}
         </div>
         <div className={css(styles.bodyContainer)}>
+          {!!searchQuery && this.renderUsers()}
           {!searchQuery && (
             <div className={css(styles.dropdownContainer)}>
               <ExploreProjectsDropdown />
             </div>
           )}
-          {this.renderTagsButtons()}
-          <div className={css(styles.galleryContainer)}>
-            {projects.map(project => (
-              <GalleryApp project={project} key={project.id} />
-            ))}
-            {projects.length < projectsTotal ? (
-              <div className={css(styles.footer)}>
-                <button
-                  className={css(styles.button)}
-                  onClick={() => getProjects(projects.length, searchQuery, sortBy, selectedTag)}
-                  type="button"
-                >
-                  Load more projects
-                </button>
-              </div>
-            ) : null}
+          {!!searchQuery && (
+            <div className={css(styles.usersHeader)}>
+              {`${projectsTotal} project(s) found`}
+            </div>
+          )}
+          <div className={css(!!searchQuery && styles.galleryContainer)}>
+            {this.renderTagsButtons()}
+            <div className={css(styles.projectsContainer)}>
+              {projects.map(project => (
+                <GalleryApp project={project} key={project.id} />
+              ))}
+              {projects.length < projectsTotal ? (
+                <div className={css(styles.footer)}>
+                  <button
+                    className={css(styles.button)}
+                    onClick={() => getProjects(projects.length, searchQuery, sortBy, selectedTag)}
+                    type="button"
+                  >
+                    Load more projects
+                  </button>
+                </div>
+              ) : null}
+            </div>
           </div>
         </div>
       </div>
@@ -147,6 +189,10 @@ GalleryContainer.propTypes = {
       id: PropTypes.number.isRequired,
     }),
   ).isRequired,
+  users: PropTypes.arrayOf(PropTypes.shape({
+    id: PropTypes.number.isRequired,
+  })),
+  usersTotal: PropTypes.number,
   getProjects: PropTypes.func.isRequired,
   projectsTotal: PropTypes.number.isRequired,
   searchQuery: PropTypes.string,
@@ -158,6 +204,7 @@ GalleryContainer.propTypes = {
     id: PropTypes.number.isRequired,
   }),
   getAllTags: PropTypes.func.isRequired,
+  getUsers: PropTypes.func.isRequired,
   allTags: PropTypes.arrayOf(
     PropTypes.shape({
       id: PropTypes.number.isRequired,
@@ -177,12 +224,40 @@ const styles = StyleSheet.create({
     padding: 20,
   },
 
+  usersHeader: {
+    backgroundColor: '#F88D34',
+    fontWeight: 'bold',
+    fontSize: 18,
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'baseline',
+    borderTopLeftRadius: 10,
+    borderTopRightRadius: 10,
+    padding: 10,
+  },
+
+  galleryContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    backgroundColor: '#fef1e6',
+    borderBottomLeftRadius: 10,
+    borderBottomRightRadius: 10,
+    border: '#F88D34 1.5px solid',
+    borderTop: 0,
+    padding: 10,
+  },
+
   dropdownContainer: {
     display: 'flex',
     flexDirection: 'row-reverse',
   },
 
-  galleryContainer: {
+  usersContainer: {
+    marginBottom: 20,
+  },
+
+  projectsContainer: {
     display: 'flex',
     flexWrap: 'wrap',
   },
@@ -190,12 +265,25 @@ const styles = StyleSheet.create({
   searchBanner: {
     backgroundColor: '#92267C',
     display: 'flex',
+    flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
     height: 100,
     color: 'white',
     fontSize: 48,
     fontWeight: 'bold',
+  },
+
+  subtitle: {
+    fontSize: 20,
+    fontWeight: 'normal',
+    marginBottom: 10,
+  },
+
+  buttonContainer: {
+    width: '100%',
+    display: 'flex',
+    alignItems: 'center',
   },
 
   footer: {
@@ -216,6 +304,8 @@ const styles = StyleSheet.create({
     paddingTop: 10,
     justifyContent: 'center',
     alignItems: 'center',
+    margin: 'auto',
+    width: '100%',
   },
 
   tagsButton: {
@@ -250,12 +340,15 @@ const mapStateToProps = state => ({
   loggedInUser: state.loggedInUser,
   allTags: state.allTags,
   selectedTag: state.selectedTag,
+  users: state.users,
+  usersTotal: state.usersTotal,
 });
 
 const mapDispatchToProps = dispatch => bindActionCreators(
   {
     getProjects,
     getAllTags,
+    getUsers,
   },
   dispatch,
 );

@@ -2,6 +2,8 @@
 export const UPDATE_PROJECTS = 'UPDATE_PROJECTS';
 export const APPEND_PROJECTS = 'APPEND_PROJECTS';
 export const UPDATE_SELECTED_PROJECT = 'UPDATE_SELECTED_PROJECT';
+export const UPDATE_USERS = 'UPDATE_USERS';
+export const APPEND_USERS = 'APPEND_USERS';
 export const SELECT_ALL_TAGS = 'SELECT_ALL_TAGS';
 export const UPDATE_PROJECT_DETAILS = 'UPDATE_PROJECT_DETAILS';
 export const EDIT_PROJECT = 'EDIT_PROJECT';
@@ -23,6 +25,14 @@ function fetchProjects(offset, searchQuery, sortBy, followerId, selectedTagId) {
   }
   if (selectedTagId && selectedTagId > 0) {
     url += `&selectedTagId=${selectedTagId}`;
+  }
+  return fetch(url).then(res => res.json());
+}
+
+function fetchUsers(offset, searchQuery) {
+  let url = `/api/user/search?offset=${offset}`;
+  if (searchQuery) {
+    url += `&q=${encodeURIComponent(searchQuery)}`;
   }
   return fetch(url).then(res => res.json());
 }
@@ -188,6 +198,24 @@ function appendProjectsAction(projects, total, searchQuery) {
   };
 }
 
+function updateUsersAction(users, total, searchQuery) {
+  return {
+    type: UPDATE_USERS,
+    users,
+    total,
+    searchQuery,
+  };
+}
+
+function appendUsersAction(users, total, searchQuery) {
+  return {
+    type: APPEND_USERS,
+    users,
+    total,
+    searchQuery,
+  };
+}
+
 function updateSelectedProjectAction(project) {
   return {
     type: UPDATE_SELECTED_PROJECT,
@@ -240,6 +268,18 @@ export function getProjects(offset, searchQuery, sortBy, followerId, selectedTag
           dispatch(appendProjectsAction(res.projects, res.total, searchQuery));
         }
       });
+  };
+}
+
+export function getUsers(offset, searchQuery) {
+  return (dispatch) => {
+    fetchUsers(offset, searchQuery).then((res) => {
+      if (res.offset === 0) {
+        dispatch(updateUsersAction(res.users, res.total, searchQuery));
+      } else {
+        dispatch(appendUsersAction(res.users, res.total, searchQuery));
+      }
+    });
   };
 }
 

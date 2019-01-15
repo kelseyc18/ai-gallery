@@ -237,6 +237,7 @@ const mapStateToProps = state => ({
   cookie: state.cookie,
   loggedInUser: state.loggedInUser,
   isAdmin: state.isAdmin,
+  searchQuery: state.searchQuery,
 });
 
 const mapDispatchToProps = dispatch => bindActionCreators(
