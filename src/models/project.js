@@ -44,6 +44,9 @@ module.exports = (sequelize, Sequelize) => {
     appInventorInstance: {
       type: Sequelize.STRING,
     },
+    screenshots: {
+      type: Sequelize.STRING,
+    },
   });
   return Project;
 };
