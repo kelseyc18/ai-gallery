@@ -152,8 +152,9 @@ function populateProjects() {
   });
 }
 
-if (process.argv[2] === 'setup') {
+if (process.argv[2] === 'users') {
   populateUsers();
+} else if (process.argv[2] === 'tags') {
   populateTags();
 } else if (process.argv[2] === 'projects') {
   populateProjects();

@@ -248,12 +248,23 @@ exports.create_project = (req, res) => {
     });
 };
 
+// TODO: Wrap in transaction
 exports.edit_project = (req, res) => {
   const {
-    title, id, description, tutorialUrl, credits, isDraft, tagIds,
+    title, id, description, tutorialUrl, credits, isDraft, tagIds, screenshots,
   } = req.body;
 
-  const imagePath = req.file ? `api/uploads/${path.basename(req.file.path)}` : null;
+  const imagePath = (req.files.newImage && req.files.newImage[0]) ? `api/uploads/${path.basename(req.files.newImage[0].path)}` : null;
+  const parsedScreenshots = screenshots ? JSON.parse(screenshots) : [];
+  let newScreenshotFileCounter = 0;
+  parsedScreenshots.forEach((screenshotInfo) => {
+    if (screenshotInfo.file) {
+      const screenshotPath = `api/uploads/${path.basename(req.files.screenshotFiles[newScreenshotFileCounter].path)}`;
+      screenshotInfo.src = screenshotPath; // eslint-disable-line
+      screenshotInfo.file = undefined; // eslint-disable-line
+      newScreenshotFileCounter += 1;
+    }
+  });
 
   Project.update(
     {
@@ -264,6 +275,7 @@ exports.edit_project = (req, res) => {
       isDraft,
       imagePath,
       lastModifiedDate: Date.now(),
+      screenshots: JSON.stringify(parsedScreenshots),
     },
     {
       where: {
@@ -286,7 +298,7 @@ exports.edit_project = (req, res) => {
           Tag.findAll({
             where: {
               id: {
-                [Op.in]: JSON.parse(tagIds),
+                [Op.in]: tagIds ? JSON.parse(tagIds) : [],
               },
             },
           })

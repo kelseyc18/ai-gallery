@@ -220,7 +220,7 @@ class ProjectDetail extends Component {
       imagePath, author, aiaPath, id,
     } = project;
     const {
-      title, description, tutorialUrl, credits, newImage, isDraft, currentTags,
+      title, description, tutorialUrl, credits, newImage, isDraft, currentTags, screenshots,
     } = this.state;
 
     const loggedInAsAuthor = loggedInUser && loggedInUser.id === author.id;
@@ -264,6 +264,7 @@ class ProjectDetail extends Component {
                 newImage,
                 isDraft,
                 currentTags.map(tag => tag.id),
+                screenshots,
               );
             }}
           >
@@ -360,7 +361,7 @@ class ProjectDetail extends Component {
     } = this.props;
     const { FavoritedUsers, featuredLabel } = project;
     const {
-      title, tutorialUrl, description, credits, isDraft, currentTags,
+      title, tutorialUrl, description, credits, isDraft, currentTags, screenshots
     } = this.state;
     const profileImage = project.author.imagePath;
 
@@ -513,7 +514,9 @@ class ProjectDetail extends Component {
         </div>
         {!!featuredLabel && <FeaturedProjectLabel label={featuredLabel} />}
         {tagsContainer}
-        <PhotoGallery photos={['api/uploads/1542641469895_IMG_9507.jpg']} />
+        {!!screenshots.length && (
+          <PhotoGallery photos={screenshots.map(screenshot => screenshot.src)} />
+        )}
         <div className={css(styles.tutorial)}>
           {!!project.tutorialUrl && (
             <div>
