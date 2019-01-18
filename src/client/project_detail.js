@@ -45,11 +45,6 @@ class ProjectDetail extends Component {
 
     this.inputRef = React.createRef();
     this.imageRef = React.createRef();
-
-    this.screenshotRefs = [];
-    for (let i = 0; i < MAX_NUM_SCREENSHOTS; i += 1) {
-      this.screenshotRefs.push(React.createRef());
-    }
     this.addScreenshotInputRef = React.createRef();
   }
 
@@ -165,6 +160,16 @@ class ProjectDetail extends Component {
     }
   };
 
+  handleRemoveScreenshot = (index) => {
+    const { screenshots } = this.state;
+
+    const newScreenshots = screenshots.slice();
+    newScreenshots.splice(index, 1);
+    this.setState({
+      screenshots: newScreenshots,
+    });
+  }
+
   resetState = () => {
     const { project } = this.props;
     const {
@@ -246,7 +251,7 @@ class ProjectDetail extends Component {
               id="file-input"
               type="file"
               accept="image/*"
-              style={{ display: 'none' }}
+              className={css(styles.displayNone)}
               ref={this.inputRef}
               onChange={this.handleChangeFile}
             />
@@ -332,7 +337,24 @@ class ProjectDetail extends Component {
 
     return (
       <div className={css(styles.photoGallerySelectorContainer)}>
-        {screenshots.map((screenshot, index) => <img className={css(styles.photoGallerySelectorPhoto)} key={screenshot.src} src={screenshot.src} ref={this.screenshotRefs[index]} alt="screenshot" />)}
+        {screenshots.map((screenshot, index) => (
+          <div className={css(styles.photoGallerySelectorPhotoContainer)} key={screenshot.src}>
+            <button
+              type="button"
+              className={css(styles.removeScreenshotButton)}
+              onClick={() => {
+                this.handleRemoveScreenshot(index);
+              }}
+            >
+              X
+            </button>
+            <img
+              className={css(styles.photoGallerySelectorPhoto)}
+              src={screenshot.src}
+              alt={`screenshot ${index}`}
+            />
+          </div>
+        ))}
         {screenshots.length < MAX_NUM_SCREENSHOTS && (
           <React.Fragment>
             <button
@@ -346,7 +368,7 @@ class ProjectDetail extends Component {
               id="file-input"
               type="file"
               accept="image/*"
-              style={{ display: 'none' }}
+              className={css(styles.displayNone)}
               ref={this.addScreenshotInputRef}
               onChange={this.handleAddScreenshot}
             />
@@ -361,7 +383,7 @@ class ProjectDetail extends Component {
     } = this.props;
     const { FavoritedUsers, featuredLabel } = project;
     const {
-      title, tutorialUrl, description, credits, isDraft, currentTags, screenshots
+      title, tutorialUrl, description, credits, isDraft, currentTags, screenshots,
     } = this.state;
     const profileImage = project.author.imagePath;
 
@@ -914,16 +936,23 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
 
-  hidden: {
-    width: 0,
-    height: 0,
-    margin: 0,
-    overflow: 'hidden',
+  photoGallerySelectorPhotoContainer: {
+    position: 'relative',
+  },
+
+  removeScreenshotButton: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
   },
 
   addScreenshotButton: {
     height: 100,
     width: 100,
+  },
+
+  displayNone: {
+    display: 'none',
   },
 });
 
