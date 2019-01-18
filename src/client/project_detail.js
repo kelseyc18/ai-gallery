@@ -8,6 +8,7 @@ import { StyleSheet, css } from 'aphrodite';
 import ProjectDetailSidebar from './project_detail_sidebar';
 import AdminProjectControls from './admin_project_controls';
 import FeaturedProjectLabel from './featured_project_label';
+import PhotoGallery from './photo_gallery';
 import Icon from './icon';
 import ICONS from './icon_constants';
 import puppyImage from './puppy.png';
@@ -25,6 +26,8 @@ import {
   removeProject,
 } from './redux/actions';
 
+const MAX_NUM_SCREENSHOTS = 3;
+
 class ProjectDetail extends Component {
   state = {
     title: undefined,
@@ -34,6 +37,7 @@ class ProjectDetail extends Component {
     newImage: undefined,
     isDraft: undefined,
     currentTags: undefined,
+    screenshots: undefined,
   };
 
   constructor(props) {
@@ -41,6 +45,7 @@ class ProjectDetail extends Component {
 
     this.inputRef = React.createRef();
     this.imageRef = React.createRef();
+    this.addScreenshotInputRef = React.createRef();
   }
 
   componentDidMount() {
@@ -70,6 +75,7 @@ class ProjectDetail extends Component {
         imagePath: props.project.imagePath,
         isDraft: props.project.isDraft,
         currentTags: props.project.Tags,
+        screenshots: props.project.screenshots ? JSON.parse(props.project.screenshots) : [],
       };
     }
     return null;
@@ -125,6 +131,63 @@ class ProjectDetail extends Component {
     }
   };
 
+  handleStarClicked = (isFavorited) => {
+    const {
+      project, loggedInUser, addFavorite, removeFavorite,
+    } = this.props;
+
+    if (loggedInUser) {
+      if (!isFavorited) {
+        addFavorite(project.id, loggedInUser.id);
+      } else {
+        removeFavorite(project.id, loggedInUser.id);
+      }
+    }
+  };
+
+  handleAddScreenshot = (event) => {
+    const { screenshots } = this.state;
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+
+      reader.onloadend = () => {
+        this.setState({
+          screenshots: screenshots.concat([{ src: reader.result, file }]),
+        });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  handleRemoveScreenshot = (index) => {
+    const { screenshots } = this.state;
+
+    const newScreenshots = screenshots.slice();
+    newScreenshots.splice(index, 1);
+    this.setState({
+      screenshots: newScreenshots,
+    });
+  }
+
+  resetState = () => {
+    const { project } = this.props;
+    const {
+      title, tutorialUrl, description, credits, isDraft, Tags, screenshots,
+    } = project;
+
+    this.setState({
+      title,
+      tutorialUrl,
+      description,
+      credits,
+      newImage: undefined,
+      isDraft,
+      currentTags: Tags,
+      screenshots: screenshots ? JSON.parse(screenshots) : [],
+    });
+  };
+
   renderTagsButtons = (tagName, tagSelected) => {
     const { inEditMode } = this.props;
     return (
@@ -146,37 +209,6 @@ class ProjectDetail extends Component {
     );
   };
 
-  handleStarClicked = (isFavorited) => {
-    const {
-      project, loggedInUser, addFavorite, removeFavorite,
-    } = this.props;
-
-    if (loggedInUser) {
-      if (!isFavorited) {
-        addFavorite(project.id, loggedInUser.id);
-      } else {
-        removeFavorite(project.id, loggedInUser.id);
-      }
-    }
-  };
-
-  resetState = () => {
-    const { project } = this.props;
-    const {
-      title, tutorialUrl, description, credits, isDraft, Tags,
-    } = project;
-
-    this.setState({
-      title,
-      tutorialUrl,
-      description,
-      credits,
-      newImage: undefined,
-      isDraft,
-      currentTags: Tags,
-    });
-  };
-
   renderLeftContainer = () => {
     const {
       project,
@@ -193,7 +225,7 @@ class ProjectDetail extends Component {
       imagePath, author, aiaPath, id,
     } = project;
     const {
-      title, description, tutorialUrl, credits, newImage, isDraft, currentTags,
+      title, description, tutorialUrl, credits, newImage, isDraft, currentTags, screenshots,
     } = this.state;
 
     const loggedInAsAuthor = loggedInUser && loggedInUser.id === author.id;
@@ -219,7 +251,7 @@ class ProjectDetail extends Component {
               id="file-input"
               type="file"
               accept="image/*"
-              style={{ display: 'none' }}
+              className={css(styles.displayNone)}
               ref={this.inputRef}
               onChange={this.handleChangeFile}
             />
@@ -237,6 +269,7 @@ class ProjectDetail extends Component {
                 newImage,
                 isDraft,
                 currentTags.map(tag => tag.id),
+                screenshots,
               );
             }}
           >
@@ -299,13 +332,58 @@ class ProjectDetail extends Component {
     );
   };
 
+  renderPhotoGallerySelector = () => {
+    const { screenshots } = this.state;
+
+    return (
+      <div className={css(styles.photoGallerySelectorContainer)}>
+        {screenshots.map((screenshot, index) => (
+          <div className={css(styles.photoGallerySelectorPhotoContainer)} key={screenshot.src}>
+            <button
+              type="button"
+              className={css(styles.removeScreenshotButton)}
+              onClick={() => {
+                this.handleRemoveScreenshot(index);
+              }}
+            >
+              X
+            </button>
+            <img
+              className={css(styles.photoGallerySelectorPhoto)}
+              src={screenshot.src}
+              alt={`screenshot ${index}`}
+            />
+          </div>
+        ))}
+        {screenshots.length < MAX_NUM_SCREENSHOTS && (
+          <React.Fragment>
+            <button
+              className={css(styles.addScreenshotButton)}
+              type="button"
+              onClick={() => this.addScreenshotInputRef.current.click()}
+            >
+              Add Screenshot
+            </button>
+            <input
+              id="file-input"
+              type="file"
+              accept="image/*"
+              className={css(styles.displayNone)}
+              ref={this.addScreenshotInputRef}
+              onChange={this.handleAddScreenshot}
+            />
+          </React.Fragment>)}
+      </div>
+    );
+  };
+
   renderDescriptionContainer = () => {
     const {
       project, inEditMode, loggedInUser, allTags, isAdmin,
     } = this.props;
     const { FavoritedUsers, featuredLabel } = project;
     const {
-      title, tutorialUrl, description, credits, isDraft, currentTags,
+      title, tutorialUrl, description, credits, isDraft, currentTags, screenshots,
     } = this.state;
     const profileImage = project.author.imagePath;
 
@@ -405,6 +483,7 @@ class ProjectDetail extends Component {
           </div>
           {!!featuredLabel && <FeaturedProjectLabel label={featuredLabel} />}
           {tagsContainer}
+          {this.renderPhotoGallerySelector()}
           <div className={css(styles.tutorial)}>
             <label htmlFor={tutorialInputId}>
               <p className={css(styles.editTitle)}>Tutorial / Video:</p>
@@ -457,6 +536,9 @@ class ProjectDetail extends Component {
         </div>
         {!!featuredLabel && <FeaturedProjectLabel label={featuredLabel} />}
         {tagsContainer}
+        {!!screenshots.length && (
+          <PhotoGallery photos={screenshots.map(screenshot => screenshot.src)} />
+        )}
         <div className={css(styles.tutorial)}>
           {!!project.tutorialUrl && (
             <div>
@@ -510,6 +592,7 @@ ProjectDetail.propTypes = {
       username: PropTypes.string.isRequired,
       projects: PropTypes.arrayOf(
         PropTypes.shape({
+          id: PropTypes.number.isRequired,
           title: PropTypes.string.isRequired,
         }),
       ),
@@ -524,6 +607,7 @@ ProjectDetail.propTypes = {
         tagName: PropTypes.string.isRequired,
       }),
     ),
+    screenshots: PropTypes.string,
   }),
   getProjectById: PropTypes.func.isRequired,
   getAllTags: PropTypes.func.isRequired,
@@ -614,7 +698,7 @@ const styles = StyleSheet.create({
   tagsContainer: {
     display: 'flex',
     flexDirection: 'row',
-    marginBottom: 50,
+    marginBottom: 20,
   },
 
   tagsButton: {
@@ -838,6 +922,37 @@ const styles = StyleSheet.create({
   projectDoesNotExist: {
     textAlign: 'center',
     marginTop: 100,
+  },
+
+  photoGallerySelectorContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginBottom: 10,
+  },
+
+  photoGallerySelectorPhoto: {
+    width: 100,
+    marginRight: 10,
+  },
+
+  photoGallerySelectorPhotoContainer: {
+    position: 'relative',
+  },
+
+  removeScreenshotButton: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+  },
+
+  addScreenshotButton: {
+    height: 100,
+    width: 100,
+  },
+
+  displayNone: {
+    display: 'none',
   },
 });
 

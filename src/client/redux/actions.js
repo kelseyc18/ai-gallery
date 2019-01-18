@@ -78,6 +78,7 @@ function postProjectDetails(
   newImage,
   isDraft,
   tagIds,
+  screenshots,
 ) {
   const formData = new FormData();
 
@@ -89,6 +90,18 @@ function postProjectDetails(
   if (newImage) formData.append('newImage', newImage);
   formData.append('isDraft', isDraft);
   if (tagIds) formData.append('tagIds', JSON.stringify(tagIds));
+
+  const screenshotInfo = [];
+  screenshots.forEach((screenshot) => {
+    if (screenshot.file) {
+      // Each append adds a new file to screenshotFiles field
+      formData.append('screenshotFiles', screenshot.file);
+      screenshotInfo.push({ src: '', file: true });
+    } else {
+      screenshotInfo.push(screenshot);
+    }
+  });
+  formData.append('screenshots', JSON.stringify(screenshotInfo));
 
   return fetch('/api/project/edit', {
     method: 'POST',
@@ -332,6 +345,7 @@ export function updateProjectDetails(
   newImage,
   isDraft,
   tagIds,
+  screenshots,
 ) {
   return (dispatch) => {
     postProjectDetails(
@@ -343,6 +357,7 @@ export function updateProjectDetails(
       newImage,
       isDraft,
       tagIds,
+      screenshots,
     ).then((project) => {
       dispatch(updateProjectDetailsAction(project));
     });

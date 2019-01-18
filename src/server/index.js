@@ -62,7 +62,11 @@ app.post(
   upload.single('aia'),
   ProjectController.update_or_create_project,
 );
-app.post('/api/project/edit', upload.single('newImage'), ProjectController.edit_project);
+const editProjectUploads = upload.fields([
+  { name: 'newImage', maxCount: 1 },
+  { name: 'screenshotFiles', maxCount: 3 },
+]);
+app.post('/api/project/edit', editProjectUploads, ProjectController.edit_project);
 app.post('/api/project/createtag', ProjectController.create_tag);
 app.post('/api/project/add_favorite', ProjectController.add_favorite);
 app.post('/api/project/remove_favorite', ProjectController.remove_favorite);
