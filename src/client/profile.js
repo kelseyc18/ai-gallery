@@ -9,7 +9,7 @@ import { StyleSheet, css } from 'aphrodite';
 import GalleryApp from './gallery_app';
 import UserPreview from './user_preview';
 import ProfileHeader from './profile_header';
-import { getUserByUsername, addUserFollowing, removeUserFollowing } from './redux/actions';
+import { getUserByUsername } from './redux/actions';
 
 class Profile extends Component {
   componentDidMount() {

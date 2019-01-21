@@ -6,9 +6,9 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { StyleSheet, css } from 'aphrodite';
 
-import GalleryApp from './gallery_app';
 import { addUserFollowing, removeUserFollowing } from './redux/actions';
 import bobaImage from './boba.png';
+import ProfileFeaturedProject from './profile_featured_project';
 
 class ProfileHeader extends Component {
   isFollowing() {
@@ -26,11 +26,13 @@ class ProfileHeader extends Component {
     } = this.props;
 
     const {
-      id, username, name, projects, imagePath, bio,
+      id, username, name, projects, imagePath, bio, FeaturedProject,
     } = user;
 
     const isLoggedInUserProfile = loggedInUser && id === loggedInUser.id;
     const isFollowing = this.isFollowing();
+
+    const projectToFeature = FeaturedProject || (projects.length > 0 && projects.slice(-1)[0]) || null;
 
     return (
       <div className={css(styles.profileContainer)}>
@@ -73,6 +75,7 @@ class ProfileHeader extends Component {
 
           <div className={css(styles.featuredProjectContainer)}>
             <p className={css(styles.profileTitle)}>Featured Project</p>
+            <ProfileFeaturedProject project={projectToFeature} />
           </div>
         </div>
       </div>
@@ -150,6 +153,7 @@ const styles = StyleSheet.create({
 
   profileTitle: {
     fontWeight: 'bold',
+    marginBottom: 10,
   },
 
   bioContainer: {
@@ -158,6 +162,10 @@ const styles = StyleSheet.create({
 
   featuredProjectContainer: {
     width: 400,
+    padding: 10,
+    border: 'solid #dddddd 1px',
+    borderRadius: 10,
+    backgroundColor: 'white',
   },
 
   followButton: {
