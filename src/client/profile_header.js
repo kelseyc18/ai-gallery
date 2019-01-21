@@ -32,16 +32,25 @@ class ProfileHeader extends Component {
     this.imageRef = React.createRef();
   }
 
+  static getFeaturedProject = (featuredProjectId, projects) => {
+    const projectMatch = projects.filter((project) => { // eslint-disable-line
+      return project.id === parseInt(featuredProjectId, 10)
+        || project.id === featuredProjectId;
+    });
+    if (projectMatch.length) return projectMatch[0];
+    if (projects.length) return projects[0];
+    return null;
+  }
+
   static getDerivedStateFromProps(props, state) {
     if (props.user && state.id !== props.user.id) {
-      const { projects } = props.user;
-      const defaultFeaturedProject = (projects.length > 0 && projects.slice(-1)[0]) || null;
+      const { projects, featuredProjectId } = props.user;
 
       return {
         id: props.user.id,
         name: props.user.name,
         bio: props.user.bio,
-        featuredProject: props.user.FeaturedProject || defaultFeaturedProject,
+        featuredProject: ProfileHeader.getFeaturedProject(featuredProjectId, projects),
       };
     }
     return null;
@@ -50,15 +59,14 @@ class ProfileHeader extends Component {
   resetState = () => {
     const { user } = this.props;
     const {
-      id, name, bio, FeaturedProject, projects,
+      id, name, bio, featuredProjectId, projects,
     } = user;
-    const defaultFeaturedProject = (projects.length > 0 && projects.slice(-1)[0]) || null;
 
     this.setState({
       id,
       name,
       bio,
-      featuredProject: FeaturedProject || defaultFeaturedProject,
+      featuredProject: ProfileHeader.getFeaturedProject(featuredProjectId, projects),
     });
   };
 
@@ -77,11 +85,8 @@ class ProfileHeader extends Component {
   handleFeaturedProjectChange = (event) => {
     const { user } = this.props;
     const { projects } = user;
-    const projectMatch = projects.filter((project) => { // eslint-disable-line
-      return project.id === parseInt(event.target.value, 10);
-    });
     this.setState({
-      featuredProject: projectMatch[0],
+      featuredProject: ProfileHeader.getFeaturedProject(event.target.value, projects),
     });
   };
 
@@ -158,12 +163,12 @@ class ProfileHeader extends Component {
           </div>
           {isLoggedInUserProfile && (
             <div className={css(styles.editButtonsContainer)}>
-              <button type="button" className={css(styles.editButton)} onClick={this.handleSaveProfile}>
+              <button type="button" className={css(styles.editButton, styles.profileHeaderButton, styles.saveButton)} onClick={this.handleSaveProfile}>
                 Save
               </button>
               <button
                 type="button"
-                className={css(styles.editButton)}
+                className={css(styles.editButton, styles.profileHeaderButton, styles.cancelButton)}
                 onClick={() => {
                   this.resetState();
                   cancelEditProjectOrProfile();
@@ -211,7 +216,7 @@ class ProfileHeader extends Component {
           {isLoggedInUserProfile && (
             <button
               type="button"
-              className={css(styles.editButtonsContainer)}
+              className={css(styles.editButtonsContainer, styles.profileHeaderButton)}
               onClick={() => editProjectOrProfile()}
             >
               Edit Profile
@@ -220,7 +225,13 @@ class ProfileHeader extends Component {
           {!isLoggedInUserProfile && (
             <button
               type="button"
-              className={css(styles.followButton)}
+              className={css(
+                styles.profileHeaderButton,
+                styles.followButton,
+                isFollowing && styles.following,
+                !isFollowing && styles.notFollowing,
+                !loggedInUser && styles.disabledButton,
+              )}
               disabled={!loggedInUser}
               onClick={() => {
                 if (isFollowing) {
@@ -263,6 +274,7 @@ ProfileHeader.propTypes = {
     ).isRequired,
     imagePath: PropTypes.string,
     bio: PropTypes.string,
+    featuredProjectId: PropTypes.string,
   }),
   addUserFollowing: PropTypes.func.isRequired,
   removeUserFollowing: PropTypes.func.isRequired,
@@ -392,6 +404,38 @@ const styles = StyleSheet.create({
 
   displayNone: {
     display: 'none',
+  },
+
+  profileHeaderButton: {
+    backgroundColor: '#84ad2d',
+    borderRadius: 2,
+    border: 'none',
+    color: 'white',
+  },
+
+  saveButton: {
+    backgroundColor: '#92267C',
+  },
+
+  cancelButton: {
+    backgroundColor: '#58585a',
+  },
+
+  following: {
+    backgroundColor: '#eeeeee',
+    color: '#128ba8',
+  },
+
+  notFollowing: {
+    backgroundColor: '#128ba8',
+  },
+
+  disabledButton: {
+    opacity: 0.6,
+    ':hover': {
+      opacity: 0.6,
+      cursor: 'initial',
+    },
   },
 });
 

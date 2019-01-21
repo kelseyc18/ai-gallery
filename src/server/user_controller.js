@@ -56,14 +56,17 @@ exports.user_detail = (req, res) => {
     },
     include: [
       {
-        all: true,
-        include: {
-          all: true,
-        },
+        model: Project,
+        as: 'projects',
+        where: { isDeleted: false },
+        order: [['creationDate', 'DESC']],
+        include: [{ model: User, as: 'author' }],
       },
+      { model: User, as: 'Followers' },
+      { model: User, as: 'Followees' },
+      { model: Project, as: 'FavoriteProjects' },
     ],
-  })
-    .then(user => res.send({ user }))
+  }).then(user => res.send({ user }))
     .catch(err => res.send({ err }));
 };
 
@@ -193,11 +196,15 @@ exports.edit_user = (req, res) => {
       User.findByPk(id, {
         include: [
           {
-            all: true,
-            include: {
-              all: true,
-            },
+            model: Project,
+            as: 'projects',
+            where: { isDeleted: false },
+            order: [['creationDate', 'DESC']],
+            include: [{ model: User, as: 'author' }],
           },
+          { model: User, as: 'Followers' },
+          { model: User, as: 'Followees' },
+          { model: Project, as: 'FavoriteProjects' },
         ],
       }).then(user => res.send({ user }));
     })
