@@ -16,8 +16,8 @@ import './app.css';
 import {
   getProjectById,
   getAllTags,
-  editProject,
-  cancelEditProject,
+  editProjectOrProfile,
+  cancelEditProjectOrProfile,
   updateProjectDetails,
   incrementDownloadCount,
   addFavorite,
@@ -180,8 +180,8 @@ class ProjectDetail extends Component {
   renderLeftContainer = () => {
     const {
       project,
-      editProject,
-      cancelEditProject,
+      editProjectOrProfile,
+      cancelEditProjectOrProfile,
       inEditMode,
       updateProjectDetails,
       loggedInUser,
@@ -254,7 +254,7 @@ class ProjectDetail extends Component {
             className={css(styles.projectDetailButton, styles.cancelButton)}
             onClick={() => {
               this.resetState();
-              cancelEditProject();
+              cancelEditProjectOrProfile();
             }}
           >
             Cancel
@@ -284,7 +284,7 @@ class ProjectDetail extends Component {
           <button
             type="button"
             className={css(styles.projectDetailButton)}
-            onClick={() => editProject()}
+            onClick={() => editProjectOrProfile()}
           >
             Edit
           </button>
@@ -527,8 +527,8 @@ ProjectDetail.propTypes = {
   }),
   getProjectById: PropTypes.func.isRequired,
   getAllTags: PropTypes.func.isRequired,
-  editProject: PropTypes.func.isRequired,
-  cancelEditProject: PropTypes.func.isRequired,
+  editProjectOrProfile: PropTypes.func.isRequired,
+  cancelEditProjectOrProfile: PropTypes.func.isRequired,
   inEditMode: PropTypes.bool.isRequired,
   updateProjectDetails: PropTypes.func.isRequired,
   allTags: PropTypes.arrayOf(
@@ -853,8 +853,8 @@ const mapDispatchToProps = dispatch => bindActionCreators(
   {
     getProjectById,
     getAllTags,
-    editProject,
-    cancelEditProject,
+    editProjectOrProfile,
+    cancelEditProjectOrProfile,
     updateProjectDetails,
     incrementDownloadCount,
     addFavorite,

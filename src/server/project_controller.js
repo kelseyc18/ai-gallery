@@ -255,6 +255,7 @@ exports.edit_project = (req, res) => {
 
   const imagePath = req.file ? `api/uploads/${path.basename(req.file.path)}` : null;
 
+  // TODO: Use transaction
   Project.update(
     {
       title,
