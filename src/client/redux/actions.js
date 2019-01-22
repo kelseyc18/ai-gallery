@@ -413,6 +413,12 @@ export function loginAsUserWithCookie(cookie) {
   };
 }
 
+export function logoutUser() {
+  return (dispatch) => {
+    dispatch(loginAsUser(undefined, undefined, false, false));
+  };
+}
+
 export function updateFeaturedProject(projectId, featuredLabel) {
   return (dispatch) => {
     postUpdateFeaturedProject(projectId, featuredLabel).then((project) => {

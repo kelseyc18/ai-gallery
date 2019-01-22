@@ -8,32 +8,18 @@ import PropTypes from 'prop-types';
 import { StyleSheet, css } from 'aphrodite';
 import Cookie from 'cookie';
 
-import { loginAsUserWithUUID, loginAsUserWithCookie } from './redux/actions';
+import { loginAsUserWithCookie } from './redux/actions';
 import Icon from './icon';
 import ICONS from './icon_constants';
 import GalleryContainer from './gallery_container';
 import ProjectDetail from './project_detail';
 import ProjectShowcase from './project_showcase';
 import FeaturedProjectGallery from './featured_project_gallery';
+import DropdownMenu from './dropdown_menu';
 import Profile from './profile';
+import sharedStyles from './sharedstyles';
 import './app.css';
 import logo from './logo.png';
-
-// TODO(kelsey): Replace when implementing actual user authentication
-const USERS = [
-  {
-    id: 1,
-    username: 'piazza_master',
-  },
-  {
-    id: 2,
-    username: 'boba_master',
-  },
-  {
-    id: 3,
-    username: 'coffee_master',
-  },
-];
 
 class App extends Component {
   state = {
@@ -46,6 +32,7 @@ class App extends Component {
     if (currentCookie) loginAsUserWithCookie(currentCookie);
   }
 
+  // TODO: comment out when we no longer need fake logging in
   // componentDidUpdate() {
   //   const { loginAsUserWithCookie, cookie } = this.props;
   //   const currentCookie = Cookie.parse(document.cookie).AppInventor;
@@ -68,20 +55,12 @@ class App extends Component {
     }
   };
 
-  handleUserLogin = (event) => {
-    const { loginAsUserWithUUID } = this.props;
-    loginAsUserWithUUID(Number(event.target.value));
-  };
-
   handleClickCreate = () => {
     window.open('http://ai2.appinventor.mit.edu', '_blank');
   };
 
   render() {
     const { searchQuery } = this.state;
-    const { loggedInUser, isAdmin } = this.props;
-
-    const USER_DROPDOWN_ID = 'user-dropdown-id';
 
     const header = (
       <div className={css(styles.headerContainer)}>
@@ -94,18 +73,18 @@ class App extends Component {
           </Link>
           <button
             type="button"
-            className={css(styles.headerButton)}
+            className={css(sharedStyles.headerButton)}
             onClick={this.handleClickCreate}
           >
             Create
           </button>
           <Link to="/explore">
-            <button type="button" className={css(styles.headerButton)}>
+            <button type="button" className={css(sharedStyles.headerButton)}>
               Explore
             </button>
           </Link>
           <Link to="/featured">
-            <button type="button" className={css(styles.headerButton)}>
+            <button type="button" className={css(sharedStyles.headerButton)}>
               Featured
             </button>
           </Link>
@@ -119,22 +98,7 @@ class App extends Component {
             />
           </div>
           <div className={css(styles.leftAligned)}>
-            {/* eslint-disable-next-line */}
-            <label htmlFor={USER_DROPDOWN_ID}>
-              {'Log in as: '}
-              <select id={USER_DROPDOWN_ID} onChange={this.handleUserLogin}>
-                {USERS.map(user => (
-                  <option value={user.id} key={user.id}>
-                    {user.username}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <p className={css(styles.loginMessage)}>
-              {!!loggedInUser
-                && `You are logged in as ${loggedInUser.username}${isAdmin ? ' (admin)' : ''}.`}
-              {!loggedInUser && 'You are not logged in.'}
-            </p>
+            <DropdownMenu />
           </div>
         </div>
       </div>
@@ -172,9 +136,7 @@ App.propTypes = {
   loggedInUser: PropTypes.shape({
     username: PropTypes.string,
   }),
-  loginAsUserWithUUID: PropTypes.func.isRequired,
   loginAsUserWithCookie: PropTypes.func.isRequired,
-  isAdmin: PropTypes.bool,
 };
 
 const styles = StyleSheet.create({
@@ -191,6 +153,7 @@ const styles = StyleSheet.create({
     display: 'flex',
     alignItems: 'center',
     padding: 20,
+    paddingRight: 0,
     margin: 'auto',
     maxHeight: 20,
   },
@@ -206,20 +169,6 @@ const styles = StyleSheet.create({
     width: 'auto',
   },
 
-  headerButton: {
-    height: 60,
-    paddingLeft: 10,
-    paddingRight: 10,
-    border: 'none',
-    fontWeight: 'bold',
-    fontSize: 18,
-    color: '#58585A',
-    ':hover': {
-      backgroundColor: '#f0f0f0',
-      color: '#222222',
-    },
-  },
-
   contentContainer: {
     margin: 'auto',
     marginTop: 80,
@@ -232,10 +181,10 @@ const styles = StyleSheet.create({
 
   leftAligned: {
     marginLeft: 'auto',
-  },
-
-  loginMessage: {
-    fontSize: 10,
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    height: 60,
   },
 });
 
@@ -248,7 +197,6 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => bindActionCreators(
   {
-    loginAsUserWithUUID,
     loginAsUserWithCookie,
   },
   dispatch,
