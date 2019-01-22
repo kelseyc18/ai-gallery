@@ -49,6 +49,7 @@ app.get('/api/user/:username', UserController.user_detail);
 app.post('/api/user/create', UserController.new_user);
 app.post('/api/user/add_following', UserController.add_following);
 app.post('/api/user/remove_following', UserController.remove_following);
+app.post('/api/user/edit', upload.single('newImage'), UserController.edit_user);
 
 // PROJECT ROUTES
 app.get('/api/projects', ProjectController.all_projects);

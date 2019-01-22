@@ -2,10 +2,11 @@ const keyczar = require('keyczarjs');
 const base64 = require('base-64');
 const fs = require('fs');
 const protobuf = require('protobufjs');
+const path = require('path');
 
 const db = require('./db');
 
-const { User, UserFollowers } = db;
+const { User, UserFollowers, Project } = db;
 const { Op } = db.sequelize;
 
 const LIMIT = 8;
@@ -55,14 +56,17 @@ exports.user_detail = (req, res) => {
     },
     include: [
       {
-        all: true,
-        include: {
-          all: true,
-        },
+        model: Project,
+        as: 'projects',
+        where: { isDeleted: false },
+        order: [['creationDate', 'DESC']],
+        include: [{ model: User, as: 'author' }],
       },
+      { model: User, as: 'Followers' },
+      { model: User, as: 'Followees' },
+      { model: Project, as: 'FavoriteProjects' },
     ],
-  })
-    .then(user => res.send({ user }))
+  }).then(user => res.send({ user }))
     .catch(err => res.send({ err }));
 };
 
@@ -166,4 +170,43 @@ exports.find_users = (req, res) => {
       searchQuery,
     });
   });
+};
+
+exports.edit_user = (req, res) => {
+  const {
+    id, name, bio, featuredProjectId,
+  } = req.body;
+
+  const imagePath = req.file ? `api/uploads/${path.basename(req.file.path)}` : null;
+
+  User.update(
+    {
+      name,
+      bio,
+      imagePath,
+      featuredProjectId,
+    },
+    {
+      where: {
+        id,
+      },
+    },
+  )
+    .then(() => {
+      User.findByPk(id, {
+        include: [
+          {
+            model: Project,
+            as: 'projects',
+            where: { isDeleted: false },
+            order: [['creationDate', 'DESC']],
+            include: [{ model: User, as: 'author' }],
+          },
+          { model: User, as: 'Followers' },
+          { model: User, as: 'Followees' },
+          { model: Project, as: 'FavoriteProjects' },
+        ],
+      }).then(user => res.send({ user }));
+    })
+    .catch(err => res.send({ err }));
 };

@@ -18,6 +18,9 @@ module.exports = (sequelize, Sequelize) => {
     bio: {
       type: Sequelize.STRING,
     },
+    featuredProjectId: {
+      type: Sequelize.STRING,
+    },
   });
   return User;
 };

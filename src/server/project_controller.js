@@ -266,6 +266,7 @@ exports.edit_project = (req, res) => {
     }
   });
 
+  // TODO: Use transaction
   Project.update(
     {
       title,

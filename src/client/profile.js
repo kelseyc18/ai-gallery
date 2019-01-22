@@ -8,8 +8,8 @@ import { StyleSheet, css } from 'aphrodite';
 
 import GalleryApp from './gallery_app';
 import UserPreview from './user_preview';
-import { getUserByUsername, addUserFollowing, removeUserFollowing } from './redux/actions';
-import bobaImage from './boba.png';
+import ProfileHeader from './profile_header';
+import { getUserByUsername } from './redux/actions';
 
 class Profile extends Component {
   componentDidMount() {
@@ -36,9 +36,7 @@ class Profile extends Component {
   }
 
   render() {
-    const {
-      user, loggedInUser, removeUserFollowing, addUserFollowing,
-    } = this.props;
+    const { user, loggedInUser } = this.props;
 
     if (!user) {
       return (
@@ -49,48 +47,16 @@ class Profile extends Component {
     }
 
     const {
-      id,
       username,
-      name,
       projects,
-      imagePath,
-      bio,
       FavoriteProjects,
       Followees,
       Followers,
     } = user;
 
-    const isLoggedInUserProfile = loggedInUser && id === loggedInUser.id;
-    const isFollowing = this.isFollowing();
-
     return (
       <div className={css(styles.galleryContainer)}>
-        <div className={css(styles.profileContainer)}>
-          <img className={css(styles.profileImage)} src={imagePath || bobaImage} alt="profile" />
-          <div className={css(styles.profileTextContainer)}>
-            <Link to={`/profile/${username}`}>
-              <p className={css(styles.username)}>{username}</p>
-            </Link>
-            <p>{name}</p>
-            <p className={css(styles.bio)}>{bio || `This is ${name}'s bio!`}</p>
-          </div>
-          {!isLoggedInUserProfile && (
-            <button
-              type="button"
-              className={css(styles.followButton)}
-              disabled={!loggedInUser}
-              onClick={() => {
-                if (isFollowing) {
-                  removeUserFollowing(loggedInUser.id, id);
-                } else {
-                  addUserFollowing(loggedInUser.id, id);
-                }
-              }}
-            >
-              {isFollowing ? 'Unfollow' : 'Follow'}
-            </button>
-          )}
-        </div>
+        <ProfileHeader user={user} loggedInUser={loggedInUser} />
         {projects.length > 0 && (
           <div className={css(styles.profileSection)}>
             <div className={css(styles.header)}>
@@ -185,8 +151,6 @@ Profile.propTypes = {
     }),
   }),
   getUserByUsername: PropTypes.func.isRequired,
-  addUserFollowing: PropTypes.func.isRequired,
-  removeUserFollowing: PropTypes.func.isRequired,
   loggedInUser: PropTypes.shape({
     id: PropTypes.number.isRequired,
   }),
@@ -201,39 +165,6 @@ const styles = StyleSheet.create({
     maxWidth: 850,
     paddingLeft: 20,
     flexDirection: 'column',
-  },
-
-  profileContainer: {
-    display: 'flex',
-    background: 'white',
-    borderRadius: 10,
-    marginBottom: 10,
-    padding: 10,
-  },
-
-  profileImage: {
-    height: 72,
-    width: 72,
-    borderRadius: 5,
-  },
-
-  profileTextContainer: {
-    display: 'flex',
-    flexDirection: 'column',
-    marginLeft: 10,
-  },
-
-  username: {
-    fontWeight: 'bold',
-    fontSize: 24,
-    color: '#58585a',
-    ':hover': {
-      textDecoration: 'underline',
-    },
-  },
-
-  bio: {
-    marginTop: 5,
   },
 
   profileSection: {
@@ -277,11 +208,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 100,
   },
-
-  followButton: {
-    height: 30,
-    marginLeft: 'auto',
-  },
 });
 
 const mapStateToProps = state => ({
@@ -292,8 +218,6 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch => bindActionCreators(
   {
     getUserByUsername,
-    addUserFollowing,
-    removeUserFollowing,
   },
   dispatch,
 );

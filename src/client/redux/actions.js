@@ -6,8 +6,8 @@ export const UPDATE_USERS = 'UPDATE_USERS';
 export const APPEND_USERS = 'APPEND_USERS';
 export const SELECT_ALL_TAGS = 'SELECT_ALL_TAGS';
 export const UPDATE_PROJECT_DETAILS = 'UPDATE_PROJECT_DETAILS';
-export const EDIT_PROJECT = 'EDIT_PROJECT';
-export const CANCEL_EDIT_PROJECT = 'CANCEL_EDIT_PROJECT';
+export const EDIT_PROJECT_OR_PROFILE = 'EDIT_PROJECT_OR_PROFILE';
+export const CANCEL_EDIT_PROJECT_OR_PROFILE = 'CANCEL_EDIT_PROJECT_OR_PROFILE';
 export const SELECT_PROFILE = 'SELECT_PROFILE';
 export const LOGIN_AS_USER = 'LOGIN_AS_USER';
 
@@ -83,13 +83,13 @@ function postProjectDetails(
   const formData = new FormData();
 
   if (title) formData.append('title', title);
-  if (id) formData.append('id', id);
-  if (description) formData.append('description', description);
-  if (tutorialUrl) formData.append('tutorialUrl', tutorialUrl);
-  if (credits) formData.append('credits', credits);
+  formData.append('id', id);
+  if (description || description === '') formData.append('description', description);
+  if (tutorialUrl || tutorialUrl === '') formData.append('tutorialUrl', tutorialUrl);
+  if (credits || credits === '') formData.append('credits', credits);
   if (newImage) formData.append('newImage', newImage);
   formData.append('isDraft', isDraft);
-  if (tagIds) formData.append('tagIds', JSON.stringify(tagIds));
+  formData.append('tagIds', JSON.stringify(tagIds));
 
   const screenshotInfo = [];
   screenshots.forEach((screenshot) => {
@@ -109,6 +109,22 @@ function postProjectDetails(
   })
     .then(res => res.json())
     .then(res => res.project);
+}
+
+function postUserProfile(id, name, bio, newImage, featuredProject) {
+  const formData = new FormData();
+
+  formData.append('id', id);
+  if (name || name === '') formData.append('name', name);
+  if (bio || bio === '') formData.append('bio', bio);
+  if (newImage) formData.append('newImage', newImage);
+  if (featuredProject) formData.append('featuredProjectId', featuredProject.id);
+
+  return fetch('/api/user/edit', {
+    method: 'POST',
+    body: formData,
+  }).then(res => res.json())
+    .then(res => res.user);
 }
 
 function postAddDownload(id) {
@@ -257,15 +273,15 @@ function selectProfileAction(user) {
   };
 }
 
-export function editProject() {
+export function editProjectOrProfile() {
   return {
-    type: EDIT_PROJECT,
+    type: EDIT_PROJECT_OR_PROFILE,
   };
 }
 
-export function cancelEditProject() {
+export function cancelEditProjectOrProfile() {
   return {
-    type: CANCEL_EDIT_PROJECT,
+    type: CANCEL_EDIT_PROJECT_OR_PROFILE,
   };
 }
 
@@ -412,6 +428,12 @@ export function loginAsUserWithCookie(cookie) {
   };
 }
 
+export function logoutUser() {
+  return (dispatch) => {
+    dispatch(loginAsUser(undefined, undefined, false, false));
+  };
+}
+
 export function updateFeaturedProject(projectId, featuredLabel) {
   return (dispatch) => {
     postUpdateFeaturedProject(projectId, featuredLabel).then((project) => {
@@ -440,6 +462,14 @@ export function removeUserFollowing(followerId, followeeId) {
   return (dispatch) => {
     postRemoveFollowing(followerId, followeeId).then((followee) => {
       dispatch(selectProfileAction(followee));
+    });
+  };
+}
+
+export function updateUserProfile(id, name, bio, newImage, featuredProject) {
+  return (dispatch) => {
+    postUserProfile(id, name, bio, newImage, featuredProject).then((user) => {
+      dispatch(selectProfileAction(user));
     });
   };
 }

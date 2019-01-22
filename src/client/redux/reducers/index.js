@@ -2,8 +2,8 @@ import {
   UPDATE_PROJECTS,
   UPDATE_SELECTED_PROJECT,
   SELECT_ALL_TAGS,
-  EDIT_PROJECT,
-  CANCEL_EDIT_PROJECT,
+  EDIT_PROJECT_OR_PROFILE,
+  CANCEL_EDIT_PROJECT_OR_PROFILE,
   UPDATE_PROJECT_DETAILS,
   SELECT_PROFILE,
   APPEND_PROJECTS,
@@ -112,7 +112,6 @@ export default function (state = initialState, action) {
           if (e !== BreakException) throw e;
         }
       });
-      console.log(newUsers);
       return {
         ...state,
         users: newUsers,
@@ -123,12 +122,12 @@ export default function (state = initialState, action) {
         ...state,
         allTags: action.allTags,
       };
-    case EDIT_PROJECT:
+    case EDIT_PROJECT_OR_PROFILE:
       return {
         ...state,
         inEditMode: true,
       };
-    case CANCEL_EDIT_PROJECT:
+    case CANCEL_EDIT_PROJECT_OR_PROFILE:
       return {
         ...state,
         inEditMode: false,
@@ -144,6 +143,7 @@ export default function (state = initialState, action) {
       return {
         ...state,
         selectedProfile: action.user,
+        inEditMode: false,
       };
     }
     case LOGIN_AS_USER: {
