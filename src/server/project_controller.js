@@ -187,11 +187,17 @@ exports.project_by_id = (req, res) => {
     },
     include: [
       {
-        all: true,
+        model: User,
+        as: 'author',
         include: {
-          all: true,
+          model: Project,
+          as: 'projects',
+          where: { isDeleted: false },
+          order: [['creationDate', 'DESC']],
         },
       },
+      { model: User, as: 'FavoritedUsers' },
+      { model: Tag, as: 'Tags' },
     ],
   })
     .then(project => res.send({ project }))
