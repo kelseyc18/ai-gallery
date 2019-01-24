@@ -113,11 +113,11 @@ class GalleryContainer extends Component {
 
     return (
       <React.Fragment>
-        <div className={css(styles.usersHeader)}>
-          {`${usersTotal} user(s) found`}
-        </div>
+        <div className={css(styles.usersHeader)}>{`${usersTotal} user(s) found`}</div>
         <div className={css(styles.galleryContainer, styles.usersContainer)}>
-          {users.map(user => <UserPreview user={user} key={user.id} />)}
+          {users.map(user => (
+            <UserPreview user={user} key={user.id} />
+          ))}
           {users.length < usersTotal ? (
             <div className={css(styles.buttonContainer)}>
               <button
@@ -146,7 +146,9 @@ class GalleryContainer extends Component {
       <div className={css(styles.outerContainer)}>
         <div className={css(styles.searchBanner)}>
           <div>{bannerText}</div>
-          {!!searchQuery && <div className={css(styles.subtitle)}>{`Results for "${searchQuery}"`}</div>}
+          {!!searchQuery && (
+            <div className={css(styles.subtitle)}>{`Results for "${searchQuery}"`}</div>
+          )}
         </div>
         <div className={css(styles.bodyContainer)}>
           {!!searchQuery && this.renderUsers()}
@@ -156,12 +158,15 @@ class GalleryContainer extends Component {
             </div>
           )}
           {!!searchQuery && (
-            <div className={css(styles.usersHeader)}>
-              {`${projectsTotal} project(s) found`}
-            </div>
+            <div className={css(styles.usersHeader)}>{`${projectsTotal} project(s) found`}</div>
           )}
           <div className={css(!!searchQuery && styles.galleryContainer)}>
             {this.renderTagsButtons()}
+            {projects.length === 0 && sortBy === 'following' && (
+              <div className={css(styles.noProjects)}>
+                Follow more users to see their published projects here!
+              </div>
+            )}
             <div className={css(styles.projectsContainer)}>
               {projects.map(project => (
                 <GalleryApp project={project} key={project.id} />
@@ -191,9 +196,11 @@ GalleryContainer.propTypes = {
       id: PropTypes.number.isRequired,
     }),
   ).isRequired,
-  users: PropTypes.arrayOf(PropTypes.shape({
-    id: PropTypes.number.isRequired,
-  })),
+  users: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.number.isRequired,
+    }),
+  ),
   usersTotal: PropTypes.number,
   getProjects: PropTypes.func.isRequired,
   projectsTotal: PropTypes.number.isRequired,
@@ -262,6 +269,11 @@ const styles = StyleSheet.create({
   projectsContainer: {
     display: 'flex',
     flexWrap: 'wrap',
+  },
+
+  noProjects: {
+    marginTop: 20,
+    textAlign: 'center',
   },
 
   searchBanner: {
