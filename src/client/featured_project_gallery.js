@@ -30,15 +30,15 @@ class FeaturedProjectGallery extends Component {
     return (
       <React.Fragment>
         <div className={css(styles.searchBanner)}>Featured Projects</div>
-        <div className={css(styles.galleryContainer)}>
-          <div className={css(styles.toolbar)}>
-            <input
-              type="checkbox"
-              checked={showFeaturedLabels}
-              onChange={this.handleShowDescriptionsClicked}
-            />
-            Show Descriptions
-          </div>
+        <div className={css(styles.toolbar)}>
+          <input
+            type="checkbox"
+            checked={showFeaturedLabels}
+            onChange={this.handleShowDescriptionsClicked}
+          />
+          Show Descriptions
+        </div>
+        <div className={css(styles.galleryContainer, !!showFeaturedLabels && styles.fullWidth)}>
           <div className={css(styles.projectsContainer, !!showFeaturedLabels && styles.centered)}>
             {projects.map(project => (
               <GalleryApp project={project} key={project.id} showFeatured={showFeaturedLabels} />
@@ -90,10 +90,17 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 
+  fullWidth: {
+    maxWidth: 'none',
+  },
+
   toolbar: {
+    margin: 20,
+    marginBottom: 0,
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'flex-end',
+    fontSize: 14,
   },
 
   searchBanner: {

@@ -3,7 +3,9 @@ import PropTypes from 'prop-types';
 import { StyleSheet, css } from 'aphrodite';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+
 import { getProjects } from './redux/actions';
+import { tagForAll } from './gallery_container';
 
 class ExploreProjectsDropdown extends Component {
   state = {
@@ -20,13 +22,13 @@ class ExploreProjectsDropdown extends Component {
   }
 
   handleDropdownSelectionChange = (event) => {
-    const { getProjects, loggedInUser, selectedTag } = this.props;
+    const { getProjects, loggedInUser } = this.props;
     getProjects(
       0,
       undefined,
       event.target.value,
       loggedInUser ? loggedInUser.id : undefined,
-      selectedTag,
+      tagForAll,
     );
     this.setState({ sortBy: event.target.value });
   };

@@ -12,7 +12,7 @@ import './app.css';
 
 const queryString = require('query-string');
 
-const tagForAll = { id: 0, tagName: 'All' };
+export const tagForAll = { id: 0, tagName: 'All' };
 
 class GalleryContainer extends Component {
   state = {

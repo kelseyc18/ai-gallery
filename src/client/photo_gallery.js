@@ -4,44 +4,34 @@ import PropTypes from 'prop-types';
 
 export default class PhotoGallery extends Component {
   state = {
-    selectedImageSrc: null,
+    selectedImageIndex: 0,
   };
 
-  static getDerivedStateFromProps(props, state) {
-    if (props.photos && props.photos.length > 0 && !state.selectedImageSrc) {
-      return {
-        selectedImageSrc: props.photos[0],
-      };
-    }
-    return null;
-  }
+  handleOnClickNext = () => {
+    const { selectedImageIndex } = this.state;
+    this.setState({ selectedImageIndex: selectedImageIndex + 1 });
+  };
 
-  handleOnClick = (imgSrc) => {
-    this.setState({ selectedImageSrc: imgSrc });
+  handleOnClickPrevious = () => {
+    const { selectedImageIndex } = this.state;
+    this.setState({ selectedImageIndex: selectedImageIndex - 1 });
   };
 
   render() {
-    const { selectedImageSrc } = this.state;
+    const { selectedImageIndex } = this.state;
     const { photos } = this.props;
 
     return (
       <div className={css(styles.container)}>
-        <img
-          className={css(styles.selectedScreenshotImage)}
-          src={selectedImageSrc}
-          alt="screenshot"
-        />
-        <div className={css(styles.thumbnailContainer)}>
-          {photos.map(photoSrc => (
-            <button
-              type="button"
-              className={css(styles.thumbnailButton)}
-              onClick={() => this.handleOnClick(photoSrc)}
-              key={photoSrc}
-            >
-              <img className={css(styles.thumbnail)} alt="thumbnail" src={photoSrc} />
-            </button>
-          ))}
+        <div>{`${selectedImageIndex + 1} of ${photos.length}`}</div>
+        <div className={css(styles.photoContainer)}>
+          <button type="button" onClick={this.handleOnClickPrevious} disabled={selectedImageIndex < 1}>&lt;&lt;</button>
+          <img
+            className={css(styles.selectedScreenshotImage)}
+            src={photos[selectedImageIndex]}
+            alt="screenshot"
+          />
+          <button type="button" onClick={this.handleOnClickNext} disabled={selectedImageIndex + 1 >= photos.length}>&gt;&gt;</button>
         </div>
       </div>
     );
@@ -54,32 +44,18 @@ PhotoGallery.propTypes = {
 
 const styles = StyleSheet.create({
   container: {
+    textAlign: 'center',
+  },
+
+  photoContainer: {
     margin: 'auto',
     marginBottom: 10,
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'stretch',
   },
 
   selectedScreenshotImage: {
     width: 300,
-  },
-
-  selectedThumbnail: {
-    opacity: 1,
-  },
-
-  thumbnailButton: {
-    border: 0,
-    padding: 0,
-  },
-
-  thumbnailContainer: {
-    display: 'flex',
-    alignItems: 'flex-start',
-    flexDirection: 'row',
-    justifyContent: 'space-evenly',
-  },
-
-  thumbnail: {
-    width: 96,
-    opacity: 0.5,
   },
 });

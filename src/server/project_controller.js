@@ -198,6 +198,7 @@ exports.project_by_id = (req, res) => {
       },
       { model: User, as: 'FavoritedUsers' },
       { model: Tag, as: 'Tags' },
+      { model: FeaturedLabel },
     ],
   })
     .then(project => res.send({ project }))

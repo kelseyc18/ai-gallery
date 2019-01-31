@@ -80,6 +80,9 @@ const styles = StyleSheet.create({
 
   featuredProjectLabel: {
     marginLeft: 10,
+    display: 'flex',
+    flexDirection: 'row',
+    alignSelf: 'stretch',
   },
 
   appImage: {

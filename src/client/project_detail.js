@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { StyleSheet, css } from 'aphrodite';
+import dateFormat from 'dateformat';
 
 import ProjectDetailSidebar from './project_detail_sidebar';
 import AdminProjectControls from './admin_project_controls';
@@ -387,10 +388,19 @@ class ProjectDetail extends Component {
     } = this.state;
     const profileImage = project.author.imagePath;
 
+    const creationDate = new Date(project.creationDate);
+    creationDate.setTime(creationDate.getTime() + creationDate.getTimezoneOffset() * 60 * 1000);
+    const creationDateString = dateFormat(creationDate, 'mmmm dd, yyyy, h:MM TT');
+
+    const lastModifiedDate = new Date(project.creationDate);
+    lastModifiedDate.setTime(lastModifiedDate.getTime()
+      + lastModifiedDate.getTimezoneOffset() * 60 * 1000);
+    const lastModifiedDateString = dateFormat(lastModifiedDate, 'mmmm dd, yyyy, h:MM TT');
+
     const datesContainer = (
       <div className={css(styles.datesContainer)}>
-        <p>{`Created: ${project.creationDate}`}</p>
-        <p>{`Last Modified: ${project.lastModifiedDate}`}</p>
+        <p>{`Created: ${creationDateString}`}</p>
+        <p>{`Last Modified: ${lastModifiedDateString}`}</p>
       </div>
     );
 
@@ -647,7 +657,7 @@ const styles = StyleSheet.create({
     display: 'flex',
     marginBottom: 20,
     marginRight: 20,
-    padding: 10,
+    padding: 5,
     width: 800,
   },
 
