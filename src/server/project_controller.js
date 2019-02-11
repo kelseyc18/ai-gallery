@@ -2,6 +2,7 @@ const { Base64Encode } = require('base64-stream');
 const fs = require('fs');
 const path = require('path');
 const db = require('./db');
+const utils = require('./utils');
 
 const { Op } = db.Sequelize;
 const {
@@ -220,12 +221,27 @@ exports.create_tag = (req, res) => {
 
 exports.create_project = (req, res) => {
   const {
-    title, authorId, projectId, appInventorInstance,
+    title, authorId, projectId, appInventorInstance, token,
   } = req.body;
 
+  if (!token) {
+    return res.send({ err: 'Missing valid token.' });
+  }
+  try {
+    const userInfo = utils.getUserInfoFromToken(token);
+    const { uuid } = userInfo;
+
+    if (uuid !== authorId) {
+      return res.send({ err: 'Invalid token.' });
+    }
+  } catch (err) {
+    return res.send({ err });
+  }
   let newProject;
-  sequelize
-    .transaction(t => User.findOne({ where: { authorId, appInventorInstance } }, { transaction: t })
+  return sequelize
+    .transaction(t => User.findOne({
+      where: { authorId, appInventorInstance },
+    }, { transaction: t })
       .then(user => Project.create(
         {
           title,

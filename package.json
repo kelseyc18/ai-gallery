@@ -19,6 +19,7 @@
     "base64-stream": "^1.0.0",
     "body-parser": "^1.18.3",
     "cookie": "^0.3.1",
+    "cookie-parser": "^1.4.3",
     "cors": "^2.8.5",
     "dateformat": "^3.0.3",
     "express": "^4.16.3",

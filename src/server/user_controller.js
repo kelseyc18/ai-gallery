@@ -1,25 +1,12 @@
-const keyczar = require('keyczarjs');
-const base64 = require('base-64');
-const fs = require('fs');
-const protobuf = require('protobufjs');
 const path = require('path');
 
 const db = require('./db');
+const utils = require('./utils');
 
 const { User, UserFollowers, Project } = db;
 const { Op } = db.sequelize;
 
 const LIMIT = 8;
-
-// TODO: Currently, this only works if the authkey zip file has been
-// unzipped.
-const contents = fs.readFileSync(`${__dirname}/authkey/1`);
-const contents2 = fs.readFileSync(`${__dirname}/authkey/meta`);
-const keysetSerialized = JSON.stringify({
-  1: JSON.stringify(JSON.parse(contents)),
-  meta: JSON.stringify(JSON.parse(contents2)),
-});
-const keyset = keyczar.fromJson(keysetSerialized);
 
 exports.new_user = (req, res) => {
   const {
@@ -70,21 +57,16 @@ exports.user_detail = (req, res) => {
     .catch(err => res.send({ err }));
 };
 
-exports.user_from_cookie = (req, res) => {
-  const cookie = req.params.cookie.replace(/_/g, '/').replace(/-/g, '+');
-  const decrypted = keyset.decryptBinary(base64.decode(cookie));
-  protobuf.load(`${__dirname}/cookie.proto`, (err, root) => {
-    if (err) throw err;
-
-    const CookieMessage = root.lookupType('cookieauth.cookie');
-    const buffer = Buffer.from(decrypted, 'binary');
-    const userInfo = CookieMessage.decode(buffer);
+exports.user_info = (req, res) => {
+  try {
+    const userInfo = utils.getUserInfoFromToken(req.cookies.AppInventor);
     const { uuid } = userInfo;
-
     User.findOne({ where: { authorId: uuid } })
       .then(user => res.send({ user, userInfo }))
       .catch(err => res.send({ err }));
-  });
+  } catch (err) {
+    res.send(err);
+  }
 };
 
 exports.user_from_uuid = (req, res) => {
@@ -209,4 +191,15 @@ exports.edit_user = (req, res) => {
       }).then(user => res.send({ user }));
     })
     .catch(err => res.send({ err }));
+};
+
+exports.set_login_cookie = (req, res) => {
+  try {
+    const { token } = req.body;
+    utils.getUserInfoFromToken(req.body.token);
+    res.cookie('gallery', token);
+    res.sendStatus(200);
+  } catch (err) {
+    res.send({ err });
+  }
 };

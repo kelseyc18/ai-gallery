@@ -59,8 +59,8 @@ function fetchUserByUsername(username) {
     .then(res => res.user);
 }
 
-function fetchUserbyCookie(cookie) {
-  return fetch(`/api/user/cookie/${cookie}`).then(res => res.json());
+function fetchUser() {
+  return fetch('/api/user/info').then(res => res.json());
 }
 
 function fetchUserByUuid(uuid) {
@@ -422,7 +422,7 @@ export function loginAsUserWithUUID(uuid) {
 
 export function loginAsUserWithCookie(cookie) {
   return (dispatch) => {
-    fetchUserbyCookie(cookie).then(({ user, userInfo }) => {
+    fetchUser().then(({ user, userInfo }) => {
       dispatch(loginAsUser(user, cookie, userInfo.isAdmin, userInfo.isReadOnly));
     });
   };

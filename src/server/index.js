@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const multer = require('multer');
 const cors = require('cors');
+const cookieParser = require('cookie-parser');
 
 const db = require('./db');
 
@@ -34,6 +35,7 @@ app.use(express.static('dist'));
 app.use(bodyParser.json());
 app.use('/api/exports', express.static(`${__dirname}/uploads`));
 app.use('/api/uploads', express.static(`${__dirname}/uploads`));
+app.use(cookieParser());
 
 // Make db accessible to router
 app.use((req, _, next) => {
@@ -42,7 +44,7 @@ app.use((req, _, next) => {
 });
 
 // USER ROUTES
-app.get('/api/user/cookie/:cookie', UserController.user_from_cookie);
+app.get('/api/user/info', UserController.user_info);
 app.get('/api/user/uuid/:uuid', UserController.user_from_uuid);
 app.get('/api/user/search', UserController.find_users);
 app.get('/api/user/:username', UserController.user_detail);
@@ -50,6 +52,7 @@ app.post('/api/user/create', UserController.new_user);
 app.post('/api/user/add_following', UserController.add_following);
 app.post('/api/user/remove_following', UserController.remove_following);
 app.post('/api/user/edit', upload.single('newImage'), UserController.edit_user);
+app.post('/api/user/set_login_cookie', UserController.set_login_cookie);
 
 // PROJECT ROUTES
 app.get('/api/projects', ProjectController.all_projects);

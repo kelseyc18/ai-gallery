@@ -708,6 +708,7 @@ const styles = StyleSheet.create({
   tagsContainer: {
     display: 'flex',
     flexDirection: 'row',
+    marginTop: 10,
     marginBottom: 20,
   },
 
