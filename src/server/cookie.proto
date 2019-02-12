@@ -2,12 +2,8 @@ package cookieauth;
 
 message cookie {
   required string uuid = 1;
-  required uint64 ts = 2;
-  optional bool isAdmin = 3;
-  optional bool isReadOnly = 4;
-// locale is deprecated. Kept here so we
-// do not recycle the id number too soon
-//  optional string locale = 5;
-  optional uint64 oneProjectId = 6;
-  optional string backpackid = 9;         // backpackid for shared backpack
+  required string email = 2;
+  optional uint64 ts = 3;
+  optional bool isAdmin = 4;
+  optional string domain = 5;
 }

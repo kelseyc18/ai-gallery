@@ -60,7 +60,7 @@ function fetchUserByUsername(username) {
 }
 
 function fetchUser() {
-  return fetch('/api/user/info').then(res => res.json());
+  return fetch('/api/user/userInfo').then(res => res.json());
 }
 
 function fetchUserByUuid(uuid) {
@@ -423,7 +423,9 @@ export function loginAsUserWithUUID(uuid) {
 export function loginAsUserWithCookie(cookie) {
   return (dispatch) => {
     fetchUser().then(({ user, userInfo }) => {
-      dispatch(loginAsUser(user, cookie, userInfo.isAdmin, userInfo.isReadOnly));
+      if (user && userInfo) {
+        dispatch(loginAsUser(user, cookie, userInfo.isAdmin, userInfo.isReadOnly));
+      }
     });
   };
 }

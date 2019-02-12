@@ -28,14 +28,14 @@ class App extends Component {
 
   componentDidMount() {
     const { loginAsUserWithCookie } = this.props;
-    const currentCookie = Cookie.parse(document.cookie).AppInventor;
+    const currentCookie = Cookie.parse(document.cookie).gallery;
     if (currentCookie) loginAsUserWithCookie(currentCookie);
   }
 
   // TODO: comment out when we no longer need fake logging in
   // componentDidUpdate() {
   //   const { loginAsUserWithCookie, cookie } = this.props;
-  //   const currentCookie = Cookie.parse(document.cookie).AppInventor;
+  //   const currentCookie = Cookie.parse(document.cookie).gallery;
   //   if (currentCookie !== cookie) loginAsUserWithCookie(currentCookie);
   // }
 

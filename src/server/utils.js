@@ -13,6 +13,7 @@ const keysetSerialized = JSON.stringify({
 });
 const keyset = keyczar.fromJson(keysetSerialized);
 
+// Not working as expected right now...
 exports.getUserInfoFromToken = (token) => {
   const cookie = token.replace(/_/g, '/').replace(/-/g, '+');
   const decrypted = keyset.decryptBinary(base64.decode(cookie));
