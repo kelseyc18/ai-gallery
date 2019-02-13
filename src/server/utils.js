@@ -14,15 +14,15 @@ const keysetSerialized = JSON.stringify({
 const keyset = keyczar.fromJson(keysetSerialized);
 
 // Not working as expected right now...
-exports.getUserInfoFromToken = (token) => {
+exports.getUserInfoFromToken = token => new Promise((resolve, reject) => {
   const cookie = token.replace(/_/g, '/').replace(/-/g, '+');
   const decrypted = keyset.decryptBinary(base64.decode(cookie));
   protobuf.load(`${__dirname}/cookie.proto`, (err, root) => {
-    if (err) throw err;
+    if (err) reject(err);
 
     const CookieMessage = root.lookupType('cookieauth.cookie');
     const buffer = Buffer.from(decrypted, 'binary');
     const userInfo = CookieMessage.decode(buffer);
-    return userInfo;
+    resolve(userInfo);
   });
-};
+});

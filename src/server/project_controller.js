@@ -1,11 +1,9 @@
 const { Base64Encode } = require('base64-stream');
 const fs = require('fs');
 const path = require('path');
-const keyczar = require('keyczarjs');
-const base64 = require('base-64');
-const protobuf = require('protobufjs');
 
 const db = require('./db');
+const utils = require('./utils');
 
 const { Op } = db.Sequelize;
 const {
@@ -13,16 +11,6 @@ const {
 } = db;
 
 const LIMIT = 12;
-
-// TODO: Currently, this only works if the authkey zip file has been
-// unzipped.
-const contents = fs.readFileSync(`${__dirname}/authkey/1`);
-const contents2 = fs.readFileSync(`${__dirname}/authkey/meta`);
-const keysetSerialized = JSON.stringify({
-  1: JSON.stringify(JSON.parse(contents)),
-  meta: JSON.stringify(JSON.parse(contents2)),
-});
-const keyset = keyczar.fromJson(keysetSerialized);
 
 function getProjectIdsWithTagId(selectedTagId) {
   if (selectedTagId) {
@@ -241,56 +229,44 @@ exports.create_project = (req, res) => {
     return res.send({ err: 'Missing valid token.' });
   }
 
-  try {
-    const cookie = token.replace(/_/g, '/').replace(/-/g, '+');
-    const decrypted = keyset.decryptBinary(base64.decode(cookie));
-    return protobuf.load(`${__dirname}/cookie.proto`, (err, root) => {
-      if (err) throw err;
+  return utils.getUserInfoFromToken(token).then((userInfo) => {
+    const { email } = userInfo;
 
-      const CookieMessage = root.lookupType('cookieauth.cookie');
-      const buffer = Buffer.from(decrypted, 'binary');
-      const userInfo = CookieMessage.decode(buffer);
+    if (email !== authorId) {
+      return res.send({ err: 'Invalid token.' });
+    }
 
-      const { email } = userInfo;
-
-      if (email !== authorId) {
-        return res.send({ err: 'Invalid token.' });
-      }
-
-      let newProject;
-      return sequelize
-        .transaction(t => User.findOne({
-          where: { authorId, appInventorInstance },
-        }, { transaction: t })
-          .then(user => Project.create(
-            {
-              title,
-              projectId,
-              appInventorInstance,
-              aiaPath: path.basename(req.file.path),
-            },
-            { transaction: t },
-          ).then(
-            (project) => {
-              newProject = project;
-              return user.addProject(project, { transaction: t });
-            },
-            { transaction: t },
-          )))
-        .then(() => Project.findByPk(newProject.id)
-          .then((project) => {
-            const filepath = req.file.path;
-            const readStream = fs.createReadStream(`${filepath}`);
-            const writeStream = fs.createWriteStream(`${filepath}.asc`);
-            readStream.pipe(new Base64Encode()).pipe(writeStream);
-            res.send({ project });
-          })
-          .catch(err => res.send({ err })))
-        .catch(err => res.send({ err }));
-    });
-  } catch (err) {
-    return res.send({ err });
-  }
+    let newProject;
+    return sequelize
+      .transaction(t => User.findOne({
+        where: { authorId, appInventorInstance },
+      }, { transaction: t })
+        .then(user => Project.create(
+          {
+            title,
+            projectId,
+            appInventorInstance,
+            aiaPath: path.basename(req.file.path),
+          },
+          { transaction: t },
+        ).then(
+          (project) => {
+            newProject = project;
+            return user.addProject(project, { transaction: t });
+          },
+          { transaction: t },
+        )))
+      .then(() => Project.findByPk(newProject.id)
+        .then((project) => {
+          const filepath = req.file.path;
+          const readStream = fs.createReadStream(`${filepath}`);
+          const writeStream = fs.createWriteStream(`${filepath}.asc`);
+          readStream.pipe(new Base64Encode()).pipe(writeStream);
+          res.send({ project });
+        })
+        .catch(err => res.send({ err })))
+      .catch(err => res.send({ err }));
+  }).catch(err => res.send({ err }));
 };
 
 // TODO: Wrap in transaction
