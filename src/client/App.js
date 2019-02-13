@@ -95,6 +95,7 @@ class App extends Component {
               onChange={this.handleQueryInput}
               onKeyPress={this.handleKeyPress}
               placeholder="Search"
+              className={css(styles.searchInput)}
             />
           </div>
           <div className={css(styles.leftAligned)}>
@@ -177,6 +178,12 @@ const styles = StyleSheet.create({
   searchContainer: {
     marginLeft: 20,
     marginRight: 20,
+    flexGrow: 1,
+    display: 'flex',
+  },
+
+  searchInput: {
+    flexGrow: 1,
   },
 
   leftAligned: {
