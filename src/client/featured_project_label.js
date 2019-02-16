@@ -33,7 +33,7 @@ FeaturedProjectLabel.propTypes = {
 
 const styles = StyleSheet.create({
   container: {
-    background: '#c1e673',
+    border: '3px solid #c1e673',
     width: '100%',
     borderRadius: 5,
   },

@@ -225,10 +225,6 @@ exports.create_project = (req, res) => {
     title, authorId, projectId, appInventorInstance, token,
   } = req.body;
 
-  if (!token) {
-    return res.send({ err: 'Missing valid token.' });
-  }
-
   return utils.getUserInfoFromToken(token).then((userInfo) => {
     const { email } = userInfo;
 
@@ -337,32 +333,44 @@ exports.edit_project = (req, res) => {
 
 exports.update_or_create_project = (req, res) => {
   const {
-    title, authorId, projectId, appInventorInstance,
+    title, authorId, projectId, appInventorInstance, token,
   } = req.body;
 
-  const filepath = req.file.path;
-  const readStream = fs.createReadStream(`${filepath}`);
-  const writeStream = fs.createWriteStream(`${filepath}.asc`);
-  readStream.pipe(new Base64Encode()).pipe(writeStream);
+  if (!token) {
+    return res.send({ err: 'Missing valid token.' });
+  }
 
-  // TODO: Use transaction
-  Project.findOrCreate({
-    where: {
-      projectId,
-      appInventorInstance,
-      isDeleted: false,
-    },
-  }).spread((project) => {
-    project.update({
-      title,
-      aiaPath: path.basename(req.file.path),
-      lastModifiedDate: Date.now(),
-    }).then(() => {
-      User.findOne({
-        where: { authorId, appInventorInstance },
-      }).then((user) => {
-        user.addProject(project).then(() => {
-          project.reload().then(project => res.send({ project }));
+  return utils.getUserInfoFromToken(token).then((userInfo) => {
+    const { email } = userInfo;
+
+    if (email !== authorId) {
+      return res.send({ err: 'Invalid token.' });
+    }
+
+    const filepath = req.file.path;
+    const readStream = fs.createReadStream(`${filepath}`);
+    const writeStream = fs.createWriteStream(`${filepath}.asc`);
+    readStream.pipe(new Base64Encode()).pipe(writeStream);
+
+    // TODO: Use transaction
+    return Project.findOrCreate({
+      where: {
+        projectId,
+        appInventorInstance,
+        isDeleted: false,
+      },
+    }).spread((project) => {
+      project.update({
+        title,
+        aiaPath: path.basename(req.file.path),
+        lastModifiedDate: Date.now(),
+      }).then(() => {
+        User.findOne({
+          where: { authorId, appInventorInstance },
+        }).then((user) => {
+          user.addProject(project).then(() => {
+            project.reload().then(project => res.send({ project }));
+          });
         });
       });
     });
