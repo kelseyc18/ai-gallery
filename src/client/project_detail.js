@@ -293,6 +293,8 @@ class ProjectDetail extends Component {
           >
             Cancel
           </button>
+          {/* eslint-disable-next-line */}
+          <p className={css(styles.attribution)}>By submitting a project to the gallery, you are publishing it under a Creative Commons Attribution License, and affirming that you have the authority to do so.</p>
         </div>
       </form>
     ) : (
@@ -569,6 +571,8 @@ class ProjectDetail extends Component {
         </div>
         <div className={css(styles.filler)} />
         {datesContainer}
+        {/* eslint-disable-next-line */}
+        <p className={css(styles.attribution)}>This project is published under a Creative Commons Attribution License.</p>
         {!!isAdmin && <AdminProjectControls project={project} />}
       </div>
     );
@@ -964,6 +968,11 @@ const styles = StyleSheet.create({
 
   displayNone: {
     display: 'none',
+  },
+
+  attribution: {
+    marginTop: 10,
+    fontSize: 12,
   },
 });
 
