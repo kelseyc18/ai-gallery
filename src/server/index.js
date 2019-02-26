@@ -78,4 +78,5 @@ app.post('/api/project/download/:id', ProjectController.add_download);
 app.post('/api/project/set_featured_label', ProjectController.set_featured_label);
 app.post('/api/project/remove', ProjectController.remove_project);
 
-app.listen(8090, () => console.log('Listening on port 8090!'));
+const port = process.env.PORT || 8090;
+app.listen(port, () => console.log(`Listening on port ${port}!`));

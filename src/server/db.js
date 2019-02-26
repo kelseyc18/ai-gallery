@@ -1,15 +1,8 @@
 const Sequelize = require('sequelize');
-const path = require('path');
 
 const db = {};
 
-const sequelize = new Sequelize('database', 'username', 'password', {
-  host: 'localhost',
-  dialect: 'sqlite',
-  operatorsAliases: false,
-  storage: path.resolve(__dirname, '../server/database.db'),
-  logging: false,
-});
+const sequelize = new Sequelize(process.env.DATABASE_URL || 'postgres://blah', { logging: false });
 sequelize.sync();
 
 db.Sequelize = Sequelize;
