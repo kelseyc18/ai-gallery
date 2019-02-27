@@ -3,6 +3,7 @@ const bodyParser = require('body-parser');
 const multer = require('multer');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
+const http = require('http');
 
 const db = require('./db');
 
@@ -79,4 +80,5 @@ app.post('/api/project/set_featured_label', ProjectController.set_featured_label
 app.post('/api/project/remove', ProjectController.remove_project);
 
 const port = process.env.PORT || 8090;
-app.listen(port, () => console.log(`Listening on port ${port}!`));
+http.createServer(app).listen(port, '0.0.0.0');
+console.log(`Listening on port ${port}!`);
