@@ -13,7 +13,7 @@ import PhotoGallery from './photo_gallery';
 import Icon from './icon';
 import ICONS from './icon_constants';
 import puppyImage from './puppy.png';
-import bobaImage from './boba.png';
+import codiImage from './codi.png';
 import './app.css';
 import {
   getProjectById,
@@ -479,7 +479,7 @@ class ProjectDetail extends Component {
           <div className={css(styles.userInfo)}>
             <img
               className={css(styles.profileImage)}
-              src={profileImage || bobaImage}
+              src={profileImage || codiImage}
               alt="profile"
             />
             <p className={css(styles.appAuthor)}>{project.author.username}</p>
@@ -535,7 +535,7 @@ class ProjectDetail extends Component {
           <Link to={`/profile/${project.author.username}`} className={css(styles.userInfoLinks)}>
             <img
               className={css(styles.profileImage)}
-              src={profileImage || bobaImage}
+              src={profileImage || codiImage}
               alt="profile"
             />
           </Link>
@@ -854,13 +854,13 @@ const styles = StyleSheet.create({
   description: {
     marginTop: 5,
     marginBottom: 10,
-    fontSize: 12,
+    fontSize: 14,
   },
 
   tutorial: {
     marginTop: 5,
     marginBottom: 10,
-    fontSize: 12,
+    fontSize: 14,
   },
 
   tutorialTitle: {

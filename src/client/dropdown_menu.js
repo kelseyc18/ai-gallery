@@ -7,7 +7,7 @@ import { bindActionCreators } from 'redux';
 
 import { loginAsUserWithUUID, logoutUser } from './redux/actions';
 import sharedStyles from './sharedstyles';
-import bobaImage from './boba.png';
+import codiImage from './codi.png';
 
 // TODO(kelsey): Replace when implementing actual user authentication
 const USERS = [
@@ -90,7 +90,7 @@ class DropdownMenu extends Component {
             <div className={css(styles.usernameButtonContent)}>
               <img
                 className={css(styles.profileImage)}
-                src={loggedInUser.imagePath || bobaImage}
+                src={loggedInUser.imagePath || codiImage}
                 alt="profile"
               />
               {`${loggedInUser.username}`}

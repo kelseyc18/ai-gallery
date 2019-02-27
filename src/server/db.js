@@ -2,7 +2,7 @@ const Sequelize = require('sequelize');
 
 const db = {};
 
-const sequelize = new Sequelize(process.env.DATABASE_URL || 'postgres://blah', { logging: false });
+const sequelize = new Sequelize(process.env.DATABASE_URL || 'postgres://admin:password@localhost:5432/gallery', { logging: false });
 sequelize.sync();
 
 db.Sequelize = Sequelize;

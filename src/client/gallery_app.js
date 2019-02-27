@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { StyleSheet, css } from 'aphrodite';
 
 import puppyImage from './puppy.png';
-import bobaImage from './boba.png';
+import codiImage from './codi.png';
 import './app.css';
 import FeaturedProjectLabel from './featured_project_label';
 
@@ -27,7 +27,7 @@ export default function GalleryApp(props) {
           <Link to={`/profile/${project.author.username}`} className={css(styles.profileImage)}>
             <img
               className={css(styles.profileImage)}
-              src={profileImage || bobaImage}
+              src={profileImage || codiImage}
               alt="profile"
             />
           </Link>

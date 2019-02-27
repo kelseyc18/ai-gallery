@@ -13,7 +13,7 @@ import {
   cancelEditProjectOrProfile,
   updateUserProfile,
 } from './redux/actions';
-import bobaImage from './boba.png';
+import codiImage from './codi.png';
 import ProfileFeaturedProject from './profile_featured_project';
 
 class ProfileHeader extends Component {
@@ -147,7 +147,7 @@ class ProfileHeader extends Component {
       <div className={css(styles.profileContainer)}>
         <div className={css(styles.profileHeader)}>
           <div className={css(styles.imageContainer)}>
-            <img className={css(styles.profileImage)} src={imagePath || bobaImage} alt="profile" ref={this.imageRef} />
+            <img className={css(styles.profileImage)} src={imagePath || codiImage} alt="profile" ref={this.imageRef} />
             <button
               className={css(styles.uploadPhotoButton)}
               type="button"
@@ -206,7 +206,7 @@ class ProfileHeader extends Component {
     ) : (
       <div className={css(styles.profileContainer)}>
         <div className={css(styles.profileHeader)}>
-          <img className={css(styles.profileImage)} src={imagePath || bobaImage} alt="profile" />
+          <img className={css(styles.profileImage)} src={imagePath || codiImage} alt="profile" />
           <div className={css(styles.profileTextContainer)}>
             <Link to={`/profile/${username}`}>
               <p className={css(styles.username)}>{username}</p>
