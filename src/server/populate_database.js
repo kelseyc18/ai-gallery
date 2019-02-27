@@ -1,6 +1,8 @@
 const async = require('async');
 const db = require('./db');
 
+const { Op } = db.Sequelize;
+
 db.sequelize.sync().then(() => {
   console.log('Tables synced');
 });
@@ -39,7 +41,6 @@ const projects = [
     title: 'Apple',
     projectId: '1',
     appInventorInstance: 'ai2',
-    imagePath: 'api/uploads/1542641469895_IMG_9507.jpg',
     aiaPath: 'Apple_1542641367816',
   },
   {
@@ -48,6 +49,7 @@ const projects = [
     projectId: '2',
     appInventorInstance: 'ai2',
     aiaPath: 'Banana_1542641375020',
+    tags: ['Tutorials', 'Lifestyle'],
   },
   {
     authorUsername: 'boba_master',
@@ -61,6 +63,7 @@ const projects = [
       category: 'Inventor',
       description: 'This award was given to the best invention about cauliflower (not broccoli)!',
     },
+    tags: ['Education'],
   },
   {
     authorUsername: 'coffee_master',
@@ -74,88 +77,118 @@ const projects = [
       category: 'Most Creative',
       description: 'This award was given to the most creative use of dog pictures.',
     },
+    tags: ['Games', 'Arts and Music'],
   },
 ];
 
 const tags = ['Games', 'Tutorials', 'Arts and Music', 'Education', 'Lifestyle'];
 
 function populateUsers() {
-  users.forEach((user) => {
-    User.create(user).then((user) => {
-      console.log(
-        user.get({
-          plain: true,
-        }),
-      );
+  return new Promise((resolve, reject) => {
+    async.each(users, ((user, cb) => {
+      User.create(user).then((user) => {
+        console.log(
+          user.get({ plain: true }),
+        );
+        cb();
+      });
+    }), (err) => {
+      if (err) reject(err);
+      resolve();
     });
   });
 }
 
 function populateTags() {
-  tags.forEach((tagName) => {
-    Tag.create({ tagName }).then((tag) => {
-      console.log(tag.get({ plain: true }));
+  return new Promise((resolve, reject) => {
+    async.each(tags, ((tagName, cb) => {
+      Tag.create({ tagName }).then((tag) => {
+        console.log(tag.get({ plain: true }));
+        cb();
+      });
+    }), (err) => {
+      if (err) reject(err);
+      resolve();
     });
   });
 }
 
 function populateProjects() {
-  async.eachSeries(projects, (projectData, cb) => {
-    const {
-      title,
-      projectId,
-      appInventorInstance,
-      aiaPath,
-      imagePath,
-      featuredLabel,
-    } = projectData;
+  return new Promise((resolve, reject) => {
+    async.eachSeries(projects, (projectData, cb) => {
+      const {
+        title,
+        projectId,
+        appInventorInstance,
+        imagePath,
+        aiaPath,
+        featuredLabel,
+        tutorialUrl,
+        description,
+        tags,
+        authorUsername,
+      } = projectData;
 
-    Project.create({
-      title,
-      projectId,
-      appInventorInstance,
-      aiaPath,
-      imagePath,
-    }).then((project) => {
-      User.findOne({ where: { username: projectData.authorUsername } }).then((user) => {
-        user.addProject(project).then(() => {
-          if (featuredLabel) {
-            const {
-              ageDivision, dateAwarded, category, description,
-            } = featuredLabel;
-
-            FeaturedLabel.findOrCreate({
+      Project.create({
+        title,
+        projectId,
+        appInventorInstance,
+        aiaPath,
+        imagePath,
+        tutorialUrl,
+        description,
+      }).then((project) => {
+        User.findOne({ where: { username: authorUsername } }).then((user) => {
+          user.addProject(project).then(() => {
+            Tag.findAll({
               where: {
-                ageDivision,
-                dateAwarded,
-                category,
+                tagName: {
+                  [Op.in]: tags || [],
+                },
               },
-            }).spread((label) => {
-              label.update({ description }).then(() => {
-                label.reload().then((label) => {
-                  project.setFeaturedLabel(label).then(() => {
-                    project.reload().then((project) => {
-                      console.log(project.get({ plain: true }));
-                      cb();
+            }).then((tags) => {
+              project.setTags(tags).then(() => {
+                if (featuredLabel) {
+                  const {
+                    ageDivision, dateAwarded, category, description,
+                  } = featuredLabel;
+
+                  FeaturedLabel.findOrCreate({
+                    where: {
+                      ageDivision,
+                      dateAwarded,
+                      category,
+                    },
+                  }).spread((label) => {
+                    label.update({ description }).then(() => {
+                      label.reload().then((label) => {
+                        project.setFeaturedLabel(label).then(() => {
+                          project.reload().then((project) => {
+                            console.log(project.get({ plain: true }));
+                            cb();
+                          });
+                        });
+                      });
                     });
                   });
-                });
+                } else {
+                  console.log(project.get({ plain: true }));
+                  cb();
+                }
               });
             });
-          } else {
-            console.log(project.get({ plain: true }));
-            cb();
-          }
+          });
         });
       });
+    }, (err) => {
+      if (err) reject(err);
+      resolve();
     });
   });
 }
 
-if (process.argv[2] === 'users') {
-  populateUsers();
-} else if (process.argv[2] === 'tags') {
-  populateTags();
-} else if (process.argv[2] === 'projects') {
-  populateProjects();
-}
+populateUsers().then(() => {
+  populateTags().then(() => {
+    populateProjects();
+  });
+});
