@@ -95,19 +95,21 @@ const styles = StyleSheet.create({
   descriptionContainer: {
     marginTop: 2,
     display: 'flex',
-    alignItems: 'center',
+    alignItems: 'flex-start',
   },
 
   textDescription: {
     display: 'flex',
     marginLeft: 8,
     flexDirection: 'column',
+    overflow: 'hidden',
   },
 
   appTitle: {
     fontWeight: 800,
     fontSize: 16,
     color: '#128ba8',
+    overflow: 'hidden',
     ':hover': {
       color: '#105fa8',
     },

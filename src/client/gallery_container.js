@@ -228,7 +228,7 @@ const styles = StyleSheet.create({
   },
 
   bodyContainer: {
-    maxWidth: 850,
+    maxWidth: 808,
     margin: 'auto',
     padding: 20,
   },
