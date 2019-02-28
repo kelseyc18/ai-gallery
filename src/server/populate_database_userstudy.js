@@ -77,8 +77,8 @@ function populateProjects() {
         tutorialUrl,
         description,
       }).then((project) => {
-        const readStream = fs.createReadStream(`./uploads/${aiaPath}`);
-        const writeStream = fs.createWriteStream(`./uploads/${aiaPathNoFileExtension}.asc`);
+        const readStream = fs.createReadStream(path.resolve(__dirname, 'uploads', aiaPath));
+        const writeStream = fs.createWriteStream(path.resolve(__dirname, 'uploads', `${aiaPathNoFileExtension}.asc`));
         readStream.pipe(new Base64Encode()).pipe(writeStream);
 
         User.findOne({ where: { username: authorUsername } }).then((user) => {
