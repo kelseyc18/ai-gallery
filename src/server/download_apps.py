@@ -45,7 +45,8 @@ gallery_urls = [
 urls = []
 blacklisted_urls = [
     'http://ai2.appinventor.mit.edu/?galleryId=5620079787114496',
-    'http://ai2.appinventor.mit.edu/?galleryId=5886772330496000'
+    'http://ai2.appinventor.mit.edu/?galleryId=5886772330496000',
+    'http://ai2.appinventor.mit.edu/?galleryId=5962889267642368',
 ]
 projects = []
 users = {}
@@ -106,6 +107,7 @@ try:
             imagePath = None
 
         # Open app
+        WebDriverWait(browser, 10).until(EC.element_to_be_clickable((By.CLASS_NAME, "app-action-button")))
         browser.find_element_by_class_name("app-action-button").click()
         WebDriverWait(browser, 10).until(EC.visibility_of_element_located((By.CLASS_NAME, "dialogMiddleCenterInner")))
         dialog = browser.find_element_by_class_name("dialogMiddleCenterInner")

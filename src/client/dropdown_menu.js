@@ -11,18 +11,18 @@ import codiImage from './codi.png';
 
 // TODO(kelsey): Replace when implementing actual user authentication
 const USERS = [
-  {
-    id: 1,
-    username: 'piazza_master',
-  },
-  {
-    id: 2,
-    username: 'boba_master',
-  },
-  {
-    id: 3,
-    username: 'coffee_master',
-  },
+  // {
+  //   id: 1,
+  //   username: 'piazza_master',
+  // },
+  // {
+  //   id: 2,
+  //   username: 'boba_master',
+  // },
+  // {
+  //   id: 3,
+  //   username: 'coffee_master',
+  // },
 ];
 
 class DropdownMenu extends Component {
