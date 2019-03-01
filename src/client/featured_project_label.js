@@ -15,7 +15,8 @@ export default function FeaturedProjectLabel(props) {
 
   return (
     <div className={css(styles.container, !!hasTopMargin && styles.topMargin)}>
-      <div className={css(styles.title)}>{`Featured App of the Month - ${dateAwardedString}`}</div>
+      <div className={css(styles.title)}>Featured App of the Month</div>
+      <div className={css(styles.subtitle)}>{dateAwardedString}</div>
       <div className={css(styles.body)}>
         <p className={css(styles.award)}>{`${category} Award (${ageDivision})`}</p>
         <p className={css(styles.description)}>{description}</p>
@@ -45,6 +46,15 @@ const styles = StyleSheet.create({
   title: {
     fontWeight: 'bold',
     padding: 10,
+    paddingBottom: 5,
+    color: '#5d7a1f',
+    fontSize: 20,
+  },
+
+  subtitle: {
+    fontWeight: 'bold',
+    padding: 10,
+    paddingTop: 0,
   },
 
   body: {

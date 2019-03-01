@@ -58,7 +58,7 @@ const projects = [
     appInventorInstance: 'ai2',
     aiaPath: 'Cauliflower_1542641389678',
     featuredLabel: {
-      ageDivision: 'Youth',
+      ageDivision: 'Young',
       dateAwarded: '2018-08',
       category: 'Inventor',
       description: 'This award was given to the best invention about cauliflower (not broccoli)!',

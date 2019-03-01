@@ -24,7 +24,7 @@ class FeaturedProjectGallery extends Component {
   };
 
   render() {
-    const { projects, projectsTotal } = this.props;
+    const { projects, projectsTotal, getFeaturedProjects } = this.props;
     const { showFeaturedLabels } = this.state;
 
     return (
@@ -113,6 +113,12 @@ const styles = StyleSheet.create({
     color: 'white',
     fontWeight: 'bold',
     fontSize: 48,
+  },
+
+  footer: {
+    margin: 'auto',
+    marginTop: 0,
+    marginBottom: 20,
   },
 });
 

@@ -52,17 +52,19 @@ const styles = StyleSheet.create({
 
   appTextContainer: {
     marginLeft: 10,
-    flexGrow: 1,
     fontSize: 14,
+    width: 230,
   },
 
   appTitle: {
     fontWeight: 800,
     fontSize: 20,
     color: '#128ba8',
+    marginBottom: 5,
+    overflow: 'hidden',
+    whiteSpace: 'nowrap',
     ':hover': {
       color: '#105fa8',
     },
-    marginBottom: 5,
   },
 });

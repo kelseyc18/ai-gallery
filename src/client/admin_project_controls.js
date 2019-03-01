@@ -80,7 +80,7 @@ class AdminProjectControls extends Component {
   };
 
   render() {
-    const ageDivisions = ['Youth', 'Teen', 'Adult'];
+    const ageDivisions = ['Young', 'Teen', 'Adult'];
     const categories = ['Best Design', 'Most Creative', 'Most Innovative', 'Inventor'];
 
     const ageDivisionDropdownId = 'age-division-dropdown';

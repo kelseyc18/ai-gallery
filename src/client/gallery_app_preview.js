@@ -43,11 +43,14 @@ const styles = StyleSheet.create({
     display: 'flex',
     marginTop: 10,
     marginBottom: 10,
+    alignContent: 'stretch',
   },
 
   appTitle: {
     fontWeight: 'bold',
     color: '#128ba8',
+    overflow: 'hidden',
+    whiteSpace: 'nowrap',
     ':hover': {
       color: '#105fa8',
     },
@@ -56,6 +59,8 @@ const styles = StyleSheet.create({
   appAuthor: {
     color: '#58585a',
     fontSize: 12,
+    overflow: 'hidden',
+    whiteSpace: 'nowrap',
     ':hover': {
       textDecoration: 'underline',
     },
@@ -70,5 +75,6 @@ const styles = StyleSheet.create({
     display: 'flex',
     flexDirection: 'column',
     marginLeft: 10,
+    width: 150,
   },
 });

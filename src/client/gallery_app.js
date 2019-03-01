@@ -15,7 +15,7 @@ export default function GalleryApp(props) {
 
   return (
     <div className={css(styles.galleryApp, showFeatured && styles.featuredGalleryApp)}>
-      <div>
+      <div className={css(styles.previewContainer)}>
         <Link to={`/project/${project.id}`}>
           <img
             className={css(styles.appImage)}
@@ -78,6 +78,10 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
   },
 
+  previewContainer: {
+    width: 160,
+  },
+
   featuredProjectLabel: {
     marginLeft: 10,
     display: 'flex',
@@ -110,6 +114,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#128ba8',
     overflow: 'hidden',
+    whiteSpace: 'nowrap',
     ':hover': {
       color: '#105fa8',
     },

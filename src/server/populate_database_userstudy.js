@@ -18,7 +18,7 @@ const {
 const users = require('./users.json');
 const projects = require('./projects.json');
 
-const tags = ['Games', 'Tutorials', 'Arts and Music', 'Education', 'Lifestyle'];
+const tags = ['Games', 'Arts and Music', 'Education', 'Lifestyle', 'Health'];
 
 function populateUsers() {
   return new Promise((resolve, reject) => {

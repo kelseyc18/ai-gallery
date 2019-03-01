@@ -8,7 +8,7 @@ export default function ProjectDetailSidebar(props) {
   const { projects, author } = props;
 
   return (
-    <div>
+    <div className={css(styles.container)}>
       <p className={css(styles.title)}>{`Apps made by ${author.username}`}</p>
       {projects.slice(0, 4).map(project => (
         <GalleryAppPreview key={project.id} project={project} author={author} />
@@ -31,5 +31,9 @@ ProjectDetailSidebar.propTypes = {
 const styles = StyleSheet.create({
   title: {
     fontSize: 12,
+  },
+
+  container: {
+    width: '100%',
   },
 });
