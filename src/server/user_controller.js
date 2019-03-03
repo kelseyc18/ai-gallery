@@ -51,7 +51,7 @@ exports.user_detail = (req, res) => {
       },
       { model: User, as: 'Followers' },
       { model: User, as: 'Followees' },
-      { model: Project, as: 'FavoriteProjects' },
+      { model: Project, as: 'FavoriteProjects', include: [{ model: User, as: 'author' }] },
     ],
   }).then(user => res.send({ user }))
     .catch(err => res.send({ err }));
