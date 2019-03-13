@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { StyleSheet, css } from 'aphrodite';
 
-import bobaImage from './boba.png';
+import codiImage from './codi.png';
 
 export default function UserPreview(props) {
   const { user } = props;
@@ -11,7 +11,7 @@ export default function UserPreview(props) {
   return (
     <div className={css(styles.previewContainer)}>
       <Link to={`/profile/${username}`}>
-        <img className={css(styles.profileImage)} src={imagePath || bobaImage} alt="profile" />
+        <img className={css(styles.profileImage)} src={imagePath || codiImage} alt="profile" />
       </Link>
       <Link to={`/profile/${username}`}>
         <div className={css(styles.appAuthor)}>{username}</div>
@@ -48,6 +48,8 @@ const styles = StyleSheet.create({
     color: '#58585a',
     fontSize: 14,
     fontWeight: 'bold',
+    overflow: 'hidden',
+    whiteSpace: 'nowrap',
     ':hover': {
       textDecoration: 'underline',
     },

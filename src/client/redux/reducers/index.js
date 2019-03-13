@@ -85,19 +85,12 @@ export default function (state = initialState, action) {
         users: [],
       };
     case UPDATE_USERS:
-      if (state.searchQuery !== action.searchQuery) {
-        return state;
-      }
       return {
         ...state,
         users: action.users,
         usersTotal: action.total,
       };
     case APPEND_USERS:
-      if (state.searchQuery !== action.searchQuery) {
-        return state;
-      }
-
       const newUsers = state.users.slice(); // eslint-disable-line
 
       action.users.forEach((user) => {

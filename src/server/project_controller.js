@@ -33,7 +33,7 @@ function getRecentProjects(req, res) {
   getProjectIdsWithTagId(selectedTagId).then((projectIds) => {
     const where = {
       title: {
-        [Op.like]: `%${searchQuery}%`,
+        [Op.iLike]: `%${searchQuery}%`,
       },
       isDeleted: false,
     };
@@ -91,7 +91,7 @@ function getPopularProjects(req, res) {
             [Op.in]: projectIds,
           },
           title: {
-            [Op.like]: `%${searchQuery}%`,
+            [Op.iLike]: `%${searchQuery}%`,
           },
           isDeleted: false,
         },
@@ -134,7 +134,7 @@ function getFollowingProjects(req, res) {
           [Op.in]: followeeIds,
         },
         title: {
-          [Op.like]: `%${searchQuery}%`,
+          [Op.iLike]: `%${searchQuery}%`,
         },
         isDeleted: false,
       };
