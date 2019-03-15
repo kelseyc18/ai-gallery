@@ -6,15 +6,20 @@ async.eachSeries([...Array(100).keys()], (value, cb) => {
   const password = `password${value + 5}`;
   request({
     method: 'POST',
-    url: 'http://localhost:8888/ode2/usercreation',
-    formData: {
+    url: 'https://gallery-b-dot-mit-appinventor-gallery.appspot.com/ode2/usercreation',
+    headers:
+   {
+     'cache-control': 'no-cache',
+     'Content-Type': 'application/x-www-form-urlencoded',
+   },
+    form: {
       email,
       password,
     },
   }, (error) => {
     if (error) throw new Error(error);
 
-    console.log('created user with email ', email, ' password ', password);
+    console.log('email: ', email, '\tpassword: ', password);
     cb();
   });
 });

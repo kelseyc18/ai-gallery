@@ -45,7 +45,7 @@ async.eachSeries(projects, (project, cb) => {
 
   const options = {
     method: 'POST',
-    url: 'http://localhost:8888/ode2/receivegalleryproject/',
+    url: 'http://gallery-b-dot-mit-appinventor-gallery.appspot.com/ode2/receivegalleryproject/',
     headers:
     {
       'Postman-Token': 'f2d0d392-9661-4403-a399-b58bad53006e',
