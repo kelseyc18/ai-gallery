@@ -17,7 +17,7 @@ import 'react-tabs/style/react-tabs.css';
 const queryString = require('query-string');
 
 export const tagForAll = { id: 0, tagName: 'All' };
-const sortByOptions = ['recent', 'popular', 'following'];
+const sortByOptions = ['recent', 'popular', 'following', 'featured'];
 
 function capitalizeFirstLetter(string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
@@ -156,7 +156,7 @@ class GalleryContainer extends Component {
 
   render() {
     const {
-      projects, getProjects, projectsTotal, searchQuery, sortBy,
+      projects, getProjects, projectsTotal, searchQuery, sortBy, loggedInUser,
     } = this.props;
     const { selectedTag } = this.state;
 
@@ -204,7 +204,13 @@ class GalleryContainer extends Component {
                 <div className={css(styles.footer)}>
                   <button
                     className={css(styles.button)}
-                    onClick={() => getProjects(projects.length, searchQuery, sortBy, selectedTag)}
+                    onClick={() => getProjects(
+                      projects.length,
+                      searchQuery,
+                      sortBy,
+                      loggedInUser ? loggedInUser.id : undefined,
+                      selectedTag,
+                    )}
                     type="button"
                   >
                       Load more projects

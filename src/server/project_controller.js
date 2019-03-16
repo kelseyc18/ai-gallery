@@ -176,6 +176,8 @@ exports.all_projects = (req, res) => {
       return getPopularProjects(req, res);
     case 'following':
       return getFollowingProjects(req, res);
+    case 'featured':
+      return exports.get_featured_projects(req, res);
     default:
       return getRecentProjects(req, res);
   }
@@ -500,6 +502,7 @@ exports.set_featured_label = (req, res) => {
 
 exports.get_featured_projects = (req, res) => {
   const offset = parseInt(req.query.offset, 10) || 0;
+  const { selectedTagId } = req.query;
 
   FeaturedLabel.findAndCountAll({
     where: {
@@ -511,23 +514,32 @@ exports.get_featured_projects = (req, res) => {
     limit: LIMIT,
     order: [['dateAwarded', 'DESC']],
   }).then((result) => {
-    const projectIds = result.rows.map(label => label.projectId);
+    let projectIds = result.rows.map(label => label.projectId);
 
-    Project.findAll({
-      where: {
-        id: {
-          [Op.in]: projectIds,
+    getProjectIdsWithTagId(selectedTagId).then((projectIdsWithTag) => {
+      if (projectIdsWithTag) {
+        projectIds = projectIds.filter(id => projectIdsWithTag.includes(id));
+      }
+
+      Project.findAndCountAll({
+        where: {
+          id: {
+            [Op.in]: projectIds,
+          },
+          isDeleted: false,
         },
-      },
-      include: {
-        all: true,
-      },
-    }).then((projects) => {
-      res.send({
-        projects,
-        total: result.count,
-        offset,
-        limit: LIMIT,
+        include: {
+          all: true,
+        },
+        distinct: true,
+      }).then((result) => {
+        res.send({
+          projects: result.rows,
+          total: result.count,
+          offset,
+          limit: LIMIT,
+          sortBy: 'featured',
+        });
       });
     });
   }).catch(err => res.send({ err }));

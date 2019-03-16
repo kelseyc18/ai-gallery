@@ -218,12 +218,14 @@ function updateProjectsAction(projects, total, searchQuery, sortBy, selectedTag)
   };
 }
 
-function appendProjectsAction(projects, total, searchQuery) {
+function appendProjectsAction(projects, total, searchQuery, sortBy, selectedTag) {
   return {
     type: APPEND_PROJECTS,
     projects,
     total,
     searchQuery,
+    sortBy,
+    selectedTag,
   };
 }
 
@@ -294,7 +296,7 @@ export function getProjects(offset, searchQuery, sortBy, followerId, selectedTag
             res.projects, res.total, searchQuery, res.sortBy, selectedTag,
           ));
         } else {
-          dispatch(appendProjectsAction(res.projects, res.total, searchQuery));
+          dispatch(appendProjectsAction(res.projects, res.total, searchQuery, res.sortBy, selectedTag));
         }
       });
   };
