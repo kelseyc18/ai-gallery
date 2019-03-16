@@ -18,7 +18,7 @@ const storage = multer.diskStorage({
   filename: (req, file, cb) => {
     cb(
       null,
-      req.path === '/api/project/create' || req.path === '/api/project/create_or_update'
+      req.body.title
         ? `${req.body.title}_${Date.now()}`
         : `${Date.now()}_${file.originalname}`,
     );
