@@ -91,9 +91,9 @@ class Profile extends Component {
           <div className={css(styles.profileSection)}>
             <div className={css(styles.header)}>
               <span>{`Following (${Followees.length})`}</span>
-              <Link to={`/profile/${username}/following`} className={css(styles.viewAllLink)}>
+              {/* <Link to={`/profile/${username}/following`} className={css(styles.viewAllLink)}>
                 View All
-              </Link>
+              </Link> */}
             </div>
             <div className={css(styles.sectionBody)}>
               {Followees.map(followee => (
@@ -106,9 +106,9 @@ class Profile extends Component {
           <div className={css(styles.profileSection)}>
             <div className={css(styles.header)}>
               <span>{`Followers (${Followers.length})`}</span>
-              <Link to={`/profile/${username}/followers`} className={css(styles.viewAllLink)}>
+              {/* <Link to={`/profile/${username}/followers`} className={css(styles.viewAllLink)}>
                 View All
-              </Link>
+              </Link> */}
             </div>
             <div className={css(styles.sectionBody)}>
               {Followers.map(follower => (

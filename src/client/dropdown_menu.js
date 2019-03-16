@@ -150,7 +150,8 @@ class DropdownMenu extends Component {
             }}
           >
             <div>
-              {'Log in as: '}
+              Not supported at this time. Please refresh the page if you are logged into App Inventor.
+              {/* {'Log in as: '}
               <select onChange={this.handleUserLogin}>
                 <option value={null}>---</option>
                 {USERS.map(user => (
@@ -158,7 +159,7 @@ class DropdownMenu extends Component {
                     {user.username}
                   </option>
                 ))}
-              </select>
+              </select> */}
             </div>
           </div>
         )}

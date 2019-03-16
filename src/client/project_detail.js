@@ -309,7 +309,7 @@ class ProjectDetail extends Component {
           className={css(styles.openAppButton)}
           onClick={() => {
             window.open(
-              `http://ai2.appinventor.mit.edu/?locale=en&repo=http://localhost:3000/api/exports/${aiaPath}.asc`,
+              `http://gallery-a-dot.mit-appinventor-gallery.appspot.com/?locale=en&repo=http://gallery-test.appinventor.mit.edu/api/exports/${aiaPath}.asc`,
             );
             incrementDownloadCount(id);
           }}
