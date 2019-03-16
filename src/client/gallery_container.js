@@ -1,18 +1,27 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { StyleSheet, css } from 'aphrodite';
+import {
+  Tabs, TabList, Tab, TabPanel,
+} from 'react-tabs';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { getProjects, getAllTags, getUsers } from './redux/actions';
 
 import GalleryApp from './gallery_app';
 import UserPreview from './user_preview';
-import ExploreProjectsDropdown from './explore_projects_dropdown';
+// import ExploreProjectsDropdown from './explore_projects_dropdown';
 import './app.css';
+import 'react-tabs/style/react-tabs.css';
 
 const queryString = require('query-string');
 
 export const tagForAll = { id: 0, tagName: 'All' };
+const sortByOptions = ['recent', 'popular', 'following'];
+
+function capitalizeFirstLetter(string) {
+  return string.charAt(0).toUpperCase() + string.slice(1);
+}
 
 class GalleryContainer extends Component {
   state = {
@@ -72,6 +81,17 @@ class GalleryContainer extends Component {
       this.setState({ selectedTag: tag });
       getProjects(0, query, sortBy, loggedInUser ? loggedInUser.id : undefined, tag);
     }
+  };
+
+  handleDropdownSelectionChange = (tabIndex) => {
+    const { getProjects, loggedInUser } = this.props;
+    getProjects(
+      0,
+      undefined,
+      sortByOptions[tabIndex],
+      loggedInUser ? loggedInUser.id : undefined,
+      tagForAll,
+    );
   };
 
   renderTagButton = (tagName) => {
@@ -153,19 +173,28 @@ class GalleryContainer extends Component {
         <div className={css(styles.bodyContainer)}>
           {!!searchQuery && this.renderUsers()}
           {!searchQuery && (
-            <div className={css(styles.dropdownContainer)}>
-              <ExploreProjectsDropdown />
-            </div>
+          // <div className={css(styles.dropdownContainer)}>
+          //   <ExploreProjectsDropdown />
+          // </div>
+          <Tabs
+            selectedIndex={sortByOptions.indexOf(sortBy)}
+            onSelect={this.handleDropdownSelectionChange}
+          >
+            <TabList>
+              {sortByOptions.map(option => <Tab key={`${option}-tab`}>{capitalizeFirstLetter(option)}</Tab>)}
+            </TabList>
+            {sortByOptions.map(option => <TabPanel key={`${option}-tab-panel`} />)}
+          </Tabs>
           )}
           {!!searchQuery && (
-            <div className={css(styles.usersHeader)}>{`${projectsTotal} project(s) found`}</div>
+          <div className={css(styles.usersHeader)}>{`${projectsTotal} project(s) found`}</div>
           )}
           <div className={css(!!searchQuery && styles.galleryContainer)}>
             {this.renderTagsButtons()}
             {projects.length === 0 && sortBy === 'following' && (
-              <div className={css(styles.noProjects)}>
-                Follow more users to see their published projects here!
-              </div>
+            <div className={css(styles.noProjects)}>
+                  Follow more users to see their published projects here!
+            </div>
             )}
             <div className={css(styles.projectsContainer)}>
               {projects.map(project => (
@@ -178,7 +207,7 @@ class GalleryContainer extends Component {
                     onClick={() => getProjects(projects.length, searchQuery, sortBy, selectedTag)}
                     type="button"
                   >
-                    Load more projects
+                      Load more projects
                   </button>
                 </div>
               ) : null}

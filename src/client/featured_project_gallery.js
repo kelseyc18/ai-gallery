@@ -30,14 +30,14 @@ class FeaturedProjectGallery extends Component {
     return (
       <React.Fragment>
         <div className={css(styles.searchBanner)}>Featured Projects</div>
-        <div className={css(styles.toolbar)}>
+        {/* <div className={css(styles.toolbar)}>
           <input
             type="checkbox"
             checked={showFeaturedLabels}
             onChange={this.handleShowDescriptionsClicked}
           />
           Show Descriptions
-        </div>
+        </div> */}
         <div className={css(styles.galleryContainer, !!showFeaturedLabels && styles.fullWidth)}>
           <div className={css(styles.projectsContainer, !!showFeaturedLabels && styles.centered)}>
             {projects.map(project => (
