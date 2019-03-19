@@ -132,10 +132,10 @@ exports.find_users = (req, res) => {
     where: {
       [Op.or]: {
         name: {
-          [Op.like]: `%${searchQuery}%`,
+          [Op.iLike]: `%${searchQuery}%`,
         },
         username: {
-          [Op.like]: `%${searchQuery}%`,
+          [Op.iLike]: `%${searchQuery}%`,
         },
       },
     },
