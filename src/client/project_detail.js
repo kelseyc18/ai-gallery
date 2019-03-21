@@ -29,6 +29,22 @@ import {
 
 const MAX_NUM_SCREENSHOTS = 3;
 
+function isFavorited(props) {
+  const { project, loggedInUser } = props;
+  const { FavoritedUsers } = project;
+
+  let favorited = false;
+  if (loggedInUser) {
+    for (let i = 0; i < FavoritedUsers.length; i += 1) {
+      if (FavoritedUsers[i].id === loggedInUser.id) {
+        favorited = true;
+        break;
+      }
+    }
+  }
+  return favorited;
+}
+
 class ProjectDetail extends Component {
   state = {
     title: undefined,
@@ -39,6 +55,8 @@ class ProjectDetail extends Component {
     isDraft: undefined,
     currentTags: undefined,
     screenshots: undefined,
+    favorited: undefined,
+    numFavorites: undefined,
   };
 
   constructor(props) {
@@ -77,6 +95,8 @@ class ProjectDetail extends Component {
         isDraft: props.project.isDraft,
         currentTags: props.project.Tags,
         screenshots: props.project.screenshots ? JSON.parse(props.project.screenshots) : [],
+        favorited: isFavorited(props),
+        numFavorites: props.project.FavoritedUsers.length,
       };
     }
     return null;
@@ -132,15 +152,24 @@ class ProjectDetail extends Component {
     }
   };
 
-  handleStarClicked = (isFavorited) => {
+  handleStarClicked = () => {
     const {
       project, loggedInUser, addFavorite, removeFavorite,
     } = this.props;
+    const { favorited, numFavorites } = this.state;
 
     if (loggedInUser) {
-      if (!isFavorited) {
+      if (!favorited) {
+        this.setState({
+          favorited: true,
+          numFavorites: numFavorites + 1,
+        });
         addFavorite(project.id, loggedInUser.id);
       } else {
+        this.setState({
+          favorited: false,
+          numFavorites: Math.max(numFavorites - 1, 0),
+        });
         removeFavorite(project.id, loggedInUser.id);
       }
     }
@@ -382,11 +411,11 @@ class ProjectDetail extends Component {
 
   renderDescriptionContainer = () => {
     const {
-      project, inEditMode, loggedInUser, allTags, isAdmin,
+      project, inEditMode, allTags, isAdmin,
     } = this.props;
-    const { FavoritedUsers, featuredLabel } = project;
+    const { featuredLabel } = project;
     const {
-      title, tutorialUrl, description, credits, isDraft, currentTags, screenshots,
+      title, tutorialUrl, description, credits, isDraft, currentTags, screenshots, favorited, numFavorites,
     } = this.state;
     const profileImage = project.author.imagePath;
 
@@ -406,27 +435,17 @@ class ProjectDetail extends Component {
       </div>
     );
 
-    let favorited = false;
-    if (loggedInUser) {
-      for (let i = 0; i < FavoritedUsers.length; i += 1) {
-        if (FavoritedUsers[i].id === loggedInUser.id) {
-          favorited = true;
-          break;
-        }
-      }
-    }
-
     const starColor = favorited ? '#ffd633' : '#58585a';
 
     const iconContainer = (
       <div className={css(styles.iconsContainer)}>
         <div className={css(styles.iconContainer)}>
-          <span>{project.FavoritedUsers.length}</span>
+          <span>{numFavorites}</span>
           <span className={css(styles.favoriteIcon)}>
             <Icon
               icon={ICONS.FAVORITE}
               color={starColor}
-              onClick={() => this.handleStarClicked(favorited)}
+              onClick={() => this.handleStarClicked()}
             />
           </span>
         </div>

@@ -68,6 +68,7 @@ const styles = StyleSheet.create({
     maxWidth: 850,
     paddingTop: 20,
     paddingLeft: 20,
+    flexWrap: 'wrap',
   },
 
   searchBanner: {
